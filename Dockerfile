@@ -5,7 +5,8 @@ WORKDIR /api/
 ADD . .
 
 RUN yarn build && \
-    rm -rf ./src
+    rm -rf ./src && \
+    rm yarn.lock
 
 EXPOSE 9876
 

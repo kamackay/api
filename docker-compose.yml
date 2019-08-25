@@ -6,6 +6,8 @@ services:
       context: .
     volumes:
       - DB:/data/db
+    ports:
+      - 9876:9876
 
 volumes:
   DB:

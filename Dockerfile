@@ -1,13 +1,10 @@
 FROM kamackay/alpine
 
-RUN mkdir /api/
-WORKDIR /api/
+RUN mkdir /home/api
+WORKDIR /home/api
+
 ADD . .
 
-RUN yarn build && \
-    rm -rf ./src && \
-    rm yarn.lock
+RUN mvn clean install && ls target
 
-EXPOSE 9876
-
-CMD ["yarn", "start"]
+CMD ["java", "-jar", "api.jar"]

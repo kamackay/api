@@ -1,13 +1,22 @@
-FROM kamackay/alpine
+FROM alpine:latest
 
-RUN mkdir /api/
-WORKDIR /api/
+RUN mkdir /home/api && mkdir /db/ && \
+    apk add --update --no-cache \
+        openjdk11 \
+        maven \
+        bash
+
+WORKDIR /home/api
+
 ADD . .
 
-RUN yarn build && \
-    rm -rf ./src && \
-    rm yarn.lock
+RUN rm -rf ./db
 
-EXPOSE 9876
+ADD ./db /db/
 
-CMD ["yarn", "start"]
+RUN mvn clean install && \
+    cp target/api.jar ./api.jar && \
+    rm -rf ./src \
+    rm -rf ./target
+
+CMD ["java", "-jar", "api.jar"]

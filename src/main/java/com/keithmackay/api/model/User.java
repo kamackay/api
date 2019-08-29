@@ -1,7 +1,6 @@
 package com.keithmackay.api.model;
 
 import com.google.gson.GsonBuilder;
-import com.keithmackay.api.db.JsonObj;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,6 +15,7 @@ public class User implements JsonObj {
   String firstName;
   String lastName;
   transient String password;
+  String email;
 
   @Override
   public String toJson() {

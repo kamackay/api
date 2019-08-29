@@ -1,6 +1,6 @@
 FROM alpine:latest
 
-RUN mkdir /home/api && mkdir /db/ && \
+RUN mkdir /home/api && \
     apk add --update --no-cache \
         openjdk11 \
         maven \
@@ -9,10 +9,6 @@ RUN mkdir /home/api && mkdir /db/ && \
 WORKDIR /home/api
 
 ADD . .
-
-RUN rm -rf ./db
-
-ADD ./db /db/
 
 RUN mvn clean install && \
     cp target/api.jar ./api.jar && \

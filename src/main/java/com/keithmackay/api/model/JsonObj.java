@@ -1,4 +1,4 @@
-package com.keithmackay.api.db;
+package com.keithmackay.api.model;
 
 public interface JsonObj {
   public String toJson();

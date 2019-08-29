@@ -2,6 +2,7 @@ package com.keithmackay.api;
 
 import com.google.inject.Inject;
 import com.keithmackay.api.routes.AuthRouter;
+import com.keithmackay.api.routes.MainRouter;
 import com.keithmackay.api.routes.Router;
 import io.javalin.Javalin;
 import org.slf4j.Logger;
@@ -18,9 +19,11 @@ public class Server {
   private final Collection<Router> routers;
 
   @Inject
-  Server(final Javalin app, final AuthRouter authRouter) {
+  Server(final Javalin app,
+         final AuthRouter authRouter,
+         final MainRouter mainRouter) {
     this.app = app;
-    this.routers = List.of(authRouter);
+    this.routers = List.of(authRouter, mainRouter);
   }
 
   public void start() {

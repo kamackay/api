@@ -8,6 +8,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +35,7 @@ public class Database {
 
   public static UpdateResult upsert(
       final MongoCollection<Document> collection,
-      final Document filter,
+      final Bson filter,
       final Document newVal) {
     return collection.updateOne(filter, new Document("$set", newVal), UPSERT);
   }

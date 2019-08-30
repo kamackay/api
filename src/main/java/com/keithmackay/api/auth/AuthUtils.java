@@ -22,6 +22,7 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static com.keithmackay.api.db.Database.upsert;
+import static com.keithmackay.api.utils.Utils.optional;
 
 public class AuthUtils {
   private final static Logger log = LoggerFactory.getLogger(AuthUtils.class);
@@ -49,7 +50,7 @@ public class AuthUtils {
     return String.format("%024x", new BigInteger(1, s.getBytes(/*YOUR_CHARSET?*/)));
   }
 
-  private static Instant now() {
+  public static Instant now() {
     return OffsetDateTime.now(ZoneOffset.UTC).toInstant();
   }
 
@@ -69,11 +70,12 @@ public class AuthUtils {
       final MongoCollection<Document> userCollection,
       final LoginModel creds) {
     try {
-      if (!checkCredentials(userCollection, creds)) {
+      final Elective<Document> user = checkCredentials(userCollection, creds);
+      if (!user.isPresent()) {
         return Elective.empty();
       }
       final ObjectId id = new ObjectId(toHexString(creds.getUsername()));
-      final Document doc = Elective.ofNullable(tokenCollection
+      final Document doc = optional(tokenCollection
           .find(new Document("_id", id)).limit(1).first())
           .map(d -> d.getLong("timeout") >
               now().toEpochMilli() ? d : null)
@@ -89,28 +91,29 @@ public class AuthUtils {
     }
   }
 
-  private static boolean checkCredentials(
+  private static Elective<Document> checkCredentials(
       final MongoCollection<Document> userCollection,
       final LoginModel creds) {
     if (Strings.isNullOrEmpty(creds.getUsername()) || Strings.isNullOrEmpty(creds.getPassword())) {
       log.warn("Both username and password are required");
-      return false;
+      return Elective.empty();
     }
 
-    final Elective<Document> user = Elective.ofNullable(userCollection.find(new Document("username",
-        new Document("$eq", creds.getUsername())))
-        .limit(1).first());
+    final Elective<Document> user = Elective.ofNullable(userCollection
+        .find(new Document("username", new Document("$eq", creds.getUsername())))
+        .limit(1)
+        .first());
     if (!user.isPresent()) {
       log.warn("Could not find user information for {}", creds.getUsername());
-      return false;
+      return Elective.empty();
     }
 
     if (!hashPass(creds.getPassword()).equals(user.get().getString("password"))) {
       log.warn("Passwords do not match for username '{}'", creds.getUsername());
-      return false;
+      return Elective.empty();
     }
 
-    return true;
+    return user;
   }
 
   public static String hashPass(final String password) {

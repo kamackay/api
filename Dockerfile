@@ -15,4 +15,6 @@ RUN mvn clean install && \
     rm -rf ./src \
     rm -rf ./target
 
+EXPOSE 5000
+
 CMD ["java", "-jar", "api.jar"]

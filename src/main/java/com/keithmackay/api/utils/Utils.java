@@ -40,4 +40,25 @@ public class Utils {
     d.remove("_id");
     return d;
   }
+
+  // Just a shorthand for Elective.ofNullable
+  public static <T> Elective<T> optional(final T object) {
+    return Elective.ofNullable(object);
+  }
+
+  /**
+   * Merge 2 Documents. Values in d2 are the priority value
+   *
+   * @param d1 - First Document to overwrite
+   * @param d2 - Second Document with priority values
+   * @return Merged Documents
+   */
+  public static Document merge(final Document d1, final Document d2) {
+    d2.keySet().forEach(s -> d1.append(s, d2.get(s)));
+    return d1;
+  }
+
+  public static Document doc() {
+    return new Document();
+  }
 }

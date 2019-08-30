@@ -7,4 +7,4 @@ services:
     volumes:
       - /home/db:/db
     ports:
-      - 9876:9876
+      - 9876:5000

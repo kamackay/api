@@ -2,8 +2,10 @@ package com.keithmackay.api;
 
 import com.google.inject.Inject;
 import com.keithmackay.api.routes.AuthRouter;
+import com.keithmackay.api.routes.GroceriesRouter;
 import com.keithmackay.api.routes.MainRouter;
 import com.keithmackay.api.routes.Router;
+import com.keithmackay.api.utils.Elective;
 import io.javalin.Javalin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,12 +23,16 @@ public class Server {
   @Inject
   Server(final Javalin app,
          final AuthRouter authRouter,
-         final MainRouter mainRouter) {
+         final MainRouter mainRouter,
+         final GroceriesRouter groceriesRouter) {
     this.app = app;
-    this.routers = List.of(authRouter, mainRouter);
+    this.routers = List.of(authRouter, mainRouter, groceriesRouter);
   }
 
   public void start() {
+    final int port = Elective.ofNullable(System.getenv("PORT"))
+        .map(Integer::parseInt)
+        .orElse(5000);
     this.app.enableMicrometer()
         .enableCorsForAllOrigins()
         .enableCaseSensitiveUrls()
@@ -39,6 +45,7 @@ public class Server {
                 ctx.method(), ctx.path(), ctx.ip(), time);
           }
         })
-        .routes(() -> this.routers.forEach(Router::routes)).start(9876);
+        .routes(() -> this.routers.forEach(Router::routes))
+        .start(port);
   }
 }

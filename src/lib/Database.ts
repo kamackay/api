@@ -1,11 +1,15 @@
-import PouchDB from "pouchdb";
+import mongodb from "mongodb";
+import data from "../../creds.json";
 
-export const getDB = (
-  name: string,
-  config?: Partial<PouchDB.Configuration.DatabaseConfiguration>
-) => {
-  PouchDB.plugin(require("pouchdb-adapter-cordova-sqlite"));
-  PouchDB.plugin(require("pouchdb-adapter-memory"));
-
-  return new PouchDB(name, { adapter: "sqlite", ...config });
-};
+export const getDB = (): Promise<mongodb.MongoClient> =>
+  new Promise<mongodb.MongoClient>((resolve, reject) => {
+    const uri = `mongodb+srv://admin:${data.password}@apicluster-tsly9.mongodb.net/test?retryWrites=true&w=majority`;
+    const client = new mongodb.MongoClient(uri, { useNewUrlParser: true });
+    client.connect((err, c) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(c);
+      }
+    });
+  });

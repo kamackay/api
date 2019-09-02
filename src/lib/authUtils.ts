@@ -28,12 +28,3 @@ export const checkCreds = (
 
 export const credsFailed = (res: Response) =>
   res.status(401).send("Bad Authentication");
-
-let authDb: PouchDB.Database<{}>;
-
-export const getAuthDB = () => {
-  if (!authDb) {
-    authDb = getDB("auth", { adapter: "memory" });
-  }
-  return authDb;
-};

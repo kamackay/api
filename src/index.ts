@@ -1,8 +1,8 @@
-import { logger } from "./lib/Logger";
-import api from "./routers/api";
-import morgan from "morgan";
 import express from "express";
+import morgan from "morgan";
+import { logger } from "./lib/Logger";
 import { args } from "./lib/util";
+import api from "./routers/api";
 
 const port = args.port || Number(process.env.PORT) || 9876;
 
@@ -14,6 +14,6 @@ app.use(
     }
   })
 );
-app.use("/api", api);
+app.use("/", api);
 
 app.listen(port, () => logger.info(`listening on port ${port}`));

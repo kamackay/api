@@ -22,11 +22,14 @@ export const checkCreds = (
           .then(authToken => {
             logger.info({ authToken });
             if (authToken && authToken.token === authorization) {
-              if (authToken.timeout > new Date().getTime()) {
-                reject("Token has timed out");
+              if (authToken.timeout <= new Date().getTime()) {
+                logger.info(`Token has timed out`);
+                reject();
               } else resolve();
             } else {
-              reject("Invalid Token");
+              logger.warn(`${authorization} didn't equal ${authToken.token}`);
+              logger.info("Invalid Token");
+              reject();
             }
           })
           .catch(reject);

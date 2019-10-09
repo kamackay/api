@@ -5,6 +5,8 @@ import { logger } from "./Logger";
 
 export const randomToken = () => crypto.randomBytes(64).toString("hex");
 
+export const getExpireTime = (d: Date) => d.getTime() + 24 * 60 * 60 * 1000;
+
 export const checkCreds = (
   req: Request<Dictionary<string>>,
   res: Response

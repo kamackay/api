@@ -16,3 +16,5 @@ export const getDB = (): Promise<mongodb.MongoClient> =>
       }
     });
   });
+
+export const getApiDB = () => getDB().then(db => db.db("api"));

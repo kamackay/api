@@ -1,11 +1,11 @@
 FROM alpine:latest
 WORKDIR /api/
-ADD . .
 
 RUN apk upgrade --update --no-cache ; apk add --no-cache \
     nodejs \
     yarn
 
+ADD . .
 RUN yarn global add typescript && \
     yarn build && \
     yarn global remove typescript && \

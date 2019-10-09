@@ -6,7 +6,7 @@ import filesRouter from "./files";
 const app = express();
 
 app.all("/", (req, res) =>
-  checkCreds(req, res)
+  checkCreds(req)
     .then(() => {
       res.send("hi");
     })

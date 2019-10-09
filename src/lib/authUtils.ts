@@ -7,10 +7,7 @@ export const randomToken = () => crypto.randomBytes(64).toString("hex");
 
 export const getExpireTime = (d: Date) => d.getTime() + 24 * 60 * 60 * 1000;
 
-export const checkCreds = (
-  req: Request<Dictionary<string>>,
-  res: Response
-): Promise<void> =>
+export const checkCreds = (req: Request<Dictionary<string>>): Promise<void> =>
   new Promise((resolve, reject) => {
     getDB()
       .then(db => {
@@ -20,7 +17,7 @@ export const checkCreds = (
         collection
           .findOne({ token: authorization })
           .then(authToken => {
-            logger.info({ authToken });
+            // logger.info({ authToken });
             if (authToken && authToken.token === authorization) {
               if (authToken.timeout <= new Date().getTime()) {
                 logger.info(`Token has timed out`);

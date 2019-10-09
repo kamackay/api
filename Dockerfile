@@ -1,12 +1,16 @@
-FROM kamackay/alpine
-
-RUN mkdir /api/
+FROM alpine:latest
 WORKDIR /api/
 ADD . .
 
-RUN yarn build && \
-    rm -rf ./src && \
-    rm yarn.lock
+RUN apk upgrade --update --no-cache ; apk add --no-cache \
+        nodejs \
+        yarn && \
+    yarn global add typescript && \
+    yarn build && \
+    yarn global remove typescript && \
+    rm yarn.lock && \
+    yarn cache clean && \
+    rm -rf ./src
 
 EXPOSE 9876
 

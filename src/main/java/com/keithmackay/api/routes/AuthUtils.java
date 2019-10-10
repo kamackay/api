@@ -86,8 +86,7 @@ public class AuthUtils {
           final Optional<Document> tokenMaybe = Optional.ofNullable(
               tokenCollection.find(usernameFilter).first());
           if (tokenMaybe.isPresent() && tokenMaybe
-              .map(doc -> doc.getDouble("timeout"))
-              .map(Double::longValue)
+              .map(doc -> doc.getLong("timeout"))
               .orElse(0L) > now().toEpochMilli()) {
             // Valid Token Already exists, return it
             log.info("Sending existing token to {}", creds.getUsername());

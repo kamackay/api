@@ -15,6 +15,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import static com.keithmackay.api.utils.UtilsKt.getLogger;
 
@@ -43,6 +44,8 @@ public class Server {
   void start() {
     this.app
         .routes(() -> this.routers.forEach(Router::routes))
-        .start(9876);
+        .start(Optional.ofNullable(System.getenv("PORT"))
+            .map(Integer::parseInt)
+            .orElse(9876));
   }
 }

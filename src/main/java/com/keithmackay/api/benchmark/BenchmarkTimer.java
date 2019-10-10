@@ -1,12 +1,12 @@
 package com.keithmackay.api.benchmark;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.keithmackay.api.utils.UtilsKt.getLogger;
 import static com.keithmackay.api.utils.UtilsKt.millisToReadableTime;
 
 
@@ -18,7 +18,7 @@ public class BenchmarkTimer {
   private static BenchmarkTimer instance = null;
   private final Map<String, BenchmarkData> startTimes;
   private long limit = 0;
-  private Logger logger = LoggerFactory.getLogger(BenchmarkTimer.class);
+  private Logger logger = getLogger(BenchmarkTimer.class);
 
   private BenchmarkTimer() {
     startTimes = new HashMap<>();

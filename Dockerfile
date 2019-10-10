@@ -15,4 +15,5 @@ RUN mvn clean install && \
     rm -rf ./src && \
     rm -rf ./target
 
+ENV CREDENTIALS_FILE /home/api/creds.json
 CMD ["java", "-jar", "api.jar"]

@@ -11,7 +11,7 @@ import org.bson.Document
 
 @Singleton
 class Database @Inject
-internal constructor() {
+internal constructor() : IDatabase {
 
   private val client: MongoClient
 
@@ -26,9 +26,9 @@ internal constructor() {
           .get("password")
           .asString
 
-  fun getCollection(db: String, name: String): MongoCollection<Document> =
+  override fun getCollection(db: String, name: String): MongoCollection<Document> =
       this.client.getDatabase(db).getCollection(name)
 
-  fun getCollection(name: String): MongoCollection<Document> =
+  override fun getCollection(name: String): MongoCollection<Document> =
       getCollection("api", name)
 }

@@ -9,6 +9,8 @@ import com.google.inject.Provides;
 import com.google.inject.matcher.Matchers;
 import com.keithmackay.api.benchmark.Benchmark;
 import com.keithmackay.api.benchmark.FunctionInterceptor;
+import com.keithmackay.api.db.Database;
+import com.keithmackay.api.db.IDatabase;
 
 public class ServerModule extends AbstractModule {
   public static Injector getInjector() {
@@ -20,6 +22,7 @@ public class ServerModule extends AbstractModule {
     bindInterceptor(Matchers.any(),
         Matchers.annotatedWith(Benchmark.class),
         new FunctionInterceptor());
+    bind(IDatabase.class).to(Database.class).asEagerSingleton();
   }
 
   @Provides

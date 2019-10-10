@@ -1,16 +1,14 @@
-package com.keithmackay.api.routes;
+package com.keithmackay.api.auth;
 
 import com.google.common.base.Strings;
-import com.google.common.hash.Hashing;
 import com.keithmackay.api.model.LoginModel;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.result.UpdateResult;
+import com.mongodb.client.result.DeleteResult;
+import org.apache.logging.log4j.Logger;
 import org.bson.Document;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -22,10 +20,12 @@ import java.util.concurrent.ThreadLocalRandom;
 import static com.keithmackay.api.utils.UtilsKt.*;
 
 public class AuthUtils {
-  private final static Logger log = LoggerFactory.getLogger(AuthUtils.class);
+  private final static Logger log = getLogger(AuthUtils.class);
+
+  private static final int BCRYPT_ROUNDS = 4;
 
   private static final char[] CHARS =
-      "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNOPQRSTUVWXYZ234567890-_=+*$#@!`~".toCharArray();
+      "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNOPQRSTUVWXYZ234567890-_=+*$#@!`~/\\".toCharArray();
 
   public static String randomToken() {
     return randomToken(128);
@@ -72,7 +72,6 @@ public class AuthUtils {
         return Optional.empty();
       }
       final Document usernameFilter = doc("username", creds.getUsername());
-      log.info("Attempt to log in with password {}", hashPass(creds.getPassword()));
       final Optional<Document> userMaybe = Optional.ofNullable(
           userCollection
               .find(usernameFilter)
@@ -81,7 +80,7 @@ public class AuthUtils {
         return Optional.empty();
       } else {
         final Document user = userMaybe.get();
-        if (user.getString("password").equals(hashPass(creds.getPassword()))) {
+        if (checkPass(creds.getPassword(), user.getString("password"))) {
           // Passwords Matched, Generate Token and Return
           final Optional<Document> tokenMaybe = Optional.ofNullable(
               tokenCollection.find(usernameFilter).first());
@@ -107,7 +106,18 @@ public class AuthUtils {
     }
   }
 
+  public static void logout(final MongoCollection<Document> tokenCollection, final String username) {
+    final DeleteResult result = tokenCollection.deleteOne(doc("username", username));
+    if (result.getDeletedCount() > 0) {
+      log.info("Successfully Logged out {}", username);
+    }
+  }
+
+  public static boolean checkPass(String password, String hash) {
+    return BCrypt.checkpw(password, hash);
+  }
+
   public static String hashPass(final String password) {
-    return Hashing.sha512().hashString(password, StandardCharsets.UTF_8).toString();
+    return BCrypt.hashpw(password, BCrypt.gensalt(BCRYPT_ROUNDS));
   }
 }

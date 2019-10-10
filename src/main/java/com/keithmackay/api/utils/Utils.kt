@@ -1,5 +1,6 @@
 package com.keithmackay.api.utils
 
+import com.google.common.collect.Lists
 import com.mongodb.client.model.UpdateOptions
 import io.javalin.http.Context
 import org.apache.logging.log4j.Level
@@ -8,8 +9,12 @@ import org.apache.logging.log4j.Logger
 import org.bson.Document
 import java.math.BigDecimal
 import java.math.BigInteger
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.util.*
+import kotlin.collections.HashMap
 import kotlin.reflect.KClass
 
 const val byteUnitIncrement: Long = 1000
@@ -90,6 +95,16 @@ fun httpLog(ctx: Context, time: Float) {
   }
 }
 
+inline fun <T : Any> threadSafeList(content: Collection<T>): MutableList<T> =
+    Collections.synchronizedList(Lists.newArrayList(content))
+
+inline fun <T : Any> threadSafeList(vararg content: T): MutableList<T> =
+    threadSafeList(listOf(*content))
+
+inline fun <T : Any, S : Any> threadSafeMap(): MutableMap<T, S> = Collections.synchronizedMap(HashMap())
+
+fun urlEncode(s: String): String = URLEncoder.encode(s, StandardCharsets.UTF_8.toString())
+
 fun fileToString(filename: String): String =
     Files.readString(Paths.get(filename))
 
@@ -97,5 +112,7 @@ fun upsert(): UpdateOptions = UpdateOptions().upsert(true)
 
 /** Bson Shorthands */
 fun doc(name: String, value: Any?): Document = Document(name, value)
+
+fun doc(): Document = Document()
 
 fun set(value: Any?): Document = Document("\$set", value)

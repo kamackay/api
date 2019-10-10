@@ -15,7 +15,7 @@ public class FunctionInterceptor implements MethodInterceptor {
         invocation.getMethod().getName()));
     try {
       if (annotation.paramName()) {
-        nameBuilder.append("(\"").append((String) invocation.getArguments()[0]).append("\")");
+        nameBuilder.append("(\"").append(invocation.getArguments()[0].toString()).append("\")");
       }
     } catch (Exception e) {
       // Something went wrong getting the first string parameter, move on

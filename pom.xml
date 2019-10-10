@@ -13,6 +13,21 @@
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>artifactory</id>
+            <url>http://engci-maven.cisco.com/artifactory/bms-repo</url>
+        </repository>
+        <repository>
+            <id>central</id>
+            <url>http://jcenter.bintray.com</url>
+        </repository>
+        <repository>
+            <id>apache</id>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
         <dependency>
@@ -56,6 +71,17 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>2.6</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.mindrot/jbcrypt -->
+        <dependency>
+            <groupId>org.mindrot</groupId>
+            <artifactId>jbcrypt</artifactId>
+            <version>0.4</version>
+        </dependency>
+        <dependency>
+            <groupId>khttp</groupId>
+            <artifactId>khttp</artifactId>
+            <version>1.0.0</version>
         </dependency>
 
         <!-- Logging Deps -->

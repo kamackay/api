@@ -1,5 +1,3 @@
-import com.keithmackay.api.utils.Elective;
-
 import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.*;

@@ -2,7 +2,6 @@ import com.keithmackay.api.ServerModule;
 import com.keithmackay.api.db.Database;
 import com.keithmackay.api.model.LoginModel;
 import com.keithmackay.api.routes.AuthUtils;
-import com.keithmackay.api.utils.Elective;
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

@@ -1,9 +1,15 @@
 package com.keithmackay.api;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParser;
 import com.google.inject.Inject;
 import com.keithmackay.api.routes.AuthRouter;
 import com.keithmackay.api.routes.Router;
+import com.keithmackay.api.utils.UtilsKt;
 import io.javalin.Javalin;
+import io.javalin.plugin.json.JavalinJson;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,26 +22,23 @@ public class Server {
 
   private final Javalin app;
   private final Collection<Router> routers;
+  private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+  private final JsonParser parser = new JsonParser();
 
   @Inject
-  Server(final Javalin app, final AuthRouter authRouter) {
-    this.app = app;
+  Server(final AuthRouter authRouter) {
+    this.app = Javalin.create(config -> {
+      config.enableCorsForAllOrigins();
+      config.requestLogger(UtilsKt::httpLog);
+      JavalinJson.setToJsonMapper(this.gson::toJson);
+      JavalinJson.setFromJsonMapper(this.gson::fromJson);
+    });
     this.routers = List.of(authRouter);
   }
 
-  public void start() {
-    this.app.enableMicrometer()
-        .enableCorsForAllOrigins()
-        .enableCaseSensitiveUrls()
-        .error(404, ctx ->
-            ctx.result(String.format("Could not find anything at \"%s\"" +
-                " - What were you hoping to find?", ctx.url())))
-        .requestLogger((ctx, time) -> {
-          if (time > 10 || !"get".equals(ctx.method().toLowerCase())) {
-            log.info("{} on '{}' from {} took {}ms",
-                ctx.method(), ctx.path(), ctx.ip(), time);
-          }
-        })
-        .routes(() -> this.routers.forEach(Router::routes)).start(9876);
+  void start() {
+    this.app
+        .routes(() -> this.routers.forEach(Router::routes))
+        .start(9876);
   }
 }

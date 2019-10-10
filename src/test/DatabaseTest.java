@@ -1,6 +1,5 @@
 import com.google.common.collect.Iterables;
 import com.keithmackay.api.ServerModule;
-import com.keithmackay.api.db.DataSet;
 import com.keithmackay.api.db.Database;
 import org.bson.Document;
 import org.bson.types.ObjectId;

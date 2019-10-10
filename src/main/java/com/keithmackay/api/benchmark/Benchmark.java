@@ -9,10 +9,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Benchmark {
-    /**
-     * @return Whether to get the first parameter as a String and append to the Benchmark name
-     */
-    boolean paramName() default false;
+  /**
+   * @return Whether to get the first parameter as a String and append to the Benchmark name
+   */
+  boolean paramName() default false;
 
-    long limit() default 0;
+  long limit() default 0;
 }

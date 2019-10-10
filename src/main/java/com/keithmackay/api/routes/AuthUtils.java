@@ -2,11 +2,10 @@ package com.keithmackay.api.routes;
 
 import com.google.common.base.Strings;
 import com.google.common.hash.Hashing;
-import com.keithmackay.api.db.DataSet;
 import com.keithmackay.api.model.LoginModel;
-import com.keithmackay.api.utils.Elective;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
-import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,8 +15,11 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
+
+import static com.keithmackay.api.utils.UtilsKt.*;
 
 public class AuthUtils {
   private final static Logger log = LoggerFactory.getLogger(AuthUtils.class);
@@ -49,36 +51,60 @@ public class AuthUtils {
     return OffsetDateTime.now(ZoneOffset.UTC).toInstant();
   }
 
-  private static Document createNewAuth(final String username) {
+  private static Document createNewToken(final String username) {
+    final Instant now = now();
     log.info("Creating new Token for {}", username);
-    return new Document("username", username)
-        .append("timeout", now()
+    return doc("username", username)
+        .append("timeout", now
             .plus(1, ChronoUnit.DAYS)
             .toEpochMilli())
+        .append("timeLoggedIn", now.toEpochMilli())
+        .append("timeLoggedInReadable", now.toString())
         .append("token", randomToken());
   }
 
-  public static Elective<Document> login(final DataSet collection, final LoginModel creds) {
+  public static Optional<Document> login(
+      final MongoCollection<Document> userCollection,
+      final MongoCollection<Document> tokenCollection,
+      final LoginModel creds) {
     try {
       if (Strings.isNullOrEmpty(creds.getUsername()) || Strings.isNullOrEmpty(creds.getPassword())) {
-        // TODO VALIDATE PASSWORD
-        return Elective.empty();
+        return Optional.empty();
       }
+      final Document usernameFilter = doc("username", creds.getUsername());
       log.info("Attempt to log in with password {}", hashPass(creds.getPassword()));
-      final ObjectId id = new ObjectId(toHexString(creds.getUsername()));
-      final Document doc = collection
-          .findById(id)
-          .map(d -> d.getLong("timeout") >
-              now().toEpochMilli() ? d : null)
-          .orElseGet(() -> {
-            final Document created = createNewAuth(creds.getUsername());
-            collection.upsert(id, created);
-            return created;
-          });
-      return Elective.of(doc);
+      final Optional<Document> userMaybe = Optional.ofNullable(
+          userCollection
+              .find(usernameFilter)
+              .first());
+      if (userMaybe.isEmpty()) {
+        return Optional.empty();
+      } else {
+        final Document user = userMaybe.get();
+        if (user.getString("password").equals(hashPass(creds.getPassword()))) {
+          // Passwords Matched, Generate Token and Return
+          final Optional<Document> tokenMaybe = Optional.ofNullable(
+              tokenCollection.find(usernameFilter).first());
+          if (tokenMaybe.isPresent() && tokenMaybe
+              .map(doc -> doc.getDouble("timeout"))
+              .map(Double::longValue)
+              .orElse(0L) > now().toEpochMilli()) {
+            // Valid Token Already exists, return it
+            log.info("Sending existing token to {}", creds.getUsername());
+            return tokenMaybe;
+          } else {
+            // Generate New token and return it
+            final Document newToken = createNewToken(creds.getUsername());
+            tokenCollection.updateOne(usernameFilter, set(newToken), upsert());
+            return Optional.of(newToken);
+          }
+        } else {
+          return Optional.empty();
+        }
+      }
     } catch (Exception e) {
       log.error("Error logging in", e);
-      return Elective.empty();
+      return Optional.empty();
     }
   }
 

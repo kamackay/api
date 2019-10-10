@@ -1,10 +1,1 @@
-version: "2"
-
-services:
-  api:
-    build:
-      context: .
-    volumes:
-      - /home/db:/db
-    ports:
-      - 9876:9876
+version: "2"services:  api:    build:      context: .    ports:      - 9876:9876    environment:      - CREDENTIALS_FILE=/home/api/creds.json

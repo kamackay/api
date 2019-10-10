@@ -3,15 +3,12 @@ import { sha512 } from "js-sha512";
 import { getExpireTime, randomToken } from "../lib/authUtils";
 import { getDB } from "../lib/Database";
 import { logger } from "../lib/Logger";
+import { unknownError } from "../lib/util";
 
 const app = express();
 
 const invalidCreds = (res: Response) =>
   res.status(401).send(`Invalid Credentials`);
-const unknownError = (err: any, res: Response) => {
-  logger.error(err);
-  res.status(500).send(`Error`);
-};
 
 app.post("/login", (req, res) => {
   getDB()

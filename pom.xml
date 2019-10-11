@@ -15,16 +15,8 @@
 
     <repositories>
         <repository>
-            <id>artifactory</id>
-            <url>http://engci-maven.cisco.com/artifactory/bms-repo</url>
-        </repository>
-        <repository>
             <id>central</id>
             <url>http://jcenter.bintray.com</url>
-        </repository>
-        <repository>
-            <id>apache</id>
-            <url>https://repo.maven.apache.org/maven2</url>
         </repository>
     </repositories>
 

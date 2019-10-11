@@ -15,6 +15,7 @@ import java.util.*
 class RequestValidator @Inject
 internal constructor(db: Database) {
   private val tokenCollection = db.getCollection("tokens")
+  private val userCollection = db.getCollection("users")
   private val log = getLogger(RequestValidator::class)
 
   fun validateThen(post: (Document) -> Unit): Handler {
@@ -22,13 +23,14 @@ internal constructor(db: Database) {
       val user = lookup(it)
       if (user != null) {
         log.info("Valid request for ${user.getString("username")}")
-        post.apply { }
+        post.invoke(user)
       } else {
         log.warn("Invalid Authorization on request")
         it.status(401).result("Invalid Authorization")
       }
     }
   }
+
 
   fun lookup(ctx: Context): Document? {
     val token = ctx.header("Authorization")

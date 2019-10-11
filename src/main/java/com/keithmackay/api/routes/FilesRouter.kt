@@ -15,14 +15,18 @@ class FilesRouter @Inject
 internal constructor(private val validator: RequestValidator, db: Database) : Router {
   private val log = getLogger(FilesRouter::class)
   private val lsCollection = db.getCollection("lsrules")
+  private val userCollection = db.getCollection("users")
 
   override fun routes() {
     path("files") {
+      // Empty File just to test credentials
       get("secret.txt") {
         validator.validateThen { username ->
-          it.json(doc("hey", username))
-        }
+          it.status(200).json(doc("hey", username))
+        }.handle(it)
       }
+
+      // Little Snitch Rules File
       get("rules.lsrules") { ctx ->
         log.info("Request for Little Snitch File")
         val rules = lsCollection.find()

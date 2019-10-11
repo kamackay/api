@@ -12,10 +12,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class User implements JsonObj {
-  String username;
-  String firstName;
-  String lastName;
+  public String username;
+  public String firstName;
+  public String lastName;
   transient String password;
+  public String email;
+  public boolean admin;
 
   @Override
   public String toJson() {

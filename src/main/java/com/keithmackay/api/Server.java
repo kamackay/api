@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.keithmackay.api.utils.UtilsKt.getLogger;
+import static io.javalin.apibuilder.ApiBuilder.get;
 
 public class Server {
 
@@ -27,6 +28,9 @@ public class Server {
   private final Collection<Router> routers;
   private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
   private final JsonParser parser = new JsonParser();
+  private final int port = Optional.ofNullable(System.getenv("PORT"))
+      .map(Integer::parseInt)
+      .orElse(9876);
 
   @Inject
   Server(final AuthRouter authRouter,
@@ -43,9 +47,10 @@ public class Server {
 
   void start() {
     this.app
-        .routes(() -> this.routers.forEach(Router::routes))
-        .start(Optional.ofNullable(System.getenv("PORT"))
-            .map(Integer::parseInt)
-            .orElse(9876));
+        .routes(() -> {
+          this.routers.forEach(Router::routes);
+          get("ping", ctx -> ctx.result("Hello"));
+        })
+        .start(port);
   }
 }

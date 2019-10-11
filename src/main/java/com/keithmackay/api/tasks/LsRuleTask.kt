@@ -10,11 +10,9 @@ import java.util.regex.Pattern
 @Singleton
 class LsRuleTask @Inject
 internal constructor(db: Database) : Task() {
-  private val log = getLogger(LsRuleTask::class)
+  private val log = getLogger(this::class)
 
   private val lsCollection = db.getCollection("lsrules")
-
-  override fun time(): Long = 1000 * 60 * 60
 
   override fun run() {
     val start = System.currentTimeMillis()

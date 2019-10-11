@@ -18,5 +18,5 @@ abstract class Task {
 
   abstract fun run()
 
-  open fun time(): Long = 1000 * 60
+  open fun time(): Long = 1000 * 60 * 60 // Once an hour
 }

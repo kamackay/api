@@ -8,6 +8,7 @@ import com.mongodb.MongoClient
 import com.mongodb.MongoClientURI
 import com.mongodb.client.MongoCollection
 import org.bson.Document
+import org.jongo.Jongo
 
 @Singleton
 class Database @Inject
@@ -31,4 +32,7 @@ internal constructor() : IDatabase {
 
   override fun getCollection(name: String): MongoCollection<Document> =
       getCollection("api", name)
+
+  override fun getJongoCollection(name: String?): org.jongo.MongoCollection =
+      Jongo(this.client.getDB("api")).getCollection("name")
 }

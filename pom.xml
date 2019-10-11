@@ -58,6 +58,11 @@
             <artifactId>mongo-java-driver</artifactId>
             <version>3.11.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.jongo</groupId>
+            <artifactId>jongo</artifactId>
+            <version>1.4.0</version>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
         <dependency>
             <groupId>commons-io</groupId>

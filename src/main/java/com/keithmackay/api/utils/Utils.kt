@@ -86,7 +86,7 @@ private fun BigDecimal.greaterThanEqual(i: Double): Boolean {
 
 fun httpLog(ctx: Context, time: Float) {
   val logger = LogManager.getLogger("Server")
-  val line = "${ctx.protocol()}:${ctx.method()}:${ctx.status()} ${humanizeBytes(ctx.contentLength())} " +
+  val line = "${ctx.protocol()}:${ctx.method()}:${ctx.status()} ${humanizeBytes(ctx.body().length)} " +
       "on '${ctx.path()}' from ${ctx.ip()} took ${time}ms"
   if (time <= 10 && ctx.status() == 200) {
     logger.log(LogLevels.HTTP, line)
@@ -114,5 +114,10 @@ fun upsert(): UpdateOptions = UpdateOptions().upsert(true)
 fun doc(name: String, value: Any?): Document = Document(name, value)
 
 fun doc(): Document = Document()
+fun json(name: String, value: Any?): String = doc(name, value).toJson()
 
 fun set(value: Any?): Document = Document("\$set", value)
+/** Greater Than Equal */
+fun gte(value: Any?): Document = Document("\$gte", value)
+/** Less Than Equal */
+fun lte(value: Any?): Document = Document("\$lte", value)

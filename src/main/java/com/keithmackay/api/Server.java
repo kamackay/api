@@ -4,10 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
 import com.google.inject.Inject;
-import com.keithmackay.api.routes.AuthRouter;
-import com.keithmackay.api.routes.FilesRouter;
-import com.keithmackay.api.routes.GroceriesRouter;
-import com.keithmackay.api.routes.Router;
+import com.keithmackay.api.model.SuccessResponse;
+import com.keithmackay.api.routes.*;
 import com.keithmackay.api.utils.UtilsKt;
 import io.javalin.Javalin;
 import io.javalin.plugin.json.JavalinJson;
@@ -27,7 +25,6 @@ public class Server {
   private final Javalin app;
   private final Collection<Router> routers;
   private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-  private final JsonParser parser = new JsonParser();
   private final int port = Optional.ofNullable(System.getenv("PORT"))
       .map(Integer::parseInt)
       .orElse(9876);
@@ -35,14 +32,16 @@ public class Server {
   @Inject
   Server(final AuthRouter authRouter,
          final FilesRouter filesRouter,
-         final GroceriesRouter groceriesRouter) {
+         final GroceriesRouter groceriesRouter,
+         final UserRouter userRouter) {
     this.app = Javalin.create(config -> {
       config.enableCorsForAllOrigins();
       config.requestLogger(UtilsKt::httpLog);
       JavalinJson.setToJsonMapper(this.gson::toJson);
       JavalinJson.setFromJsonMapper(this.gson::fromJson);
-    });
-    this.routers = List.of(authRouter, filesRouter, groceriesRouter);
+    }).exception(SuccessResponse.class,
+            (e, ctx) -> ctx.status(e.getStatus()).result(e.getMessage()));
+    this.routers = List.of(authRouter, filesRouter, groceriesRouter, userRouter);
   }
 
   void start() {

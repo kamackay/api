@@ -10,14 +10,14 @@ import com.keithmackay.api.utils.set
 import com.keithmackay.api.utils.upsert
 import io.javalin.apibuilder.ApiBuilder.get
 import io.javalin.apibuilder.ApiBuilder.path
+import io.javalin.http.UnauthorizedResponse
 import org.bson.Document
 
 @Singleton
 class FilesRouter @Inject
 internal constructor(private val validator: RequestValidator, db: Database) : Router {
-  private val log = getLogger(FilesRouter::class)
+  private val log = getLogger(this::class)
   private val lsCollection = db.getCollection("lsrules")
-  private val userCollection = db.getCollection("users")
 
   override fun routes() {
     path("files") {
@@ -30,7 +30,7 @@ internal constructor(private val validator: RequestValidator, db: Database) : Ro
 
       validator.secureGet("secret.json") { ctx, _, user ->
         ctx.status(200)
-            .json(doc("username", user.getString("username")))
+            .json(doc("username", user.username))
       }
 
       // Little Snitch Rules File
@@ -53,7 +53,7 @@ internal constructor(private val validator: RequestValidator, db: Database) : Ro
       }
 
       validator.securePost("addRule") { ctx, body, user ->
-        if (user.getBoolean("admin")) {
+        if (user.admin) {
           val server = body.getString("server")
           val result = lsCollection.updateOne(doc("server", server),
               set(doc("server", server)
@@ -61,11 +61,13 @@ internal constructor(private val validator: RequestValidator, db: Database) : Ro
               upsert())
           if (result.modifiedCount > 0 || result.upsertedId != null) {
             ctx.result("Added")
+            log.info("Added $server to the Blocked Servers List")
           } else {
             ctx.status(400).result("Not Added")
+            log.info("Failed to add $server to the list of Blocked Servers")
           }
         } else {
-          ctx.status(401).result("Not Authorized for this actions")
+          throw UnauthorizedResponse()
         }
       }
     }

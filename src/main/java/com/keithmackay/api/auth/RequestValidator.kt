@@ -3,15 +3,17 @@ package com.keithmackay.api.auth
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.keithmackay.api.db.Database
+import com.keithmackay.api.model.User
 import com.keithmackay.api.utils.doc
 import com.keithmackay.api.utils.getLogger
 import io.javalin.apibuilder.ApiBuilder
 import io.javalin.http.Context
 import io.javalin.http.Handler
+import io.javalin.http.UnauthorizedResponse
 import org.bson.Document
 import java.util.*
 
-typealias RequestHandler = (Context, Document, Document) -> Unit
+typealias RequestHandler = (Context, Document, User) -> Unit
 
 
 @Singleton
@@ -30,7 +32,7 @@ internal constructor(db: Database) {
         post.invoke(user)
       } else {
         log.warn("Invalid Authorization on request")
-        it.status(401).result("Invalid Authorization")
+        throw UnauthorizedResponse()
       }
     }
   }
@@ -68,17 +70,16 @@ internal constructor(db: Database) {
           .first()
       if (user == null) {
         log.error("Validated token $token, but could not find user data")
-        ctx.status(401).result("Invalid Authorization")
+        throw UnauthorizedResponse()
       } else {
         log.debug("Valid Request, triggering handler")
         handler.invoke(ctx,
             if ("GET" == ctx.method()) doc()
-            else Document.parse(ctx.body()),
-            user)
+            else Document.parse(ctx.body()), User().fromJson(user))
       }
     } else {
       log.warn("Invalid Authorization on request")
-      ctx.status(401).result("Invalid Authorization")
+      throw UnauthorizedResponse()
     }
   }
 

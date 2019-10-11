@@ -43,8 +43,12 @@ internal constructor(db: Database) : Task() {
           .filter { Objects.nonNull(it) }
           .mapNotNull { it }
           .toList()
-      log.info("Successfully Added ${added.count()} new servers " +
-          "(${millisToReadableTime(System.currentTimeMillis() - start)})")
+      if (added.count() > 0) {
+        log.info("Successfully Added ${added.count()} new servers " +
+            "(${millisToReadableTime(System.currentTimeMillis() - start)})")
+      } else {
+        log.info("No New Servers found to add to list")
+      }
     }
   }
 }

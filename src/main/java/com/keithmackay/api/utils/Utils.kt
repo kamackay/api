@@ -86,7 +86,7 @@ private fun BigDecimal.greaterThanEqual(i: Double): Boolean {
 
 fun httpLog(ctx: Context, time: Float) {
   val logger = LogManager.getLogger("Server")
-  val line = "${ctx.protocol()}:${ctx.method()}:${ctx.status()} ${humanizeBytes(ctx.body().length)} " +
+  val line = "${ctx.protocol()}:${ctx.method()}:${ctx.status()} ${humanizeBytes(ctx.bodyAsBytes().size)} " +
       "on '${ctx.path()}' from ${ctx.ip()} took ${time}ms"
   if (time <= 10 && ctx.status() == 200) {
     logger.log(LogLevels.HTTP, line)
@@ -116,8 +116,19 @@ fun doc(name: String, value: Any?): Document = Document(name, value)
 fun doc(): Document = Document()
 fun json(name: String, value: Any?): String = doc(name, value).toJson()
 
+inline fun eq(content: Any?): Document = doc("\$eq", content)
+inline fun and(content: Collection<Any>): Document = doc("\$and", content)
+inline fun and(vararg content: Document?): Document = and(arr(*content))
+inline fun or(content: Any): Document = doc("\$or", content)
+inline fun lessThan(content: Any): Document = doc("\$lt", content)
+inline fun greaterThanEqual(content: Any): Document = doc("\$gte", content)
+inline fun matchPattern(content: String): Document = doc("\$match", content)
+inline fun arr(vararg docs: Document?): MutableList<Document> =
+    docs.filter(Objects::nonNull).mapNotNull { it }.toMutableList()
+
 fun set(value: Any?): Document = Document("\$set", value)
 /** Greater Than Equal */
 fun gte(value: Any?): Document = Document("\$gte", value)
+
 /** Less Than Equal */
 fun lte(value: Any?): Document = Document("\$lte", value)

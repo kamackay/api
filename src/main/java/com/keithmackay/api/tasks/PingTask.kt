@@ -15,6 +15,6 @@ internal constructor() : Task() {
   override fun time(): Long = 1000
 
   override fun run() {
-    khttp.get("http://localhost:$port/ping")
+    khttp.get("https://keithmackay-api.herokuapp.com/ping")
   }
 }

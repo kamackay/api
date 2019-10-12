@@ -12,7 +12,7 @@ internal constructor(
     ping: PingTask
 ) {
   // Be sure to add new Tasks here too!
-  private val tasks = threadSafeList(ls, token)
+  private val tasks = threadSafeList(ls, token, ping)
 
   fun forEach(f: (Task) -> Unit) {
     tasks.forEach(f)

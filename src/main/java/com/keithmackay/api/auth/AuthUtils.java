@@ -56,7 +56,7 @@ public class AuthUtils {
     log.info("Creating new Token for {}", username);
     return doc("username", username)
         .append("timeout", now
-            .plus(1, ChronoUnit.DAYS)
+            .plus(7, ChronoUnit.DAYS)
             .toEpochMilli())
         .append("timeLoggedIn", now.toEpochMilli())
         .append("timeLoggedInReadable", now.toString())

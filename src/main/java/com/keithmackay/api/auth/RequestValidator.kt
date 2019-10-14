@@ -2,6 +2,7 @@ package com.keithmackay.api.auth
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import com.keithmackay.api.authSessionAttribute
 import com.keithmackay.api.db.Database
 import com.keithmackay.api.model.User
 import com.keithmackay.api.utils.doc
@@ -84,7 +85,8 @@ internal constructor(db: Database) {
   }
 
   private fun lookup(ctx: Context): Document? {
-    val token = ctx.header("Authorization")
+    val token = Optional.ofNullable(ctx.header("Authorization"))
+        .orElseGet { ctx.sessionAttribute(authSessionAttribute()) }
     val user = tokenCollection
         .find(doc("token", token))
         .first()

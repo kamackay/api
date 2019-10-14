@@ -15,10 +15,10 @@ class Database @Inject
 internal constructor() : IDatabase {
 
   private val client: MongoClient
+  private val connectionString = "mongodb+srv://admin:${getPassword()}@apicluster-tsly9.mongodb.net/test?retryWrites=true&w=majority";
 
   init {
-    this.client = MongoClient(MongoClientURI(
-        "mongodb+srv://admin:${getPassword()}@apicluster-tsly9.mongodb.net/test?retryWrites=true&w=majority"))
+    this.client = MongoClient(MongoClientURI(this.connectionString))
   }
 
   private fun getPassword(): String =
@@ -35,4 +35,6 @@ internal constructor() : IDatabase {
 
   override fun getJongoCollection(name: String?): org.jongo.MongoCollection =
       Jongo(this.client.getDB("api")).getCollection("name")
+
+  override fun getConnectionString(): String = this.connectionString
 }

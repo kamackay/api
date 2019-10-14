@@ -95,13 +95,13 @@ fun httpLog(ctx: Context, time: Float) {
   }
 }
 
-inline fun <T : Any> threadSafeList(content: Collection<T>): MutableList<T> =
+fun <T : Any> threadSafeList(content: Collection<T>): MutableList<T> =
     Collections.synchronizedList(Lists.newArrayList(content))
 
-inline fun <T : Any> threadSafeList(vararg content: T): MutableList<T> =
+fun <T : Any> threadSafeList(vararg content: T): MutableList<T> =
     threadSafeList(listOf(*content))
 
-inline fun <T : Any, S : Any> threadSafeMap(): MutableMap<T, S> = Collections.synchronizedMap(HashMap())
+fun <T : Any, S : Any> threadSafeMap(): MutableMap<T, S> = Collections.synchronizedMap(HashMap())
 
 fun urlEncode(s: String): String = URLEncoder.encode(s, StandardCharsets.UTF_8.toString())
 
@@ -116,14 +116,15 @@ fun doc(name: String, value: Any?): Document = Document(name, value)
 fun doc(): Document = Document()
 fun json(name: String, value: Any?): String = doc(name, value).toJson()
 
-inline fun eq(content: Any?): Document = doc("\$eq", content)
-inline fun and(content: Collection<Any>): Document = doc("\$and", content)
-inline fun and(vararg content: Document?): Document = and(arr(*content))
-inline fun or(content: Any): Document = doc("\$or", content)
-inline fun lessThan(content: Any): Document = doc("\$lt", content)
-inline fun greaterThanEqual(content: Any): Document = doc("\$gte", content)
-inline fun matchPattern(content: String): Document = doc("\$match", content)
-inline fun arr(vararg docs: Document?): MutableList<Document> =
+fun eq(content: Any?): Document = doc("\$eq", content)
+fun and(content: Collection<Any>): Document = doc("\$and", content)
+fun and(vararg content: Document?): Document = and(arr(*content))
+fun or(vararg content: Document?): Document = or(arr(*content))
+fun or(content: Collection<Any>): Document = doc("\$or", content)
+fun lessThan(content: Any): Document = doc("\$lt", content)
+fun greaterThanEqual(content: Any): Document = doc("\$gte", content)
+fun matchPattern(content: String): Document = doc("\$match", content)
+fun arr(vararg docs: Document?): MutableList<Document> =
     docs.filter(Objects::nonNull).mapNotNull { it }.toMutableList()
 
 fun set(value: Any?): Document = Document("\$set", value)

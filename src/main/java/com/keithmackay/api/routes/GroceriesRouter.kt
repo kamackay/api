@@ -5,10 +5,14 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.keithmackay.api.auth.RequestValidator
 import com.keithmackay.api.db.IDatabase
+import com.keithmackay.api.model.SuccessResponse
 import com.keithmackay.api.utils.*
 import io.javalin.apibuilder.ApiBuilder.path
+import io.javalin.http.BadRequestResponse
 import io.javalin.http.ConflictResponse
 import io.javalin.http.InternalServerErrorResponse
+import io.javalin.http.NotFoundResponse
+import org.bson.types.ObjectId
 
 @Singleton
 class GroceriesRouter @Inject
@@ -47,10 +51,51 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
             .into(threadSafeList()))
       }
 
-      validator.securePost("list/:listname") { ctx, body, user ->
-        val list = ctx.pathParam("list")
+      validator.secureGet("list/:listName") { ctx, _, user ->
+        val listName = ctx.pathParam("listName")
+        val list = groceriesListsCollection.find(doc("name", listName)).first()
+        if (list != null) {
+          val users = list.getList("users", String::class.java)
+          if (users.contains(user.username)) {
+            ctx.json(groceriesCollection.find(
+                or(
+                    doc("list", listName),
+                    doc("_id", ObjectId(listName))))
+                .into(threadSafeList()))
+            throw SuccessResponse("Added")
+          } else {
+            throw BadRequestResponse("User is not a member of the list")
+          }
+        } else {
+          throw NotFoundResponse("Could not find List")
+        }
+      }
 
-        // TODO
+      validator.securePost("list/:listName") { ctx, body, user ->
+        val listName = ctx.pathParam("listName")
+        val list = groceriesListsCollection.find(
+            or(
+                doc("name", listName),
+                doc("_id", ObjectId(listName))))
+            .first()
+        if (list != null) {
+          val users = list.getList("users", String::class.java)
+          if (users.contains(user.username)) {
+            groceriesCollection.insertOne(
+                doc("name", body.getString("name"))
+                    .append("list", listName)
+                    .append("addedBy", user.username)
+                    .append("addedAt", System.currentTimeMillis())
+                    .append("count", body.getInteger("count"))
+                    .append("done", false)
+                    .append("removed", false))
+            throw SuccessResponse("Added")
+          } else {
+            throw BadRequestResponse("User is not a member of the list")
+          }
+        } else {
+          throw NotFoundResponse("Could not find List")
+        }
       }
 
     }

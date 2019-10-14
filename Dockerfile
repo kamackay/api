@@ -18,4 +18,4 @@ RUN mvn install && \
 RUN apk del --no-cache maven
 
 ENV CREDENTIALS_FILE /home/api/creds.json
-CMD ["java", "-jar", "api.jar"]
+CMD [ "java", "-jar", "-Xmx400m", "-Xss4m", "api.jar" ]

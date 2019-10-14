@@ -8,11 +8,10 @@ import com.keithmackay.api.utils.threadSafeList
 class TaskList @Inject
 internal constructor(
     ls: LsRuleTask,
-    token: TokenCleanupTask,
-    ping: PingTask
+    token: TokenCleanupTask
 ) {
   // Be sure to add new Tasks here too!
-  private val tasks = threadSafeList(ls, token, ping)
+  private val tasks = threadSafeList(ls, token)
 
   fun forEach(f: (Task) -> Unit) {
     tasks.forEach(f)

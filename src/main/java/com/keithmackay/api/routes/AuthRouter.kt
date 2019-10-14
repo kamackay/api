@@ -4,6 +4,7 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.keithmackay.api.auth.AuthUtils
 import com.keithmackay.api.auth.AuthUtils.hashPass
+import com.keithmackay.api.authSessionAttribute
 import com.keithmackay.api.benchmark.Benchmark
 import com.keithmackay.api.db.IDatabase
 import com.keithmackay.api.model.LoginModel
@@ -46,7 +47,10 @@ internal constructor(db: IDatabase) : Router {
     val documentElective = AuthUtils.login(this.userCollection, this.tokenCollection, creds)
     documentElective
         .map<Document> { cleanDoc(it) }
-        .ifPresentOrElse({ ctx.json(it) }, { ctx.status(400) })
+        .ifPresentOrElse({
+          ctx.sessionAttribute(authSessionAttribute(), it.getString("token"))
+          ctx.json(it)
+        }, { ctx.status(400) })
 
   }
 

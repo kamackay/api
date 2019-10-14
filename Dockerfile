@@ -8,7 +8,7 @@ RUN apk upgrade --update --no-cache && \
         bash
 
 ADD . .
-#ADD mvnsettings.xml /root/.m2/settings.xml
+ADD mvnsettings.xml /root/.m2/settings.xml
 
 RUN mvn install && \
     cp target/*jar-with-dependencies.jar ./api.jar && \

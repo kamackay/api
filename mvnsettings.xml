@@ -9,9 +9,15 @@
     <servers/>
     <mirrors>
         <mirror>
-            <id>jcenter</id>
-            <url>https://jcenter.bintray.com/</url>
-            <name>JCenter Bintray</name>
+            <id>sonatype</id>
+            <url>https://oss.sonatype.org/content/repositories/releases/</url>
+            <name>Sonatype</name>
+            <mirrorOf>central</mirrorOf>
+        </mirror>
+        <mirror>
+            <id>bintray</id>
+            <name>Bintray</name>
+            <url>http://jcenter.bintray.com</url>
             <mirrorOf>central</mirrorOf>
         </mirror>
     </mirrors>

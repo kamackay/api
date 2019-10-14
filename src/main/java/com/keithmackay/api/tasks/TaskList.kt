@@ -14,7 +14,5 @@ internal constructor(
   // Be sure to add new Tasks here too!
   private val tasks = threadSafeList(ls, token, memory)
 
-  fun forEach(f: (Task) -> Unit) {
-    tasks.forEach(f)
-  }
+  fun forEach(f: (Task) -> Unit) = tasks.forEach(f)
 }

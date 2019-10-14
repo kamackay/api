@@ -48,7 +48,10 @@ public class Server {
     this.app
         .routes(() -> {
           this.routers.forEach(Router::routes);
-          get("ping", ctx -> ctx.result("Hello"));
+          get("ping", ctx -> {
+            log.info("Received Ping Request");
+            ctx.result("Hello");
+          });
         })
         .start(port);
   }

@@ -8,13 +8,9 @@ import java.util.*
 class PingTask @Inject
 internal constructor() : Task() {
 
-  private val port = Optional.ofNullable(System.getenv("PORT"))
-      .map { Integer.parseInt(it) }
-      .orElse(9876)
-
-  override fun time(): Long = 1000
+  override fun time(): Long = 1000 * 60
 
   override fun run() {
-    khttp.get("http://localhost:$port/ping")
+    khttp.get("http://keithmackay-api.herokuapp.com/ping")
   }
 }

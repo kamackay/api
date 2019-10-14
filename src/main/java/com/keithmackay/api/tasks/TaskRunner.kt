@@ -10,9 +10,9 @@ internal constructor(
 
   private val scheduler = Executors.newScheduledThreadPool(2)
 
-  fun start() {
-    tasks.forEach {
-      scheduler.scheduleAtFixedRate(it::run, 0, it.time(), TimeUnit.MILLISECONDS)
-    }
-  }
+  fun start() =
+      tasks.forEach {
+        scheduler.scheduleAtFixedRate(it::run, 0, it.time(), TimeUnit.MILLISECONDS)
+      }
+
 }

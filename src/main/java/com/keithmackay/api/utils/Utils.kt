@@ -64,6 +64,8 @@ fun cleanDoc(doc: Document?): Document? {
   return d
 }
 
+fun Double.print(decimals: Int): String = "%.${decimals}f".format(this)
+
 fun big(n: Double): BigDecimal = BigDecimal.valueOf(n)
 
 fun humanizeBytes(bytes: Long): String = humanizeBytes(BigInteger.valueOf(bytes))

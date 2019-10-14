@@ -12,6 +12,7 @@ import io.javalin.http.BadRequestResponse
 import io.javalin.http.ConflictResponse
 import io.javalin.http.InternalServerErrorResponse
 import io.javalin.http.NotFoundResponse
+import org.bson.Document
 import org.bson.types.ObjectId
 
 @Singleton
@@ -46,23 +47,27 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
       }
 
       validator.secureGet("lists") { ctx, _, user ->
-        log.info("${user.username} wants a list of groceries")
-        ctx.json(groceriesListsCollection.distinct("name", String::class.java)
+        log.info("${user.username} wants a list of grocery lists")
+        ctx.json(groceriesListsCollection.find()
+            .map {
+              doc("id", it.getObjectId("_id").toString())
+                  .append("name", it.getString("name"))
+            }
             .into(threadSafeList()))
       }
 
-      validator.secureGet("list/:listName") { ctx, _, user ->
-        val listName = ctx.pathParam("listName")
-        val list = groceriesListsCollection.find(doc("name", listName)).first()
+      validator.secureGet("list/:listId") { ctx, _, user ->
+        val listId = ctx.pathParam("listId")
+        val list = groceriesListsCollection
+            .find(doc("_id", ObjectId(listId)))
+            .first()
         if (list != null) {
           val users = list.getList("users", String::class.java)
           if (users.contains(user.username)) {
-            ctx.json(groceriesCollection.find(
-                or(
-                    doc("list", listName),
-                    doc("_id", ObjectId(listName))))
-                .into(threadSafeList()))
-            throw SuccessResponse("Added")
+            ctx.json(groceriesCollection
+                .find(doc("list", listId))
+                .into(threadSafeList<Document>())
+                .mapNotNull(::cleanDoc))
           } else {
             throw BadRequestResponse("User is not a member of the list")
           }
@@ -73,17 +78,14 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
 
       validator.securePost("list/:listName") { ctx, body, user ->
         val listName = ctx.pathParam("listName")
-        val list = groceriesListsCollection.find(
-            or(
-                doc("name", listName),
-                doc("_id", ObjectId(listName))))
+        val list = groceriesListsCollection.find(doc("_id", ObjectId(listName)))
             .first()
         if (list != null) {
           val users = list.getList("users", String::class.java)
           if (users.contains(user.username)) {
             groceriesCollection.insertOne(
                 doc("name", body.getString("name"))
-                    .append("list", listName)
+                    .append("list", list.getObjectId("_id").toString())
                     .append("addedBy", user.username)
                     .append("addedAt", System.currentTimeMillis())
                     .append("count", body.getInteger("count"))

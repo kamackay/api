@@ -1,0 +1,21 @@
+<settings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                          https://maven.apache.org/xsd/settings-1.0.0.xsd">
+    <localRepository/>
+    <interactiveMode/>
+    <offline/>
+    <pluginGroups/>
+    <servers/>
+    <mirrors>
+        <mirror>
+            <id>jcenter</id>
+            <url>https://jcenter.bintray.com/</url>
+            <name>JCenter Bintray</name>
+            <mirrorOf>central</mirrorOf>
+        </mirror>
+    </mirrors>
+    <proxies/>
+    <profiles/>
+    <activeProfiles/>
+</settings>

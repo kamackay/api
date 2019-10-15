@@ -42,7 +42,10 @@ public class Server {
          final AuthRouter authRouter,
          final FilesRouter filesRouter,
          final GroceriesRouter groceriesRouter,
+         final TrackerRouter trackerRouter,
          final UserRouter userRouter) {
+    this.routers = List.of(authRouter, filesRouter,
+        groceriesRouter, userRouter, trackerRouter);
     this.dbConnectionString = db.getConnectionString();
     this.app = Javalin.create(config -> {
       config.enableCorsForAllOrigins();
@@ -66,7 +69,6 @@ public class Server {
           ctx.status(e.getStatus()).result(e.getMessage());
         }
     );
-    this.routers = List.of(authRouter, filesRouter, groceriesRouter, userRouter);
   }
 
   void start() {

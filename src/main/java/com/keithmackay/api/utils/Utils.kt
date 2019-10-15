@@ -64,6 +64,26 @@ fun cleanDoc(doc: Document?): Document? {
   return d
 }
 
+fun Document.cleanTo(vararg values: String): Document {
+  this.keys.forEach {
+    if (!values.contains(it)) {
+      this.remove(it)
+    }
+  }
+  return this
+}
+
+fun Document.add(key: String, value: Any): Document = this.append(key, value)
+fun Document.join(doc: Document): Document = this.join(doc, true)
+fun Document.join(doc: Document, overwrite: Boolean): Document {
+  doc.keys.forEach {
+    if (!this.containsKey(it) || overwrite) {
+      this.append(it, doc[it])
+    }
+  }
+  return this
+}
+
 fun Double.print(decimals: Int): String = "%.${decimals}f".format(this)
 
 fun big(n: Double): BigDecimal = BigDecimal.valueOf(n)

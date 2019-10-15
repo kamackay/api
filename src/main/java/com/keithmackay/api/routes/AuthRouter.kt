@@ -4,14 +4,14 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.keithmackay.api.auth.AuthUtils
 import com.keithmackay.api.auth.AuthUtils.hashPass
+import com.keithmackay.api.auth.RequestValidator
 import com.keithmackay.api.authSessionAttribute
 import com.keithmackay.api.benchmark.Benchmark
 import com.keithmackay.api.db.IDatabase
+import com.keithmackay.api.model.InvalidAuthenticationResponse
 import com.keithmackay.api.model.LoginModel
-import com.keithmackay.api.utils.cleanDoc
-import com.keithmackay.api.utils.doc
-import com.keithmackay.api.utils.getLogger
-import com.keithmackay.api.utils.set
+import com.keithmackay.api.model.User
+import com.keithmackay.api.utils.*
 import com.mongodb.client.MongoCollection
 import io.javalin.apibuilder.ApiBuilder.path
 import io.javalin.apibuilder.ApiBuilder.post
@@ -20,7 +20,11 @@ import org.bson.Document
 
 @Singleton
 class AuthRouter @Inject
-internal constructor(db: IDatabase) : Router {
+internal constructor(
+    db: IDatabase,
+    private val requestValidator: RequestValidator,
+    private val emailSender: EmailSender
+) : Router {
   private val log = getLogger(AuthRouter::class)
   private val tokenCollection: MongoCollection<Document> = db.getCollection("tokens")
   private val userCollection: MongoCollection<Document> = db.getCollection("users")
@@ -29,16 +33,19 @@ internal constructor(db: IDatabase) : Router {
     path("auth") {
       post("login", this::login)
       post("logout/:username", this::logout)
-      post("/setPassword", this::setPassword)
+      requestValidator.securePost("/setPassword", this::setPassword)
     }
   }
 
-  private fun setPassword(ctx: Context) {
+  private fun setPassword(ctx: Context, body: Document, user: User) {
     val creds = ctx.bodyAsClass(LoginModel::class.java)
-    this.userCollection.updateOne(doc("username", creds.username),
-        set(doc("password", hashPass(creds.password))))
-    ctx.status(200).result("Updated")
-
+    if (user.username == creds.username) {
+      this.userCollection.updateOne(doc("username", creds.username),
+          set(doc("password", hashPass(creds.password))))
+      ctx.status(200).result("Updated")
+    } else {
+      throw InvalidAuthenticationResponse()
+    }
   }
 
   @Benchmark(limit = 15)

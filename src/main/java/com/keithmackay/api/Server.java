@@ -4,11 +4,11 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.inject.Inject;
 import com.keithmackay.api.db.Database;
+import com.keithmackay.api.model.InvalidAuthenticationResponse;
 import com.keithmackay.api.model.SuccessResponse;
 import com.keithmackay.api.routes.*;
 import com.keithmackay.api.utils.UtilsKt;
 import io.javalin.Javalin;
-import io.javalin.http.UnauthorizedResponse;
 import io.javalin.plugin.json.JavalinJson;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.nosql.mongodb.MongoSessionDataStoreFactory;
@@ -58,13 +58,14 @@ public class Server {
         }
       });
     }).exception(SuccessResponse.class,
-        (e, ctx) -> ctx.status(e.getStatus()).result(e.getMessage()))
-        .exception(UnauthorizedResponse.class,
-            (e, ctx) -> {
-              // Remove any existing Auth Data on the Session
-              ctx.sessionAttribute(authSessionAttribute(), null);
-              ctx.status(e.getStatus()).result(e.getMessage());
-            });
+        (e, ctx) -> ctx.status(e.getStatus()).result(e.getMessage())
+    ).exception(InvalidAuthenticationResponse.class,
+        (e, ctx) -> {
+          // Remove any existing Auth Data on the Session
+          ctx.sessionAttribute(authSessionAttribute(), null);
+          ctx.status(e.getStatus()).result(e.getMessage());
+        }
+    );
     this.routers = List.of(authRouter, filesRouter, groceriesRouter, userRouter);
   }
 

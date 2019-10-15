@@ -1,9 +1,8 @@
 package com.keithmackay.api.db
 
-import com.google.gson.JsonParser
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import com.keithmackay.api.utils.fileToString
+import com.keithmackay.api.utils.SecretGrabber
 import com.mongodb.MongoClient
 import com.mongodb.MongoClientURI
 import com.mongodb.client.MongoCollection
@@ -12,20 +11,17 @@ import org.jongo.Jongo
 
 @Singleton
 class Database @Inject
-internal constructor() : IDatabase {
+internal constructor(secretGrabber: SecretGrabber) : IDatabase {
 
   private val client: MongoClient
-  private val connectionString = "mongodb+srv://admin:${getPassword()}@apicluster-tsly9.mongodb.net/test?retryWrites=true&w=majority";
+
+  private val connectionString: String
 
   init {
+    val pass = secretGrabber.getSecret("mongo-password").asString
+    this.connectionString = "mongodb+srv://admin:$pass@apicluster-tsly9.mongodb.net/test?retryWrites=true&w=majority";
     this.client = MongoClient(MongoClientURI(this.connectionString))
   }
-
-  private fun getPassword(): String =
-      JsonParser().parse(fileToString(System.getenv("CREDENTIALS_FILE")).trim())
-          .asJsonObject
-          .get("password")
-          .asString
 
   override fun getCollection(db: String, name: String): MongoCollection<Document> =
       this.client.getDatabase(db).getCollection(name)

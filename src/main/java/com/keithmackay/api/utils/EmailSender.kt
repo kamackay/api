@@ -12,33 +12,37 @@ import java.io.IOException
 
 
 @Singleton
-class TaskList @Inject
-internal constructor() {
+class EmailSender @Inject
+internal constructor(secretGrabber: SecretGrabber) {
 
   private val log = getLogger(this::class)
+  private val sg = SendGrid(secretGrabber.getSecret("sendgrid-key").asString)
 
-  fun send() {
-    val from = Email("api@keithmackay.com")
-    val subject = "Hello"
-    val to = Email("keith@keithmackay.com")
-    val content = Content("text/plain",
-        "This email is from Keith MacKay's API")
-    val mail = Mail(from, subject, to, content)
-
-    val sg = SendGrid(System.getenv("SENDGRID_API_KEY"))
+  fun send(to: String,
+           subject: String,
+           content: Content,
+           from: String = "api@keithmackay.com") {
+    val email = Mail(Email(from), "[KeithMacKay.com]: $subject", Email(to), content)
     val request = Request()
     try {
       request.method = Method.POST
       request.endpoint = "mail/send"
-      request.body = mail.build()
+      request.body = email.build()
       val response = sg.api(request)
       log.info(response.statusCode)
       log.info(response.body)
       log.info(response.headers)
     } catch (ex: IOException) {
-      throw ex
+      log.error("Could not send email", ex)
     }
-
   }
+
+  fun send(to: String,
+           subject: String,
+           content: String,
+           from: String = "api@keithmackay.com") =
+      this.send(to = to, subject = subject,
+          content = Content("text/plain", content),
+          from = from)
 
 }

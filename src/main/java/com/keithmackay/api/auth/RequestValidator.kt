@@ -4,6 +4,7 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.keithmackay.api.authSessionAttribute
 import com.keithmackay.api.db.Database
+import com.keithmackay.api.model.InvalidAuthenticationResponse
 import com.keithmackay.api.model.User
 import com.keithmackay.api.utils.doc
 import com.keithmackay.api.utils.getLogger
@@ -33,7 +34,7 @@ internal constructor(db: Database) {
         post.invoke(user)
       } else {
         log.warn("Invalid Authorization on request")
-        throw UnauthorizedResponse()
+        throw InvalidAuthenticationResponse()
       }
     }
   }
@@ -71,7 +72,7 @@ internal constructor(db: Database) {
           .first()
       if (user == null) {
         log.error("Validated token $token, but could not find user data")
-        throw UnauthorizedResponse()
+        throw InvalidAuthenticationResponse()
       } else {
         log.debug("Valid Request, triggering handler")
         handler.invoke(ctx,
@@ -80,7 +81,7 @@ internal constructor(db: Database) {
       }
     } else {
       log.warn("Invalid Authorization on request")
-      throw UnauthorizedResponse()
+      throw InvalidAuthenticationResponse()
     }
   }
 

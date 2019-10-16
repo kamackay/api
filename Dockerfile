@@ -7,7 +7,6 @@ RUN apk upgrade --update --no-cache && \
         maven \
         bash
 
-COPY mvnsettings.xml /root/.m2/settings.xml
 COPY pom.xml /api/
 RUN mvn dependency:go-offline
 

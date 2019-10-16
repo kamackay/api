@@ -24,7 +24,9 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
 
   override fun routes() {
     path("tracker") {
-      validator.securePut("events", this::addEvent)
+      validator.securePut("events", this::addEvent) { ctx, body ->
+        this.addEvent(ctx, body)
+      }
 
       validator.secureGet("events", { ctx, _, user ->
         if (!user.admin) {

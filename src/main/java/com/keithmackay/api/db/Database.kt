@@ -19,7 +19,7 @@ internal constructor(secretGrabber: SecretGrabber) : IDatabase {
 
   init {
     val pass = secretGrabber.getSecret("mongo-password").asString
-    this.connectionString = "mongodb+srv://admin:$pass@apicluster-tsly9.mongodb.net/test?retryWrites=true&w=majority";
+    this.connectionString = "mongodb+srv://admin:$pass@apicluster-tsly9.mongodb.net/test?retryWrites=true&w=majority"
     this.client = MongoClient(MongoClientURI(this.connectionString))
   }
 

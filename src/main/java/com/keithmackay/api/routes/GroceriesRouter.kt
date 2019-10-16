@@ -25,7 +25,7 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
   override fun routes() {
     path("groceries") {
 
-      validator.securePut("createList") { ctx, body, user ->
+      validator.securePut("createList", { ctx, body, user ->
         val name = body.getString("name")
         log.info("${user.username} is requesting to create a Groceries List named $name")
         val exists = groceriesListsCollection.find(doc("name", name)).count() > 0
@@ -44,9 +44,9 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
             throw InternalServerErrorResponse("Could not create the list")
           }
         }
-      }
+      })
 
-      validator.secureGet("lists") { ctx, _, user ->
+      validator.secureGet("lists", { ctx, _, user ->
         log.info("${user.username} wants a list of grocery lists")
         ctx.json(groceriesListsCollection.find()
             .map {
@@ -54,9 +54,9 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
                   .append("name", it.getString("name"))
             }
             .into(threadSafeList()))
-      }
+      })
 
-      validator.secureGet("list/:listId") { ctx, _, user ->
+      validator.secureGet("list/:listId", { ctx, _, user ->
         val listId = ctx.pathParam("listId")
         val list = groceriesListsCollection
             .find(doc("_id", ObjectId(listId)))
@@ -74,9 +74,9 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
         } else {
           throw NotFoundResponse("Could not find List")
         }
-      }
+      })
 
-      validator.securePost("list/:listName") { ctx, body, user ->
+      validator.securePost("list/:listName", { ctx, body, user ->
         val listName = ctx.pathParam("listName")
         val list = groceriesListsCollection.find(doc("_id", ObjectId(listName)))
             .first()
@@ -98,7 +98,7 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
         } else {
           throw NotFoundResponse("Could not find List")
         }
-      }
+      })
 
     }
   }

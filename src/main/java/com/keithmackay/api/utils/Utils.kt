@@ -73,12 +73,12 @@ fun Document.cleanTo(vararg values: String): Document {
   return this
 }
 
-fun Document.add(key: String, value: Any): Document = this.append(key, value)
+fun Document.add(key: String, value: Any?): Document = this.append(key, value)
 fun Document.join(doc: Document): Document = this.join(doc, true)
 fun Document.join(doc: Document, overwrite: Boolean): Document {
   doc.keys.forEach {
     if (!this.containsKey(it) || overwrite) {
-      this.append(it, doc[it])
+      this[it] = doc[it]
     }
   }
   return this

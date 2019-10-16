@@ -11,12 +11,11 @@ import com.keithmackay.api.utils.getLogger
 import io.javalin.apibuilder.ApiBuilder
 import io.javalin.http.Context
 import io.javalin.http.Handler
-import io.javalin.http.UnauthorizedResponse
 import org.bson.Document
 import java.util.*
 
 typealias RequestHandler = (Context, Document, User) -> Unit
-
+typealias RejectionHandler = (Context, Document) -> Nothing
 
 @Singleton
 class RequestValidator @Inject
@@ -25,6 +24,10 @@ internal constructor(db: Database) {
   private val userCollection = db.getCollection("users")
 
   private val log = getLogger(RequestValidator::class)
+
+  private val defaultReject: RejectionHandler = { _, _ ->
+    throw InvalidAuthenticationResponse()
+  }
 
   fun validateThen(post: (Document) -> Unit): Handler {
     return Handler {
@@ -39,49 +42,56 @@ internal constructor(db: Database) {
     }
   }
 
-  fun secureGet(path: String, handler: RequestHandler) {
+  fun secureGet(path: String, handler: RequestHandler,
+                reject: RejectionHandler = defaultReject) {
     return ApiBuilder.get(path) {
-      secureRequest(it, handler)
+      secureRequest(it, handler, reject)
     }
   }
 
-  fun securePost(path: String, handler: RequestHandler) {
+  fun securePost(path: String, handler: RequestHandler,
+                 reject: RejectionHandler = defaultReject) {
     return ApiBuilder.post(path) {
-      secureRequest(it, handler)
+      secureRequest(it, handler, reject)
     }
   }
 
-  fun securePut(path: String, handler: RequestHandler) {
+  fun securePut(path: String, handler: RequestHandler,
+                reject: RejectionHandler = defaultReject) {
     return ApiBuilder.put(path) {
-      secureRequest(it, handler)
+      secureRequest(it, handler, reject)
     }
   }
 
-  fun secureDelete(path: String, handler: RequestHandler) {
+  fun secureDelete(path: String, handler: RequestHandler,
+                   reject: RejectionHandler = defaultReject) {
     return ApiBuilder.delete(path) {
-      secureRequest(it, handler)
+      secureRequest(it, handler, reject)
     }
   }
 
-  private fun secureRequest(ctx: Context, handler: RequestHandler) {
+  private fun secureRequest(
+      ctx: Context,
+      handler: RequestHandler,
+      onReject: RejectionHandler) {
     log.info("Validating ${ctx.method()} Request on ${ctx.path()}")
     val token = lookup(ctx)
+    val body = if ("GET" == ctx.method()) doc() else Document.parse(ctx.body())
     if (token != null) {
       val user = userCollection
           .find(doc("username", token.getString("username")))
           .first()
       if (user == null) {
         log.error("Validated token $token, but could not find user data")
-        throw InvalidAuthenticationResponse()
+        onReject(ctx, body)
       } else {
         log.debug("Valid Request, triggering handler")
         handler.invoke(ctx,
-            if ("GET" == ctx.method()) doc()
-            else Document.parse(ctx.body()), User().fromJson(user))
+            body,
+            User().fromJson(user))
       }
     } else {
-      log.warn("Invalid Authorization on request")
-      throw InvalidAuthenticationResponse()
+      onReject(ctx, body)
     }
   }
 

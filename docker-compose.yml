@@ -1,1 +1,1 @@
-version: "2"services:  api:    build:      context: .    ports:      - 9876:9876    environment:      - PORT=9876
+version: "3"services:  api:    build:      context: .    ports:      - 9876:9876    environment:      - PORT=9876

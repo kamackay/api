@@ -1,5 +1,5 @@
 FROM alpine:latest
-WORKDIR /home/api
+WORKDIR /api
 
 RUN apk upgrade --update --no-cache && \
     apk add --update --no-cache \
@@ -7,10 +7,14 @@ RUN apk upgrade --update --no-cache && \
         maven \
         bash
 
-ADD . .
-ADD mvnsettings.xml /root/.m2/settings.xml
+COPY mvnsettings.xml /root/.m2/settings.xml
+COPY pom.xml /api/
+RUN mvn dependency:go-offline
 
-RUN mvn install && \
+COPY ./src /api/src
+COPY ./creds.json /api/
+
+RUN mvn package && \
     cp target/*jar-with-dependencies.jar ./api.jar && \
     rm -rf ~/.m2 && \
     rm -rf ./src && \
@@ -18,5 +22,5 @@ RUN mvn install && \
 
 RUN apk del --no-cache maven
 
-ENV CREDENTIALS_FILE /home/api/creds.json
+ENV CREDENTIALS_FILE /api/creds.json
 CMD [ "java", "-jar", "-Xmx400m", "-Xss4m", "api.jar" ]

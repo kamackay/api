@@ -33,9 +33,9 @@ internal constructor(
     path("auth") {
       post("login", this::login)
       post("logout/:username", this::logout)
-      requestValidator.secureGet("checkAuth") { ctx, _, user ->
+      requestValidator.secureGet("checkAuth", { ctx, _, user ->
         ctx.json(doc("valid", true).append("username", user.username))
-      }
+      })
       requestValidator.securePost("/setPassword", this::setPassword)
     }
   }

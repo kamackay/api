@@ -24,7 +24,7 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
   override fun routes() {
     path("users") {
 
-      validator.securePut("create") { ctx, body, user ->
+      validator.securePut("create", { ctx, body, user ->
         if (user.admin) {
           val result = userCollection.updateOne(doc("username", body.getString("username")),
               set(doc("username", body.getString("username"))
@@ -42,7 +42,7 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
         } else {
           throw UnauthorizedResponse()
         }
-      }
+      })
     }
   }
 }

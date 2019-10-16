@@ -1,6 +1,4 @@
-node_modules/
 dist/
 .vscode/
-.target
 target/
 creds.json

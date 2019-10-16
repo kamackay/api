@@ -99,7 +99,7 @@ public class Server {
     MongoSessionDataStoreFactory mongoSessionDataStoreFactory = new MongoSessionDataStoreFactory();
     mongoSessionDataStoreFactory.setConnectionString(this.dbConnectionString);
     mongoSessionDataStoreFactory.setDbName("api");
-    mongoSessionDataStoreFactory.setCollectionName("sessiondata");
+    mongoSessionDataStoreFactory.setCollectionName("session_data");
     return mongoSessionDataStoreFactory;
   }
 

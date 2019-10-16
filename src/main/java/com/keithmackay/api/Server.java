@@ -9,6 +9,7 @@ import com.keithmackay.api.model.SuccessResponse;
 import com.keithmackay.api.routes.*;
 import com.keithmackay.api.utils.UtilsKt;
 import io.javalin.Javalin;
+import io.javalin.core.util.RouteOverviewPlugin;
 import io.javalin.plugin.json.JavalinJson;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.nosql.mongodb.MongoSessionDataStoreFactory;
@@ -52,6 +53,7 @@ public class Server {
       config.requestLogger(UtilsKt::httpLog);
       JavalinJson.setToJsonMapper(this.gson::toJson);
       JavalinJson.setFromJsonMapper(this.gson::fromJson);
+      config.registerPlugin(new RouteOverviewPlugin("overview"));
       config.sessionHandler(() -> {
         try {
           return getSessionHandler();

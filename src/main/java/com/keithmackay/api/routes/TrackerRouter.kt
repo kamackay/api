@@ -63,7 +63,8 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
       }
     }
     eventCollection.insertOne(body
-        .cleanTo("url", "time", "data", "feature", "userAgent", "ip")
+        .cleanTo("url", "time", "data",
+            "feature", "userAgent", "ip", "location")
         .join(doc("ip", ctx.ip())
             .add("userAgent", ctx.userAgent()), false)
         .join(additional, true))

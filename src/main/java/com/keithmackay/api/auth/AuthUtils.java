@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static com.keithmackay.api.ConstantsKt.tokenTimeoutDays;
 import static com.keithmackay.api.utils.UtilsKt.*;
 
 public class AuthUtils {
@@ -56,7 +57,7 @@ public class AuthUtils {
     log.info("Creating new Token for {}", username);
     return doc("username", username)
         .append("timeout", now
-            .plus(7, ChronoUnit.DAYS)
+            .plus(tokenTimeoutDays(), ChronoUnit.DAYS)
             .toEpochMilli())
         .append("timeLoggedIn", now.toEpochMilli())
         .append("timeLoggedInReadable", now.toString())

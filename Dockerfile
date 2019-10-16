@@ -16,8 +16,8 @@ COPY ./creds.json /api/
 RUN mvn package && \
     cp target/*jar-with-dependencies.jar ./api.jar && \
     rm -rf ~/.m2 && \
-    rm -rf ./src && \
-    rm -rf ./target
+    rm -rf ./target && \
+    rm -rf ./src
 
 RUN apk del --no-cache maven
 

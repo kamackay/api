@@ -5,6 +5,7 @@ import com.google.inject.Singleton
 import com.keithmackay.api.db.Database
 import com.keithmackay.api.utils.*
 import org.bson.Document
+import javax.xml.parsers.DocumentBuilderFactory
 
 
 @Singleton
@@ -19,11 +20,17 @@ internal constructor(db: Database) : Task() {
   override fun run() {
     newsRssCollection.find(and(doc("enabled", ne(false))))
         .into(threadSafeList<Document>())
-        .parallelStream()
         .forEach {
           val url = it.getString("url")
-          val response = khttp.get(url)
-          log.info("Request on $url -> ${response.statusCode}")
+          try {
+            val response = khttp.get(url)
+            val docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+            val document = docBuilder.parse(inputStream(response.text))
+            val channels = document.getElementsByTagName("channel")
+            log.info("${channels.length} Channels on $url", channels.item(0).toString())
+          } catch (e: Exception) {
+            log.error("Error on $url", e)
+          }
         }
   }
 

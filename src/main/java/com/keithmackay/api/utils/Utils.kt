@@ -7,9 +7,11 @@ import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.bson.Document
+import java.io.InputStream
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.net.URLEncoder
+import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -85,6 +87,8 @@ fun Document.join(doc: Document, overwrite: Boolean): Document {
 }
 
 fun Double.print(decimals: Int): String = "%.${decimals}f".format(this)
+
+fun inputStream(s: String): InputStream = s.byteInputStream(Charset.defaultCharset())
 
 fun big(n: Double): BigDecimal = BigDecimal.valueOf(n)
 

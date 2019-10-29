@@ -6,6 +6,8 @@ import com.keithmackay.api.MINUTE
 import com.keithmackay.api.db.Database
 import com.keithmackay.api.utils.*
 import com.mongodb.MongoWriteException
+import com.mongodb.client.model.CreateCollectionOptions
+import com.mongodb.client.model.IndexOptions
 import org.bson.Document
 import org.w3c.dom.Node
 import java.io.StringWriter
@@ -20,15 +22,25 @@ import javax.xml.transform.stream.StreamResult
 
 @Singleton
 class NewsTask @Inject
-internal constructor(db: Database) : Task() {
+internal constructor(private val db: Database) : Task() {
 
   private val log = getLogger(this::class)
   private val newsRssCollection = db.getCollection("news_rss")
-  private val newsCollection = db.getCollection("news")
 
   override fun time(): Long = MINUTE * 2
 
   override fun run() {
+    // This allows dropping the collection to clear old news
+    val newsCollection = db.getOrMakeCollection("news",
+        CreateCollectionOptions()
+            .sizeInBytes(1000 * 1000 * 10) // 10 MB
+            .maxDocuments(1000)
+            .capped(true))
+    val indexName = newsCollection.createIndex(doc("guid", -1),
+        IndexOptions()
+            .name("guid-unique")
+            .unique(true))
+    log.info("Verified Index $indexName")
     val existingGuids = newsCollection.distinct("guid", String::class.java)
     newsRssCollection.find(and(doc("enabled", ne(false))))
         .into(threadSafeList<Document>())

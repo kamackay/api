@@ -2,6 +2,7 @@ package com.keithmackay.api.tasks
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import com.keithmackay.api.MINUTE
 import com.keithmackay.api.db.Database
 import com.keithmackay.api.utils.*
 import com.mongodb.MongoWriteException
@@ -25,7 +26,7 @@ internal constructor(db: Database) : Task() {
   private val newsRssCollection = db.getCollection("news_rss")
   private val newsCollection = db.getCollection("news")
 
-  override fun time(): Long = 60000
+  override fun time(): Long = MINUTE * 2
 
   override fun run() {
     val existingGuids = newsCollection.distinct("guid", String::class.java)

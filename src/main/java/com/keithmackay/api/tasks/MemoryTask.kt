@@ -2,6 +2,7 @@ package com.keithmackay.api.tasks
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import com.keithmackay.api.MINUTE
 import com.keithmackay.api.utils.getLogger
 import com.keithmackay.api.utils.humanizeBytes
 import com.keithmackay.api.utils.print
@@ -11,7 +12,7 @@ class MemoryTask @Inject
 internal constructor() : Task() {
   private val log = getLogger(this::class)
 
-  override fun time(): Long = 60000
+  override fun time(): Long = MINUTE * 5
 
   override fun run() {
     val runtime = Runtime.getRuntime()

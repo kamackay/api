@@ -139,6 +139,7 @@ fun doc(): Document = Document()
 fun json(name: String, value: Any?): String = doc(name, value).toJson()
 
 fun eq(content: Any?): Document = doc("\$eq", content)
+fun ne(content: Any?): Document = doc("\$ne", content)
 fun and(content: Collection<Any>): Document = doc("\$and", content)
 fun and(vararg content: Document?): Document = and(arr(*content))
 fun or(vararg content: Document?): Document = or(arr(*content))

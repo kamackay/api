@@ -3,16 +3,20 @@ package com.keithmackay.api.db
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.keithmackay.api.utils.SecretGrabber
+import com.keithmackay.api.utils.getLogger
 import com.mongodb.MongoClient
 import com.mongodb.MongoClientURI
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.model.CreateCollectionOptions
+import lombok.extern.slf4j.Slf4j
 import org.bson.Document
 import org.jongo.Jongo
 
 @Singleton
 class Database @Inject
 internal constructor(secretGrabber: SecretGrabber) : IDatabase {
+
+  private val log = getLogger(this::class)
 
   private val client: MongoClient
 
@@ -36,6 +40,7 @@ internal constructor(secretGrabber: SecretGrabber) : IDatabase {
   fun getOrMakeCollection(db: String, name: String, opts: CreateCollectionOptions?): MongoCollection<Document> {
     val dbInstance = client.getDatabase(db)
     if (!dbInstance.listCollectionNames().contains(name)) {
+      this.log.info("Collection $name did not exist, creating")
       if (opts == null) {
         dbInstance.createCollection(name)
       } else {

@@ -17,7 +17,11 @@ internal constructor(
       tasks.forEach {
         scheduler.scheduleAtFixedRate({
           val start = System.currentTimeMillis()
-          it.run()
+          try {
+            it.run()
+          } catch (e: Exception) {
+            log.error("Error in ${it.javaClass.simpleName}", e)
+          }
           val finish = System.currentTimeMillis()
           log.info("${it.javaClass.simpleName} finished in ${millisToReadableTime(finish - start)}")
         }, 0, it.time(), TimeUnit.MILLISECONDS)

@@ -1,6 +1,9 @@
 import java.util.Collection;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static kotlin.test.AssertionsKt.assertFalse;
+import static kotlin.test.AssertionsKt.assertNotNull;
+import static kotlin.test.AssertionsKt.assertTrue;
 
 
 public class Assertions {
@@ -10,7 +13,7 @@ public class Assertions {
     assertFalse(list.isEmpty(), message);
   }
 
-  public static void assertPresent(final Elective<?> elective, final String message) {
+  public static void assertPresent(final Optional<?> elective, final String message) {
     assertTrue(elective.isPresent(), message);
   }
 }

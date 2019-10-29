@@ -11,6 +11,8 @@ class MemoryTask @Inject
 internal constructor() : Task() {
   private val log = getLogger(this::class)
 
+  override fun time(): Long = 60000
+
   override fun run() {
     val runtime = Runtime.getRuntime()
     val max = runtime.maxMemory()

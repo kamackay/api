@@ -10,7 +10,9 @@ import com.keithmackay.api.utils.set
 import com.keithmackay.api.utils.upsert
 import io.javalin.apibuilder.ApiBuilder.get
 import io.javalin.apibuilder.ApiBuilder.path
+import io.javalin.http.NotFoundResponse
 import io.javalin.http.UnauthorizedResponse
+import io.javalin.plugin.openapi.annotations.ContentType
 import org.bson.Document
 
 @Singleton
@@ -20,6 +22,15 @@ internal constructor(private val validator: RequestValidator, db: Database) : Ro
   private val lsCollection = db.getCollection("lsrules")
 
   override fun routes() {
+    get("favicon.ico") { ctx ->
+      val stream = this::class.java.classLoader.getResourceAsStream("files/favicon.ico")
+      if (stream != null) {
+        ctx.result(stream).contentType("image/x-icon")
+      } else {
+        NotFoundResponse("Could Not Find Favicon")
+      }
+    }
+
     path("files") {
       // Empty File just to test credentials
       get("secret.txt") {

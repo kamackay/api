@@ -15,7 +15,7 @@ import org.bson.Document
 import java.util.*
 
 typealias RequestHandler = (Context, Document, User) -> Unit
-typealias RejectionHandler = (Context, Document) -> Nothing
+typealias RejectionHandler = (Context, Document) -> Unit
 
 @Singleton
 class RequestValidator @Inject

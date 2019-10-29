@@ -6,7 +6,13 @@ import com.google.inject.Inject;
 import com.keithmackay.api.db.Database;
 import com.keithmackay.api.model.InvalidAuthenticationResponse;
 import com.keithmackay.api.model.SuccessResponse;
-import com.keithmackay.api.routes.*;
+import com.keithmackay.api.routes.AuthRouter;
+import com.keithmackay.api.routes.FilesRouter;
+import com.keithmackay.api.routes.GroceriesRouter;
+import com.keithmackay.api.routes.NewsRouter;
+import com.keithmackay.api.routes.Router;
+import com.keithmackay.api.routes.TrackerRouter;
+import com.keithmackay.api.routes.UserRouter;
 import com.keithmackay.api.utils.UtilsKt;
 import io.javalin.Javalin;
 import io.javalin.core.util.RouteOverviewPlugin;
@@ -44,9 +50,12 @@ public class Server {
          final FilesRouter filesRouter,
          final GroceriesRouter groceriesRouter,
          final TrackerRouter trackerRouter,
+         final NewsRouter newsRouter,
          final UserRouter userRouter) {
     this.routers = List.of(authRouter, filesRouter,
-        groceriesRouter, userRouter, trackerRouter);
+        groceriesRouter, userRouter, trackerRouter,
+        newsRouter);
+
     this.dbConnectionString = db.getConnectionString();
     this.app = Javalin.create(config -> {
       config.enableCorsForAllOrigins();

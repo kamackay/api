@@ -27,7 +27,7 @@ internal constructor(db: Database) : Task() {
             val docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
             val document = docBuilder.parse(inputStream(response.text))
             val channels = document.getElementsByTagName("channel")
-            log.info("${channels.length} Channels on $url", channels.item(0).toString())
+            log.info("${channels.length} Channels on $url")
           } catch (e: Exception) {
             log.error("Error on $url", e)
           }

@@ -1,11 +1,9 @@
-FROM alpine:latest
+FROM openjdk:12-alpine as builder
 WORKDIR /api
 
 RUN apk upgrade --update --no-cache && \
     apk add --update --no-cache \
-        openjdk11 \
-        maven \
-        bash
+        maven
 
 COPY pom.xml /api/
 RUN mvn dependency:go-offline
@@ -15,11 +13,14 @@ COPY ./creds.json /api/
 
 RUN mvn package && \
     cp target/*jar-with-dependencies.jar ./api.jar && \
-    rm -rf ~/.m2 && \
     rm -rf ./target && \
     rm -rf ./src
 
-RUN apk del --no-cache maven
+FROM openjdk:12
+
+WORKDIR /api/
+
+COPY --from=builder /api .
 
 ENV CREDENTIALS_FILE /api/creds.json
 CMD [ "java", "-jar", "-Xmx400m", "-Xss4m", "api.jar" ]

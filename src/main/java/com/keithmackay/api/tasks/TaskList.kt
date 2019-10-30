@@ -15,7 +15,7 @@ internal constructor(
     news: NewsTask
 ) {
   // Be sure to add new Tasks here too!
-  private val tasks = threadSafeList(ls, token, memory, session, news, newsPriority)
+  private val tasks = threadSafeList(ls, token, session, news)
 
   fun forEach(f: (Task) -> Unit) = tasks.forEach(f)
 }

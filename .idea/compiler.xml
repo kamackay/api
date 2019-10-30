@@ -9,5 +9,8 @@
         <module name="api" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="api" target="12" />
+    </bytecodeTargetLevel>
   </component>
 </project>

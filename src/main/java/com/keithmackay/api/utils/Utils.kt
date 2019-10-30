@@ -21,7 +21,6 @@ import kotlin.reflect.KClass
 
 const val byteUnitIncrement: Long = 1000
 
-
 fun getLogger(name: String): Logger = LogManager.getLogger(name)
 fun <T : Any> getLogger(c: Class<T>): Logger = getLogger("keith.${c.simpleName}")
 fun <T : Any> getLogger(c: KClass<T>): Logger = getLogger("keith.${c.simpleName}")

@@ -2,8 +2,9 @@ package com.keithmackay.api.tasks
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import com.keithmackay.api.MINUTE
 import com.keithmackay.api.db.Database
+import com.keithmackay.api.megabytes
+import com.keithmackay.api.minutes
 import com.keithmackay.api.utils.*
 import com.mongodb.MongoCommandException
 import com.mongodb.MongoWriteException
@@ -28,21 +29,20 @@ internal constructor(private val db: Database) : Task() {
   private val log = getLogger(this::class)
   private val newsRssCollection = db.getCollection("news_rss")
 
-  override fun time(): Long = MINUTE * 2
+  override fun time(): Long = minutes(2)
 
   override fun run() {
     // This allows dropping the collection to clear old news
     val newsCollection = db.getOrMakeCollection("news",
         CreateCollectionOptions()
-            .sizeInBytes(1000 * 1000 * 10) // 10 MB
+            .sizeInBytes(megabytes(2)) // 10 MB
             .maxDocuments(1000)
             .capped(true))
     try {
-      val indexName = newsCollection.createIndex(doc("guid", 1),
+      newsCollection.createIndex(doc("guid", 1),
           IndexOptions()
               .name("guid-unique")
               .unique(true))
-      log.info("Created Index $indexName")
     } catch (e: MongoCommandException) {
       log.debug("Index already exists")
     }
@@ -83,7 +83,7 @@ internal constructor(private val db: Database) : Task() {
                     newsItem.append("categories", item.getChildrenByTag("category")
                         .map { it.textContent })
                     val guid = item.addPropToDocument("guid", newsItem) {
-                      log.warn("Could Not Find GUID on item!")
+                      log.debug("Could Not Find GUID on item! - {}", item.toXml())
                     }
                     if (guid != null && !existingGuids.contains(guid)) {
                       try {
@@ -128,7 +128,7 @@ internal constructor(private val db: Database) : Task() {
       val t = TransformerFactory.newInstance().newTransformer()
       t.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes")
       t.setOutputProperty(OutputKeys.INDENT, "yes")
-      t.transform(DOMSource(this@toXml), StreamResult(sw))
+      t.transform(DOMSource(this), StreamResult(sw))
     } catch (te: TransformerException) {
       log.error("nodeToString Transformer Exception", te)
     }

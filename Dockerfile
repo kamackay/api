@@ -14,7 +14,8 @@ COPY ./creds.json /api/
 RUN mvn package && \
     cp target/*jar-with-dependencies.jar ./api.jar && \
     rm -rf ./target && \
-    rm -rf ./src
+    rm -rf ./src && \
+    rm pom.xml
 
 FROM openjdk:12
 

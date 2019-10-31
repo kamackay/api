@@ -5,6 +5,7 @@ import com.google.inject.Singleton
 import com.keithmackay.api.auth.RequestValidator
 import com.keithmackay.api.db.IDatabase
 import com.keithmackay.api.utils.*
+import com.mongodb.client.FindIterable
 import io.javalin.apibuilder.ApiBuilder.path
 import org.bson.Document
 import java.util.concurrent.CompletableFuture
@@ -16,6 +17,9 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
 
   private val newsCollection = db.getCollection("news")
 
+  private val defaultNewsSort = doc("importance", 1)
+      .add("time", -1)
+
   override fun routes() {
     path("news") {
       validator.secureGet("/", { ctx, _, user ->
@@ -25,15 +29,47 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
         // Unauthenticated Request. Sent the data, but don't be happy about it
         ctx.json(this.getAllNews())
       })
+
+      validator.secureGet("/site/:site", { ctx, _, user ->
+        val siteName = ctx.pathParam("site")
+        log.info("${user.username} requests all news for site '$siteName'")
+        ctx.json(this.getNewsForSite(siteName))
+      })
+
+      validator.secureGet("/after/:time", { ctx, _, user ->
+        val time = ctx.pathParam("time", Long::class.java).get()
+        log.info("${user.username} requests all news after '$time'")
+        ctx.json(this.getNewsAfter(time))
+      })
+
+      validator.secureGet("/search/:text", { ctx, _, user ->
+        val time = ctx.pathParam("time", Long::class.java).get()
+        log.info("${user.username} requests all news after '$time'")
+        ctx.json(this.getNewsAfter(time))
+      })
     }
   }
 
-  private fun getAllNews() =
-      CompletableFuture.supplyAsync {
-        newsCollection.find()
-            .sort(doc("importance", 1)
-                .add("time", -1))
-            .into(threadSafeList<Document>())
-            .map(::cleanDoc)
-      }
+  private fun getAllNews() = CompletableFuture.supplyAsync {
+    newsCollection.find()
+        .sort(defaultNewsSort)
+        .limit(1000)
+        .bundle()
+  }
+
+  private fun getNewsForSite(name: String) = CompletableFuture.supplyAsync {
+    newsCollection.find(doc("site", name))
+        .sort(defaultNewsSort)
+        .bundle()
+  }
+
+  private fun getNewsAfter(time: Long) = CompletableFuture.supplyAsync {
+    newsCollection.find(doc("time", gte(time)))
+        .sort(defaultNewsSort)
+        .bundle()
+  }
 }
+
+private fun FindIterable<Document>.bundle() =
+    this.into(threadSafeList<Document>())
+        .map(::cleanDoc)

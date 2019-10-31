@@ -148,7 +148,6 @@ fun and(vararg content: Document?): Document = and(arr(*content))
 fun or(vararg content: Document?): Document = or(arr(*content))
 fun or(content: Collection<Any>): Document = doc("\$or", content)
 fun lessThan(content: Any): Document = doc("\$lt", content)
-fun greaterThanEqual(content: Any): Document = doc("\$gte", content)
 fun matchPattern(content: String): Document = doc("\$match", content)
 fun arr(vararg docs: Document?): MutableList<Document> =
     docs.filter(Objects::nonNull).mapNotNull { it }.toMutableList()

@@ -16,7 +16,7 @@
     <Loggers>
         <Root level="debug">
             <AppenderRef ref="Console" level="info"/>
-            <AppenderRef ref="LogFile"/>
+<!--            <AppenderRef ref="LogFile"/>-->
         </Root>
     </Loggers>
 </Configuration>

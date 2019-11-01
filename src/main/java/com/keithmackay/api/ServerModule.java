@@ -20,6 +20,7 @@ import com.keithmackay.api.routes.StatusRouter;
 import com.keithmackay.api.routes.TrackerRouter;
 import com.keithmackay.api.routes.UserRouter;
 import com.keithmackay.api.tasks.LsRuleTask;
+import com.keithmackay.api.tasks.MemoryTask;
 import com.keithmackay.api.tasks.NewsPriorityTask;
 import com.keithmackay.api.tasks.NewsTask;
 import com.keithmackay.api.tasks.SessionCleanupTask;
@@ -50,6 +51,7 @@ public class ServerModule extends AbstractModule {
     taskBinder.addBinding().to(LsRuleTask.class);
     taskBinder.addBinding().to(NewsTask.class);
     taskBinder.addBinding().to(NewsPriorityTask.class);
+    taskBinder.addBinding().to(MemoryTask.class);
     taskBinder.addBinding().to(SessionCleanupTask.class);
     taskBinder.addBinding().to(TokenCleanupTask.class);
   }

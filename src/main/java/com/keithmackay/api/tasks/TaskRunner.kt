@@ -26,7 +26,9 @@ internal constructor() {
             log.error("Error in ${it.javaClass.simpleName}", e)
           }
           val finish = System.currentTimeMillis()
-          log.info("${it.javaClass.simpleName} finished in ${millisToReadableTime(finish - start)}")
+          if (it.log()) {
+            log.info("${it.javaClass.simpleName} finished in ${millisToReadableTime(finish - start)}")
+          }
         }, 0, it.time(), TimeUnit.MILLISECONDS)
       }
 

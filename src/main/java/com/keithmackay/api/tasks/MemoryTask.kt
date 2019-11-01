@@ -14,6 +14,8 @@ internal constructor() : Task() {
 
   override fun time(): Long = minutes(1)
 
+  override fun log(): Boolean = false
+
   override fun run() {
     val runtime = Runtime.getRuntime()
     val max = runtime.maxMemory()

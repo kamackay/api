@@ -6,13 +6,7 @@ import com.google.inject.Inject;
 import com.keithmackay.api.db.Database;
 import com.keithmackay.api.model.InvalidAuthenticationResponse;
 import com.keithmackay.api.model.SuccessResponse;
-import com.keithmackay.api.routes.AuthRouter;
-import com.keithmackay.api.routes.FilesRouter;
-import com.keithmackay.api.routes.GroceriesRouter;
-import com.keithmackay.api.routes.NewsRouter;
 import com.keithmackay.api.routes.Router;
-import com.keithmackay.api.routes.TrackerRouter;
-import com.keithmackay.api.routes.UserRouter;
 import com.keithmackay.api.utils.UtilsKt;
 import io.javalin.Javalin;
 import io.javalin.core.util.RouteOverviewPlugin;
@@ -24,8 +18,8 @@ import org.eclipse.jetty.server.session.SessionCache;
 import org.eclipse.jetty.server.session.SessionHandler;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.keithmackay.api.ConstantsKt.authSessionAttribute;
 import static com.keithmackay.api.utils.UtilsKt.getLogger;
@@ -37,7 +31,9 @@ public class Server {
 
   private final Javalin app;
   private final Collection<Router> routers;
-  private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+  private final Gson gson = new GsonBuilder()
+      //.setPrettyPrinting()
+      .create();
   private final int port = Optional.ofNullable(System.getenv("PORT"))
       .map(Integer::parseInt)
       .orElse(9876);
@@ -46,15 +42,8 @@ public class Server {
 
   @Inject
   Server(final Database db,
-         final AuthRouter authRouter,
-         final FilesRouter filesRouter,
-         final GroceriesRouter groceriesRouter,
-         final TrackerRouter trackerRouter,
-         final NewsRouter newsRouter,
-         final UserRouter userRouter) {
-    this.routers = List.of(authRouter, filesRouter,
-        groceriesRouter, userRouter, trackerRouter,
-        newsRouter);
+         final Set<Router> routers) {
+    this.routers = routers;
 
     this.dbConnectionString = db.getConnectionString();
     this.app = Javalin.create(config -> {

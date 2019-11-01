@@ -1,12 +1,9 @@
-FROM openjdk:12-alpine as builder
+FROM maven:3.6.2-jdk-12 as builder
+
 WORKDIR /api
 
-RUN apk upgrade --update --no-cache && \
-    apk add --update --no-cache \
-        maven
-
 COPY pom.xml /api/
-RUN mvn dependency:go-offline
+RUN mvn dependency:go-offline -B && mvn dependency:copy-dependencies
 
 COPY ./src /api/src
 COPY ./creds.json /api/
@@ -17,7 +14,7 @@ RUN mvn package && \
     rm -rf ./src && \
     rm pom.xml
 
-FROM openjdk:12
+FROM openjdk:12-alpine
 
 WORKDIR /api/
 

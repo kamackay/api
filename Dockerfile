@@ -3,7 +3,10 @@ FROM maven:3.6.2-jdk-12 as builder
 WORKDIR /api
 
 COPY pom.xml /api/
-RUN mvn dependency:go-offline -B && mvn dependency:copy-dependencies
+
+RUN mvn dependency:go-offline package -B && \
+    mvn package && \
+    mvn dependency:copy-dependencies
 
 COPY ./src /api/src
 COPY ./creds.json /api/

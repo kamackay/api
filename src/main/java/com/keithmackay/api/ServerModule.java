@@ -12,6 +12,7 @@ import com.keithmackay.api.benchmark.Benchmark;
 import com.keithmackay.api.benchmark.FunctionInterceptor;
 import com.keithmackay.api.db.IDatabase;
 import com.keithmackay.api.routes.AuthRouter;
+import com.keithmackay.api.routes.FilesRouter;
 import com.keithmackay.api.routes.GroceriesRouter;
 import com.keithmackay.api.routes.NewsRouter;
 import com.keithmackay.api.routes.Router;
@@ -23,7 +24,6 @@ import com.keithmackay.api.tasks.NewsPriorityTask;
 import com.keithmackay.api.tasks.NewsTask;
 import com.keithmackay.api.tasks.SessionCleanupTask;
 import com.keithmackay.api.tasks.Task;
-import com.keithmackay.api.tasks.TaskList;
 import com.keithmackay.api.tasks.TokenCleanupTask;
 
 public class ServerModule extends AbstractModule {
@@ -37,12 +37,12 @@ public class ServerModule extends AbstractModule {
         Matchers.annotatedWith(Benchmark.class),
         new FunctionInterceptor());
     bind(IDatabase.class).asEagerSingleton();
-    bind(TaskList.class).asEagerSingleton();
     Multibinder<Router> routerBinder = Multibinder.newSetBinder(binder(), Router.class);
     routerBinder.addBinding().to(AuthRouter.class);
     routerBinder.addBinding().to(NewsRouter.class);
     routerBinder.addBinding().to(StatusRouter.class);
     routerBinder.addBinding().to(GroceriesRouter.class);
+    routerBinder.addBinding().to(FilesRouter.class);
     routerBinder.addBinding().to(UserRouter.class);
     routerBinder.addBinding().to(TrackerRouter.class);
 

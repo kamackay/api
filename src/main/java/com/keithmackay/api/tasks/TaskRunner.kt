@@ -7,8 +7,11 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 class TaskRunner @Inject
-internal constructor(
-    private val tasks: TaskList) {
+internal constructor() {
+
+  @Inject
+  @JvmSuppressWildcards
+  private lateinit var tasks: Set<Task>
 
   private val log = getLogger(this::class)
   private val scheduler = Executors.newScheduledThreadPool(2)

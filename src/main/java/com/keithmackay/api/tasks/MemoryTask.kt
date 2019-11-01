@@ -12,7 +12,7 @@ class MemoryTask @Inject
 internal constructor() : Task() {
   private val log = getLogger(this::class)
 
-  override fun time(): Long = minutes(5)
+  override fun time(): Long = minutes(1)
 
   override fun run() {
     val runtime = Runtime.getRuntime()
@@ -20,9 +20,5 @@ internal constructor() : Task() {
     val available = runtime.freeMemory()
     val pct = available.toDouble() / max.toDouble()
     log.info("Remaining Allocated Memory: ${humanizeBytes(available)} (${(pct * 100).print(4)}%)")
-    if (pct < 0.25) {
-      log.info("Running Garbage Collection")
-      runtime.gc()
-    }
   }
 }

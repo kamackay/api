@@ -11,21 +11,8 @@ import com.google.inject.multibindings.Multibinder;
 import com.keithmackay.api.benchmark.Benchmark;
 import com.keithmackay.api.benchmark.FunctionInterceptor;
 import com.keithmackay.api.db.IDatabase;
-import com.keithmackay.api.routes.AuthRouter;
-import com.keithmackay.api.routes.FilesRouter;
-import com.keithmackay.api.routes.GroceriesRouter;
-import com.keithmackay.api.routes.NewsRouter;
-import com.keithmackay.api.routes.Router;
-import com.keithmackay.api.routes.StatusRouter;
-import com.keithmackay.api.routes.TrackerRouter;
-import com.keithmackay.api.routes.UserRouter;
-import com.keithmackay.api.tasks.LsRuleTask;
-import com.keithmackay.api.tasks.MemoryTask;
-import com.keithmackay.api.tasks.NewsPriorityTask;
-import com.keithmackay.api.tasks.NewsTask;
-import com.keithmackay.api.tasks.SessionCleanupTask;
-import com.keithmackay.api.tasks.Task;
-import com.keithmackay.api.tasks.TokenCleanupTask;
+import com.keithmackay.api.routes.*;
+import com.keithmackay.api.tasks.*;
 
 public class ServerModule extends AbstractModule {
   public static Injector getInjector() {
@@ -51,7 +38,6 @@ public class ServerModule extends AbstractModule {
     taskBinder.addBinding().to(LsRuleTask.class);
     taskBinder.addBinding().to(NewsTask.class);
     taskBinder.addBinding().to(NewsPriorityTask.class);
-    taskBinder.addBinding().to(MemoryTask.class);
     taskBinder.addBinding().to(SessionCleanupTask.class);
     taskBinder.addBinding().to(TokenCleanupTask.class);
   }

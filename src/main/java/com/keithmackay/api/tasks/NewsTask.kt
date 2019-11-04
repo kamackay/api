@@ -63,10 +63,10 @@ internal constructor(private val db: Database) : Task() {
                   log.debug(node.toXml())
                   val items = node.getChildrenByTag("item")
                   log.debug("$url has ${items.size} items")
-                  items.forEachIndexed { x, item ->
+                  items.forEachIndexed { _, item ->
                     val newsItem = doc("source", cleanDoc(dbDoc))
                         .add("time", System.currentTimeMillis())
-                        .add("importance", x.toLong())
+                        .add("priority", -1)
                     val title = item.addPropToDocument("title", newsItem)
                     item.addPropToDocument("link", newsItem)
                     item.addPropToDocument("dc:creator", newsItem)

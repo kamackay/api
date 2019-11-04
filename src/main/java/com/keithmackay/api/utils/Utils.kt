@@ -59,9 +59,9 @@ fun millisToReadableTime(timeDiff: Long): String {
 fun conditionalPlural(n: Number) = if (n.toDouble() > 1) "s" else ""
 
 fun cleanDoc(doc: Document?): Document? {
-  if (doc == null) return null
-  val d = cloneDoc(doc)
-  d!!.remove("_id")
+  val d = cloneDoc(doc) ?: return null
+  val id = d.remove("_id")
+  d["id"] = id.toString()
   return d
 }
 

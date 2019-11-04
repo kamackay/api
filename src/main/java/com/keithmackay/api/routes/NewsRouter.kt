@@ -6,8 +6,10 @@ import com.keithmackay.api.auth.RequestValidator
 import com.keithmackay.api.db.IDatabase
 import com.keithmackay.api.utils.*
 import com.mongodb.client.FindIterable
+import io.javalin.apibuilder.ApiBuilder.get
 import io.javalin.apibuilder.ApiBuilder.path
 import org.bson.Document
+import org.bson.types.ObjectId
 import java.util.concurrent.CompletableFuture
 
 @Singleton
@@ -17,7 +19,7 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
 
   private val newsCollection = db.getCollection("news")
 
-  private val defaultNewsSort = doc("importance", 1)
+  private val defaultNewsSort = doc("priority", 1)
       .add("time", -1)
 
   override fun routes() {
@@ -30,6 +32,23 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
         ctx.json(this.getAllNews())
       })
 
+      get("/ids") {
+        it.json(CompletableFuture.supplyAsync {
+          newsCollection.distinct("_id", ObjectId::class.java)
+              .map(ObjectId::toString)
+              .into(threadSafeList())
+        })
+      }
+
+      get("/id/:id") {
+        it.json(CompletableFuture.supplyAsync {
+          val id = it.pathParam("id")
+          newsCollection.find(doc("_id", ObjectId(id)))
+              .map(::cleanDoc)
+              .first()
+        })
+      }
+
       validator.secureGet("/site/:site", { ctx, _, user ->
         val siteName = ctx.pathParam("site")
         log.info("${user.username} requests all news for site '$siteName'")
@@ -40,7 +59,11 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
         val time = ctx.pathParam("time", Long::class.java).get()
         log.info("${user.username} requests all news after '$time'")
         ctx.json(this.getNewsAfter(time))
-      })
+      }) { ctx, _ ->
+        val time = ctx.pathParam("time", Long::class.java).get()
+        log.info("Anonymous requests all news after '$time'")
+        ctx.json(this.getNewsAfter(time))
+      }
 
       validator.secureGet("/search/:text", { ctx, _, user ->
         val time = ctx.pathParam("time", Long::class.java).get()

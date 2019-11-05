@@ -12,8 +12,6 @@ import io.javalin.apibuilder.ApiBuilder.get
 import io.javalin.apibuilder.ApiBuilder.path
 import io.javalin.http.NotFoundResponse
 import io.javalin.http.UnauthorizedResponse
-import io.javalin.plugin.openapi.annotations.ContentType
-import org.bson.Document
 
 @Singleton
 class FilesRouter @Inject
@@ -48,7 +46,7 @@ internal constructor(private val validator: RequestValidator, db: Database) : Ro
       get("rules.lsrules") { ctx ->
         log.info("Request for Little Snitch File")
         val rules = lsCollection.find()
-            .mapIndexed { i, server: Document ->
+            .mapIndexed { i, server ->
               val time = 1570476664f + i * 4.01
               doc("action", "deny")
                   .append("creationDate", time)

@@ -4,8 +4,7 @@ WORKDIR /api
 
 COPY pom.xml /api/
 
-RUN mvn dependency:go-offline package -B && \
-    mvn package && \
+RUN mvn package && \
     mvn dependency:copy-dependencies
 
 COPY ./src /api/src

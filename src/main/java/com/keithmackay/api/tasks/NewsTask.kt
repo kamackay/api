@@ -28,6 +28,7 @@ internal constructor(private val db: Database) : Task() {
 
   private val log = getLogger(this::class)
   private val newsRssCollection = db.getCollection("news_rss")
+  private val excludedServers = getExcludedServers(db)
 
   override fun time(): Long = minutes(2)
 
@@ -35,7 +36,7 @@ internal constructor(private val db: Database) : Task() {
     // This allows dropping the collection to clear old news
     val newsCollection = db.getOrMakeCollection("news",
         CreateCollectionOptions()
-            .sizeInBytes(megabytes(2)) // 10 MB
+            .sizeInBytes(megabytes(2.5))
             .maxDocuments(1000)
             .capped(true))
     try {
@@ -47,6 +48,7 @@ internal constructor(private val db: Database) : Task() {
       log.debug("Index already exists")
     }
     val existingGuids = newsCollection.distinct("guid", String::class.java)
+
     newsRssCollection.find(and(doc("enabled", ne(false))))
         .into(threadSafeList<Document>())
         .forEach { dbDoc ->
@@ -60,39 +62,44 @@ internal constructor(private val db: Database) : Task() {
             IntRange(0, channels.length - 1)
                 .map(channels::item)
                 .forEach { node ->
-                  log.debug(node.toXml())
-                  val items = node.getChildrenByTag("item")
-                  log.debug("$url has ${items.size} items")
-                  items.forEachIndexed { _, item ->
-                    val newsItem = doc("source", cleanDoc(dbDoc))
-                        .add("time", System.currentTimeMillis())
-                        .add("priority", -1)
-                    val title = item.addPropToDocument("title", newsItem)
-                    item.addPropToDocument("link", newsItem)
-                    item.addPropToDocument("dc:creator", newsItem)
-                    item.getFirstChildByTag("content:encoded")
-                        .map { it.textContent }
-                        .map(::purgeHtml)
-                        .ifPresent { value ->
-                          newsItem.append("content", value)
+                  try {
+                    log.debug(node.toXml())
+                    val items = node.getChildrenByTag("item")
+                    log.debug("$url has ${items.size} items")
+                    items.forEachIndexed { x, item ->
+                      val newsItem = doc("source", cleanDoc(dbDoc))
+                          .add("time", System.currentTimeMillis())
+                          .add("priority", -1)
+                      val title = item.addPropToDocument("title", newsItem)
+                      item.addPropToDocument("link", newsItem)
+                      item.addPropToDocument("dc:creator", newsItem)
+                      newsItem["indexInFeed"] = x
+                      item.getFirstChildByTag("content:encoded")
+                          .map { it.textContent }
+                          .map { purgeHtml(it, excludedServers) }
+                          .ifPresent { value ->
+                            newsItem.append("content", value)
+                          }
+                      item.addPropToDocument("description", newsItem) {
+                        log.info("Could not find description!")
+                      }
+                      item.addPropToDocument("pubDate", newsItem)
+                      newsItem.append("categories", item.getChildrenByTag("category")
+                          .map { it.textContent })
+                      val guid = item.addPropToDocument("guid", newsItem) {
+                        log.debug("Could Not Find GUID on item! - {}", item.toXml())
+                      }
+                      if (guid != null && !existingGuids.contains(guid)) {
+                        try {
+                          newsCollection.insertOne(newsItem)
+                          log.info("Successfully Added News from ${dbDoc.getString("site")}: $title")
+                        } catch (me: MongoWriteException) {
+                          log.debug("Could not update document due to Static Size Limit: $guid")
                         }
-                    item.addPropToDocument("description", newsItem) {
-                      log.info("Could not find description!")
-                    }
-                    item.addPropToDocument("pubDate", newsItem)
-                    newsItem.append("categories", item.getChildrenByTag("category")
-                        .map { it.textContent })
-                    val guid = item.addPropToDocument("guid", newsItem) {
-                      log.debug("Could Not Find GUID on item! - {}", item.toXml())
-                    }
-                    if (guid != null && !existingGuids.contains(guid)) {
-                      try {
-                        newsCollection.insertOne(newsItem)
-                        log.info("Successfully Added News from ${dbDoc.getString("site")}: $title")
-                      } catch (me: MongoWriteException) {
-                        log.debug("Could not update document due to Static Size Limit: $guid")
                       }
                     }
+                  } catch (e: Exception) {
+                    log.error("Error Processing News", e)
                   }
                 }
           } catch (e: Exception) {
@@ -121,6 +128,12 @@ internal constructor(private val db: Database) : Task() {
       Optional.ofNullable(IntRange(0, this.childNodes.length - 1)
           .map(this.childNodes::item)
           .firstOrNull { it.nodeName == tag })
+
+
+  private fun getExcludedServers(db: Database): Regex =
+      Regex("http.?://[^\"']*(${db.getCollection("lsrules")
+          .distinct("server", String::class.java)
+          .into(threadSafeList<String>()).joinToString(separator = "|")})")
 
   private fun Node.toXml(): String {
     val sw = StringWriter()

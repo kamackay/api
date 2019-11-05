@@ -19,7 +19,7 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
 
   private val newsCollection = db.getCollection("news")
 
-  private val defaultNewsSort = doc("priority", 1)
+  private val defaultNewsSort = doc("indexInFeed", 1)
       .add("time", -1)
 
   override fun routes() {
@@ -87,7 +87,7 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
   }
 
   private fun getNewsAfter(time: Long) = CompletableFuture.supplyAsync {
-    newsCollection.find(doc("time", gte(time)))
+    newsCollection.find(doc("time", gt(time)))
         .sort(defaultNewsSort)
         .bundle()
   }

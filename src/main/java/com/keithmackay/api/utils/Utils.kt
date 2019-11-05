@@ -156,5 +156,7 @@ fun set(value: Any?): Document = Document("\$set", value)
 /** Greater Than Equal */
 fun gte(value: Any?): Document = Document("\$gte", value)
 
+fun gt(value: Any?): Document = Document("\$gt", value)
+
 /** Less Than Equal */
 fun lte(value: Any?): Document = Document("\$lte", value)

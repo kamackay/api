@@ -9,6 +9,8 @@ import com.keithmackay.api.model.SuccessResponse;
 import com.keithmackay.api.routes.Router;
 import com.keithmackay.api.utils.UtilsKt;
 import io.javalin.Javalin;
+import io.javalin.core.compression.Brotli;
+import io.javalin.core.compression.Gzip;
 import io.javalin.core.util.RouteOverviewPlugin;
 import io.javalin.plugin.json.JavalinJson;
 import org.apache.logging.log4j.Logger;
@@ -52,6 +54,7 @@ public class Server {
       JavalinJson.setToJsonMapper(this.gson::toJson);
       JavalinJson.setFromJsonMapper(this.gson::fromJson);
       config.registerPlugin(new RouteOverviewPlugin("overview"));
+      config.compressionStrategy(new Brotli(7), new Gzip(7));
       config.sessionHandler(() -> {
         try {
           return getSessionHandler();

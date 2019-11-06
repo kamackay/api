@@ -187,6 +187,11 @@
             <artifactId>bson</artifactId>
             <version>3.11.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.nixxcode.jvmbrotli</groupId>
+            <artifactId>jvmbrotli</artifactId>
+            <version>0.2.0</version>
+        </dependency>
 
     </dependencies>
 

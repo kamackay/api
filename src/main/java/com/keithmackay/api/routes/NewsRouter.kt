@@ -6,8 +6,7 @@ import com.keithmackay.api.auth.RequestValidator
 import com.keithmackay.api.db.IDatabase
 import com.keithmackay.api.utils.*
 import com.mongodb.client.FindIterable
-import io.javalin.apibuilder.ApiBuilder.get
-import io.javalin.apibuilder.ApiBuilder.path
+import io.javalin.apibuilder.ApiBuilder.*
 import org.bson.Document
 import org.bson.types.ObjectId
 import java.util.concurrent.CompletableFuture
@@ -37,6 +36,20 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
           newsCollection.distinct("_id", ObjectId::class.java)
               .map(ObjectId::toString)
               .into(threadSafeList())
+        })
+      }
+
+      post("/ids") { ctx ->
+        ctx.json(CompletableFuture.supplyAsync {
+          val body = Document.parse(ctx.body())
+          val ids = body.getList("ids", String::class.java)
+          val docs = ids
+              .map { doc("_id", eq(ObjectId(it))) }
+              .toTypedArray()
+          newsCollection.find(
+              or(*docs))
+              .map(::cleanDoc)
+              .mapNotNull { it }
         })
       }
 

@@ -96,6 +96,7 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
   private fun getNewsForSite(name: String) = CompletableFuture.supplyAsync {
     newsCollection.find(doc("site", name))
         .sort(defaultNewsSort)
+        .limit(1000)
         .bundle()
   }
 

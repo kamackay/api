@@ -48,6 +48,8 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
               .toTypedArray()
           newsCollection.find(
               or(*docs))
+              .sort(defaultNewsSort)
+              .limit(1000)
               .map(::cleanDoc)
               .mapNotNull { it }
         })
@@ -75,13 +77,11 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
       }) { ctx, _ ->
         val time = ctx.pathParam("time", Long::class.java).get()
         log.info("Anonymous requests all news after '$time'")
-        ctx.json(this.getNewsAfter(time))
+        ctx.json(this.getNewsAfter(time, 100))
       }
 
       validator.secureGet("/search/:text", { ctx, _, user ->
-        val time = ctx.pathParam("time", Long::class.java).get()
-        log.info("${user.username} requests all news after '$time'")
-        ctx.json(this.getNewsAfter(time))
+
       })
     }
   }
@@ -99,9 +99,12 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
         .bundle()
   }
 
-  private fun getNewsAfter(time: Long) = CompletableFuture.supplyAsync {
+  private fun getNewsAfter(time: Long) = getNewsAfter(time, 1000)
+
+  private fun getNewsAfter(time: Long, limit: Int) = CompletableFuture.supplyAsync {
     newsCollection.find(doc("time", gt(time)))
         .sort(defaultNewsSort)
+        .limit(limit)
         .bundle()
   }
 }

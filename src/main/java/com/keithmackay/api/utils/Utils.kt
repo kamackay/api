@@ -113,11 +113,15 @@ fun httpLog(ctx: Context, time: Float) {
   val logger = LogManager.getLogger("Server")
   val line = "${ctx.protocol()}:${ctx.method()}:${ctx.status()} ${humanizeBytes(ctx.bodyAsBytes().size)} " +
       "on '${ctx.path()}' from ${ctx.ip()} took ${time}ms"
-  if (time <= 10 && ctx.status() == 200) {
-    logger.log(LogLevels.HTTP, line)
+
+  val level: Level = if (time >= 10000) {
+    Level.WARN
+  } else if (time <= 10 && ctx.status() == 200) {
+    LogLevels.HTTP
   } else {
-    logger.info(line)
+    Level.INFO
   }
+  logger.log(level, line)
 }
 
 fun <T : Any> threadSafeList(content: Collection<T>): MutableList<T> =

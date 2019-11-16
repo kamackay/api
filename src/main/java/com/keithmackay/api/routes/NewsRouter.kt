@@ -64,6 +64,18 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
         })
       }
 
+      get("ids_after/:time") {ctx ->
+        val time = ctx.pathParam("time", Long::class.java).get()
+        log.info("Anonymous requests all news after '$time'")
+        ctx.json(CompletableFuture.supplyAsync {
+          newsCollection.find(doc("time", gt(time)))
+              .sort(defaultNewsSort)
+              .limit(1000)
+              .map { it.getObjectId("_id").toString() }
+              .into(threadSafeList())
+        })
+      }
+
       validator.secureGet("/site/:site", { ctx, _, user ->
         val siteName = ctx.pathParam("site")
         log.info("${user.username} requests all news for site '$siteName'")

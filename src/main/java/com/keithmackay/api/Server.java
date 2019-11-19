@@ -80,10 +80,12 @@ public class Server {
       routers.forEach(Router::routes);
       get("ping", ctx -> {
         final Runtime runtime = Runtime.getRuntime();
-        final double memoryRatio = ((double) runtime.freeMemory() / (double) runtime.maxMemory()) * 100;
+        final double memoryRatio = ((double) runtime.freeMemory()
+            / (double) Math.min(runtime.maxMemory(), runtime.totalMemory()))
+            * 100;
         final long now = System.currentTimeMillis();
-        log.info("Current Memory Ratio: {}", memoryRatio);
-        if (now - this.lastBadRequest.get() < 1000 || memoryRatio > 95) {
+        if (now - this.lastBadRequest.get() < 1000 || memoryRatio < 5) {
+          log.error("Reporting Ping as Error State - {}% memory used", memoryRatio);
           ctx.status(500).result("Not Working");
         } else {
           ctx.status(200).result("Working Fine");

@@ -51,7 +51,7 @@ public class Server {
       JavalinJson.setToJsonMapper(this.gson::toJson);
       JavalinJson.setFromJsonMapper(this.gson::fromJson);
       config.registerPlugin(new RouteOverviewPlugin("overview"));
-      //config.compressionStrategy(new Brotli(), new Gzip());
+      config.compressionStrategy(new Brotli(), new Gzip());
       config.sessionHandler(() -> {
         try {
           return getSessionHandler();

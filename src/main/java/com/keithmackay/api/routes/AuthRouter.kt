@@ -12,7 +12,6 @@ import com.keithmackay.api.model.InvalidAuthenticationResponse
 import com.keithmackay.api.model.LoginModel
 import com.keithmackay.api.model.User
 import com.keithmackay.api.utils.*
-import com.mongodb.client.MongoCollection
 import io.javalin.apibuilder.ApiBuilder.path
 import io.javalin.apibuilder.ApiBuilder.post
 import io.javalin.http.Context
@@ -21,13 +20,11 @@ import org.bson.Document
 @Singleton
 class AuthRouter @Inject
 internal constructor(
-    db: IDatabase,
+    private val db: IDatabase,
     private val requestValidator: RequestValidator,
     private val emailSender: EmailSender
 ) : Router {
   private val log = getLogger(AuthRouter::class)
-  private val tokenCollection: MongoCollection<Document> = db.getCollection("tokens")
-  private val userCollection: MongoCollection<Document> = db.getCollection("users")
 
   override fun routes() {
     path("auth") {
@@ -43,7 +40,7 @@ internal constructor(
   private fun setPassword(ctx: Context, body: Document, user: User) {
     val creds = ctx.bodyAsClass(LoginModel::class.java)
     if (user.username == creds.username) {
-      this.userCollection.updateOne(doc("username", creds.username),
+      db.getCollection("users").updateOne(doc("username", creds.username),
           set(doc("password", hashPass(creds.password))))
       ctx.status(200).result("Updated")
     } else {
@@ -54,7 +51,10 @@ internal constructor(
   @Benchmark(limit = 15)
   private fun login(ctx: Context) {
     val creds = ctx.bodyAsClass(LoginModel::class.java)
-    val documentElective = AuthUtils.login(this.userCollection, this.tokenCollection, creds)
+    val documentElective = AuthUtils.login(
+        db.getCollection("users"),
+        db.getCollection("tokens"),
+        creds)
     documentElective
         .map<Document> { cleanDoc(it) }
         .ifPresentOrElse({
@@ -67,6 +67,6 @@ internal constructor(
   @Benchmark(limit = 15)
   private fun logout(ctx: Context) {
     ctx.status(200).result("Successful")
-    AuthUtils.logout(this.tokenCollection, ctx.pathParam("username"))
+    AuthUtils.logout(db.getCollection("tokens"), ctx.pathParam("username"))
   }
 }

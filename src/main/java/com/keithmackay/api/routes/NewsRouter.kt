@@ -13,10 +13,11 @@ import java.util.concurrent.CompletableFuture
 
 @Singleton
 class NewsRouter @Inject
-internal constructor(private val validator: RequestValidator, db: IDatabase) : Router {
+internal constructor(
+    private val validator: RequestValidator,
+    private val db: IDatabase
+) : Router {
   private val log = getLogger(this::class)
-
-  private val newsCollection = db.getCollection("news")
 
   private val defaultNewsSort = doc("indexInFeed", 1)
       .add("time", -1)
@@ -33,7 +34,7 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
 
       get("/ids") {
         it.json(CompletableFuture.supplyAsync {
-          newsCollection.distinct("_id", ObjectId::class.java)
+          db.getCollection("news").distinct("_id", ObjectId::class.java)
               .map(ObjectId::toString)
               .into(threadSafeList())
         })
@@ -46,7 +47,7 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
           val docs = ids
               .map { doc("_id", eq(ObjectId(it))) }
               .toTypedArray()
-          newsCollection.find(
+          db.getCollection("news").find(
               or(*docs))
               .sort(defaultNewsSort)
               .limit(1000)
@@ -58,17 +59,17 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
       get("/id/:id") {
         it.json(CompletableFuture.supplyAsync {
           val id = it.pathParam("id")
-          newsCollection.find(doc("_id", ObjectId(id)))
+          db.getCollection("news").find(doc("_id", ObjectId(id)))
               .map(::cleanDoc)
               .first()
         })
       }
 
-      get("ids_after/:time") {ctx ->
+      get("ids_after/:time") { ctx ->
         val time = ctx.pathParam("time", Long::class.java).get()
         log.info("Anonymous requests all news after '$time'")
         ctx.json(CompletableFuture.supplyAsync {
-          newsCollection.find(doc("time", gt(time)))
+          db.getCollection("news").find(doc("time", gt(time)))
               .sort(defaultNewsSort)
               .limit(1000)
               .map { it.getObjectId("_id").toString() }
@@ -99,14 +100,14 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
   }
 
   private fun getAllNews() = CompletableFuture.supplyAsync {
-    newsCollection.find()
+    db.getCollection("news").find()
         .sort(defaultNewsSort)
         .limit(1000)
         .bundle()
   }
 
   private fun getNewsForSite(name: String) = CompletableFuture.supplyAsync {
-    newsCollection.find(doc("site", name))
+    db.getCollection("news").find(doc("site", name))
         .sort(defaultNewsSort)
         .limit(1000)
         .bundle()
@@ -115,7 +116,7 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
   private fun getNewsAfter(time: Long) = getNewsAfter(time, 1000)
 
   private fun getNewsAfter(time: Long, limit: Int) = CompletableFuture.supplyAsync {
-    newsCollection.find(doc("time", gt(time)))
+    db.getCollection("news").find(doc("time", gt(time)))
         .sort(defaultNewsSort)
         .limit(limit)
         .bundle()

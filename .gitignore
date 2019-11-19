@@ -2,3 +2,7 @@ dist/
 .vscode/
 target/
 creds.json
+.settings/
+.classpath
+.factorypath
+.project

@@ -1,0 +1,72 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: webpage
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webpage-service
+  namespace: webpage
+spec:
+  selector:
+    app: webpage-service
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webpage
+  namespace: webpage
+  labels:
+    app: webpage-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: webpage-service
+  template:
+    metadata:
+      labels:
+        app: webpage-service
+    spec:
+      containers:
+        - name: webpage
+          image: kamackay/webpage
+          env:
+            - name: PORT
+              value: "8080"
+          ports:
+            - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress
+  namespace: webpage
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /*
+            backend:
+              serviceName: webpage-service
+              servicePort: 8080
+---

@@ -32,7 +32,6 @@ public class Server {
   private static final Logger log = getLogger(Server.class);
 
   private final Javalin app;
-  private final Collection<Router> routers;
   private final Gson gson = new GsonBuilder()
       //.setPrettyPrinting()
       .create();
@@ -45,8 +44,6 @@ public class Server {
   @Inject
   Server(final Database db,
          final Set<Router> routers) {
-    this.routers = routers;
-
     this.dbConnectionString = db.getConnectionString();
     this.app = Javalin.create(config -> {
       config.enableCorsForAllOrigins();
@@ -71,18 +68,16 @@ public class Server {
           ctx.sessionAttribute(authSessionAttribute(), null);
           ctx.status(e.getStatus()).result(e.getMessage());
         }
-    );
+    ).routes(() -> {
+      routers.forEach(Router::routes);
+      get("ping", ctx -> {
+        ctx.result("Hello");
+      });
+    });
   }
 
   void start() {
     this.app
-        .routes(() -> {
-          this.routers.forEach(Router::routes);
-          get("ping", ctx -> {
-            //log.info("Received Ping Request");
-            ctx.result("Hello");
-          });
-        })
         .start(port);
   }
 

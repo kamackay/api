@@ -55,6 +55,7 @@ spec:
       containers:
         - name: webpage
           image: kamackay/webpage
+          imagePullPolicy: Always
           env:
             - name: PORT
               value: "8080"
@@ -73,6 +74,56 @@ spec:
               port: 8080
             initialDelaySeconds: 5
             periodSeconds: 5
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  namespace: webpage
+  labels:
+    app: api-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-service
+  template:
+    metadata:
+      labels:
+        app: api-service
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: api
+          image: kamackay/api
+          imagePullPolicy: Always
+          env:
+            - name: PORT
+              value: "8080"
+          ports:
+            - name: http
+              containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 2
+          volumeMounts:
+            - name: creds
+              mountPath: /api/creds.json
+              subPath: creds.json
+      volumes:
+        - name: creds
+          secret:
+            secretName: creds
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress

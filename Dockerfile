@@ -16,7 +16,7 @@ RUN mvn package && \
     rm -rf ./src && \
     rm pom.xml
 
-FROM openjdk:12-alpine
+FROM openjdk:12
 
 WORKDIR /api/
 

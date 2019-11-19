@@ -10,13 +10,29 @@ metadata:
   name: webpage-service
   namespace: webpage
 spec:
-  selector:
-    app: webpage-service
+  type: NodePort
   ports:
     - name: http
-      protocol: TCP
       port: 8080
+      protocol: TCP
       targetPort: 8080
+  selector:
+    app: webpage-service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-service
+  namespace: webpage
+spec:
+  type: NodePort
+  ports:
+    - name: http
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: api-service
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -26,7 +42,7 @@ metadata:
   labels:
     app: webpage-service
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: webpage-service
@@ -35,6 +51,7 @@ spec:
       labels:
         app: webpage-service
     spec:
+      restartPolicy: Always
       containers:
         - name: webpage
           image: kamackay/webpage
@@ -42,13 +59,14 @@ spec:
             - name: PORT
               value: "8080"
           ports:
-            - containerPort: 8080
+            - name: http
+              containerPort: 8080
           livenessProbe:
             httpGet:
               path: /ping
               port: 8080
             initialDelaySeconds: 3
-            periodSeconds: 3
+            periodSeconds: 1
           readinessProbe:
             httpGet:
               path: /ping
@@ -59,11 +77,21 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: ingress
-  namespace: webpage
+  name: basic-ingress
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: webpage-static-ip
+    networking.gke.io/managed-certificates: run-cert, codes-cert
 spec:
   rules:
-    - http:
+    - host: keith.mackay.run
+      http:
+        paths:
+          - path: /*
+            backend:
+              serviceName: webpage-service
+              servicePort: 8080
+    - host: keith.mackay.codes
+      http:
         paths:
           - path: /*
             backend:

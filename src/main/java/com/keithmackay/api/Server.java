@@ -19,9 +19,9 @@ import org.eclipse.jetty.server.session.DefaultSessionCache;
 import org.eclipse.jetty.server.session.SessionCache;
 import org.eclipse.jetty.server.session.SessionHandler;
 
-import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static com.keithmackay.api.ConstantsKt.authSessionAttribute;
 import static com.keithmackay.api.utils.UtilsKt.getLogger;
@@ -38,6 +38,8 @@ public class Server {
   private final int port = Optional.ofNullable(System.getenv("PORT"))
       .map(Integer::parseInt)
       .orElse(9876);
+  private static final long BAD_REQUEST_LIMIT = 10000L;
+  private final AtomicLong lastBadRequest = new AtomicLong(0);
 
   private final String dbConnectionString;
 
@@ -47,7 +49,13 @@ public class Server {
     this.dbConnectionString = db.getConnectionString();
     this.app = Javalin.create(config -> {
       config.enableCorsForAllOrigins();
-      config.requestLogger(UtilsKt::httpLog);
+      config.requestLogger((ctx, time) -> {
+        UtilsKt.httpLog(ctx, time);
+        if (time > BAD_REQUEST_LIMIT) {
+          log.error("Bad Request Time. Reporting.");
+          this.lastBadRequest.set(System.currentTimeMillis());
+        }
+      });
       JavalinJson.setToJsonMapper(this.gson::toJson);
       JavalinJson.setFromJsonMapper(this.gson::fromJson);
       config.registerPlugin(new RouteOverviewPlugin("overview"));
@@ -71,7 +79,12 @@ public class Server {
     ).routes(() -> {
       routers.forEach(Router::routes);
       get("ping", ctx -> {
-        ctx.result("Hello");
+        final long now = System.currentTimeMillis();
+        if (now - this.lastBadRequest.get() < 1000) {
+          ctx.status(500).result("Not Working");
+        } else {
+          ctx.status(200).result("Working Fine");
+        }
       });
     });
   }

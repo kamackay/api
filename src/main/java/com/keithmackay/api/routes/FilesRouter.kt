@@ -81,4 +81,6 @@ internal constructor(private val validator: RequestValidator, db: Database) : Ro
       })
     }
   }
+
+  override fun isHealthy(): Boolean = true
 }

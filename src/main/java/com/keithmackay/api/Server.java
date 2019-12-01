@@ -42,10 +42,12 @@ public class Server {
   private final AtomicLong lastBadRequest = new AtomicLong(0);
 
   private final String dbConnectionString;
+  private final Set<Router> routers;
 
   @Inject
   Server(final Database db,
          final Set<Router> routers) {
+    this.routers = routers;
     this.dbConnectionString = db.getConnectionString();
     this.app = Javalin.create(config -> {
       config.enableCorsForAllOrigins();
@@ -79,12 +81,13 @@ public class Server {
     ).routes(() -> {
       routers.forEach(Router::routes);
       get("ping", ctx -> {
+        final boolean routersHealthy = routers.stream().allMatch(Router::isHealthy);
         final Runtime runtime = Runtime.getRuntime();
         final double memoryRatio = ((double) runtime.freeMemory()
             / (double) Math.min(runtime.maxMemory(), runtime.totalMemory()))
             * 100;
         final long now = System.currentTimeMillis();
-        if (now - this.lastBadRequest.get() < 1000 || memoryRatio < 5) {
+        if (now - this.lastBadRequest.get() < 1000 || memoryRatio < 5 || !routersHealthy) {
           log.error("Reporting Ping as Error State - {}% memory used", memoryRatio);
           ctx.status(500).result("Not Working");
         } else {

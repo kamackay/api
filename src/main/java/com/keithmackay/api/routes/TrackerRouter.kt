@@ -70,4 +70,6 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
         .join(additional, true))
     throw SuccessResponse()
   }
+
+  override fun isHealthy(): Boolean = true
 }

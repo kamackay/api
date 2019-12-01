@@ -37,8 +37,8 @@ internal constructor(private val db: Database) : Task() {
     val newsCollection = db.getOrMakeCollection("news",
         CreateCollectionOptions()
             .sizeInBytes(megabytes(2.5))
-            .maxDocuments(1000)
-            .capped(true))
+            //.maxDocuments(1000)
+            .capped(false))
     try {
       newsCollection.createIndex(doc("guid", 1),
           IndexOptions()
@@ -95,6 +95,8 @@ internal constructor(private val db: Database) : Task() {
                           log.info("Successfully Added News from ${dbDoc.getString("site")}: $title")
                         } catch (me: MongoWriteException) {
                           log.debug("Could not update document due to Static Size Limit: $guid")
+                        } catch (e: Exception) {
+                          log.warn("Could Not Add News Item to the Database")
                         }
                       }
                     }

@@ -131,16 +131,9 @@ metadata:
   name: basic-ingress
   annotations:
     kubernetes.io/ingress.global-static-ip-name: webpage-static-ip
-    networking.gke.io/managed-certificates: run-cert, codes-cert, com-cert, rocks-cert
+    networking.gke.io/managed-certificates: codes-cert, com-cert, rocks-cert
 spec:
   rules:
-    - host: keith.mackay.run
-      http:
-        paths:
-          - path: /*
-            backend:
-              serviceName: webpage-service
-              servicePort: 8080
     - host: keith.mackay.codes
       http:
         paths:
@@ -170,3 +163,4 @@ spec:
               serviceName: api-service
               servicePort: 8080
 ---
+

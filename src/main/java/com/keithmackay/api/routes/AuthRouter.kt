@@ -69,4 +69,6 @@ internal constructor(
     ctx.status(200).result("Successful")
     AuthUtils.logout(db.getCollection("tokens"), ctx.pathParam("username"))
   }
+
+  override fun isHealthy(): Boolean = true
 }

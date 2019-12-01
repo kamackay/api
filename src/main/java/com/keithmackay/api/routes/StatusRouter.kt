@@ -45,4 +45,6 @@ internal constructor() : Router {
     }
   }
 
+  override fun isHealthy(): Boolean = true
+
 }

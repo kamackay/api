@@ -103,4 +103,5 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
     }
   }
 
+  override fun isHealthy(): Boolean = true
 }

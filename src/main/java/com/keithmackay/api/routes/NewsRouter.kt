@@ -5,11 +5,13 @@ import com.google.inject.Singleton
 import com.keithmackay.api.auth.RequestValidator
 import com.keithmackay.api.db.IDatabase
 import com.keithmackay.api.utils.*
+import com.mongodb.MongoException
 import com.mongodb.client.FindIterable
 import io.javalin.apibuilder.ApiBuilder.*
 import org.bson.Document
 import org.bson.types.ObjectId
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.atomic.AtomicBoolean
 
 @Singleton
 class NewsRouter @Inject
@@ -18,6 +20,7 @@ internal constructor(
     private val db: IDatabase
 ) : Router {
   private val log = getLogger(this::class)
+  private val healthy = AtomicBoolean(true)
 
   private val defaultNewsSort = doc("indexInFeed", 1)
       .add("time", -1)
@@ -34,25 +37,36 @@ internal constructor(
 
       get("/ids") {
         it.json(CompletableFuture.supplyAsync {
-          db.getCollection("news").distinct("_id", ObjectId::class.java)
-              .map(ObjectId::toString)
-              .into(threadSafeList())
+          try {
+            db.getCollection("news")
+                .distinct("_id", ObjectId::class.java)
+                .map(ObjectId::toString)
+                .into(threadSafeList())
+          } catch (e: MongoException) {
+            this.healthy.set(false)
+            throw e
+          }
         })
       }
 
       post("/ids") { ctx ->
         ctx.json(CompletableFuture.supplyAsync {
-          val body = Document.parse(ctx.body())
-          val ids = body.getList("ids", String::class.java)
-          val docs = ids
-              .map { doc("_id", eq(ObjectId(it))) }
-              .toTypedArray()
-          db.getCollection("news").find(
-              or(*docs))
-              .sort(defaultNewsSort)
-              .limit(1000)
-              .map(::cleanDoc)
-              .mapNotNull { it }
+          try {
+            val body = Document.parse(ctx.body())
+            val ids = body.getList("ids", String::class.java)
+            val docs = ids
+                .map { doc("_id", eq(ObjectId(it))) }
+                .toTypedArray()
+            db.getCollection("news").find(
+                or(*docs))
+                .sort(defaultNewsSort)
+                .limit(1000)
+                .map(::cleanDoc)
+                .mapNotNull { it }
+          } catch (e: MongoException) {
+            this.healthy.set(false)
+            throw e
+          }
         })
       }
 
@@ -121,6 +135,8 @@ internal constructor(
         .limit(limit)
         .bundle()
   }
+
+  override fun isHealthy(): Boolean = this.healthy.get()
 }
 
 private fun FindIterable<Document>.bundle() =

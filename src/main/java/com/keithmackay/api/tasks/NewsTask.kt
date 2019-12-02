@@ -21,7 +21,6 @@ import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
 
-
 @Singleton
 class NewsTask @Inject
 internal constructor(private val db: Database) : Task() {
@@ -71,19 +70,17 @@ internal constructor(private val db: Database) : Task() {
                           .add("time", System.currentTimeMillis())
                           .add("priority", -1)
                       val title = item.addPropToDocument("title", newsItem)
-                      item.addPropToDocument("link", newsItem)
+                      item.addPropToDocument("link", newsItem, ::forceHttps, ::noop)
                       item.addPropToDocument("dc:creator", newsItem)
                       newsItem["indexInFeed"] = x
                       item.getFirstChildByTag("content:encoded")
                           .map { it.textContent }
                           .map { purgeHtml(it, excludedServers) }
-                          .map {
-                            it.replace("http://", "https://")
-                          }
+                          .map(::forceHttps)
                           .ifPresent { value ->
                             newsItem.append("content", value)
                           }
-                      item.addPropToDocument("description", newsItem)
+                      item.addPropToDocument("description", newsItem, ::forceHttps, ::noop)
                       item.addPropToDocument("pubDate", newsItem)
                       newsItem.append("categories", item.getChildrenByTag("category")
                           .map { it.textContent })
@@ -111,16 +108,24 @@ internal constructor(private val db: Database) : Task() {
         }
   }
 
-  private fun Node.addPropToDocument(name: String, doc: Document, notPresent: () -> Unit = {}): String? {
+  private fun Node.addPropToDocument(
+      name: String,
+      doc: Document,
+      map: (String) -> String,
+      notPresent: () -> Unit = {}): String? {
     var s: String? = null
     this.getFirstChildByTag(name)
         .map { it.textContent }
+        .map(map)
         .ifPresentOrElse({ value ->
           doc[name] = value
           s = value
         }, notPresent)
     return s
   }
+
+  private fun Node.addPropToDocument(name: String, doc: Document, notPresent: () -> Unit = {}): String? =
+      this.addPropToDocument(name, doc, { it }, notPresent)
 
   private fun Node.getChildrenByTag(tag: String): List<Node> =
       IntRange(0, this.childNodes.length - 1)

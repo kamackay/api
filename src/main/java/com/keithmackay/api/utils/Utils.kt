@@ -87,6 +87,10 @@ fun Document.join(doc: Document, overwrite: Boolean): Document {
 
 fun Double.print(decimals: Int): String = "%.${decimals}f".format(this)
 
+fun noop() {
+  // No-op
+}
+
 fun inputStream(s: String): InputStream = s.byteInputStream(Charset.defaultCharset())
 
 fun big(n: Double): BigDecimal = BigDecimal.valueOf(n)

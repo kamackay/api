@@ -4,11 +4,11 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.keithmackay.api.utils.SecretGrabber
 import com.keithmackay.api.utils.getLogger
+import com.keithmackay.api.utils.threadSafeMap
 import com.mongodb.MongoClient
 import com.mongodb.MongoClientURI
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.model.CreateCollectionOptions
-import lombok.extern.slf4j.Slf4j
 import org.bson.Document
 import org.jongo.Jongo
 
@@ -24,7 +24,14 @@ internal constructor(secretGrabber: SecretGrabber) : IDatabase {
 
   init {
     val pass = secretGrabber.getSecret("mongo-password").asString
-    this.connectionString = "mongodb+srv://admin:$pass@apicluster-tsly9.mongodb.net/test?retryWrites=true&w=majority"
+    val optionMap = threadSafeMap<String, Any>()
+    optionMap["retryWrites"] = true
+    optionMap["w"] = "majority"
+    optionMap["socketTimeoutMS"] = 60 * 1000
+    val options = optionMap.map { "${it.key}=${it.value}" }
+        .joinToString(separator = "&")
+    log.info("Connecting to mongo with URL Options: $options")
+    this.connectionString = "mongodb+srv://admin:$pass@apicluster-tsly9.mongodb.net/test?$options"
     this.client = MongoClient(MongoClientURI(this.connectionString))
   }
 
@@ -37,7 +44,7 @@ internal constructor(secretGrabber: SecretGrabber) : IDatabase {
   override fun getJongoCollection(name: String?): org.jongo.MongoCollection =
       Jongo(this.client.getDB("api")).getCollection("name")
 
-  fun getOrMakeCollection(db: String, name: String, opts: CreateCollectionOptions?): MongoCollection<Document> {
+  private fun getOrMakeCollection(db: String, name: String, opts: CreateCollectionOptions?): MongoCollection<Document> {
     val dbInstance = client.getDatabase(db)
     if (!dbInstance.listCollectionNames().contains(name)) {
       this.log.info("Collection $name did not exist, creating")

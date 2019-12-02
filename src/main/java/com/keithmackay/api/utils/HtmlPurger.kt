@@ -14,3 +14,6 @@ fun purgeHtml(s: String, servers: Regex?): String {
 
   return temp
 }
+
+fun forceHttps(s: String): String =
+    s.replace("http://", "https://", true)

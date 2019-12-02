@@ -4,19 +4,14 @@ WORKDIR /api
 
 COPY pom.xml /api/
 
-RUN mvn package && \
-    mvn dependency:copy-dependencies
+RUN mvn package
 
 COPY ./src /api/src
-# COPY ./creds.json /api/
 
 RUN mvn package && \
-    cp target/*jar-with-dependencies.jar ./api.jar && \
-    rm -rf ./target && \
-    rm -rf ./src && \
-    rm pom.xml
+    cp target/*jar-with-dependencies.jar ./api.jar
 
-FROM openjdk:12
+FROM openjdk:12-alpine
 
 WORKDIR /api/
 

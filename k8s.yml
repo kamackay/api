@@ -54,7 +54,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: webpage
-          image: kamackay/webpage
+          image: kamackay/webpage:latest
           imagePullPolicy: Always
           env:
             - name: PORT

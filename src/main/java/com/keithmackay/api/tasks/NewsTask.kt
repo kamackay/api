@@ -37,8 +37,8 @@ internal constructor(private val db: Database) : Task() {
     val newsCollection = db.getOrMakeCollection("news",
         CreateCollectionOptions()
             .sizeInBytes(megabytes(2.5))
-            //.maxDocuments(1000)
-            .capped(false))
+            .maxDocuments(1000)
+            .capped(true))
     try {
       newsCollection.createIndex(doc("guid", 1),
           IndexOptions()

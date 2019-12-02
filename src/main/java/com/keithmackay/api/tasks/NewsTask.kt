@@ -77,12 +77,13 @@ internal constructor(private val db: Database) : Task() {
                       item.getFirstChildByTag("content:encoded")
                           .map { it.textContent }
                           .map { purgeHtml(it, excludedServers) }
+                          .map {
+                            it.replace("http://", "https://")
+                          }
                           .ifPresent { value ->
                             newsItem.append("content", value)
                           }
-                      item.addPropToDocument("description", newsItem) {
-                        log.info("Could not find description!")
-                      }
+                      item.addPropToDocument("description", newsItem)
                       item.addPropToDocument("pubDate", newsItem)
                       newsItem.append("categories", item.getChildrenByTag("category")
                           .map { it.textContent })

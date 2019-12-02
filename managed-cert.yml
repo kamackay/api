@@ -1,10 +1,3 @@
-apiVersion: networking.gke.io/v1beta1
-kind: ManagedCertificate
-metadata:
-  name: run-cert
-spec:
-  domains:
-    - keith.mackay.run
 ---
 apiVersion: networking.gke.io/v1beta1
 kind: ManagedCertificate
@@ -21,13 +14,5 @@ metadata:
 spec:
   domains:
     - keithmackay.com
----
-apiVersion: networking.gke.io/v1beta1
-kind: ManagedCertificate
-metadata:
-  name: rocks-cert
-spec:
-  domains:
-    - keith.mackay.rocks
 ---
 

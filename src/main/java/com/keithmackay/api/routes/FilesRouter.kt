@@ -4,18 +4,17 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.keithmackay.api.auth.RequestValidator
 import com.keithmackay.api.db.Database
-import com.keithmackay.api.utils.doc
-import com.keithmackay.api.utils.getLogger
-import com.keithmackay.api.utils.set
-import com.keithmackay.api.utils.upsert
+import com.keithmackay.api.utils.*
+import com.mongodb.client.model.CreateCollectionOptions
 import io.javalin.apibuilder.ApiBuilder.get
 import io.javalin.apibuilder.ApiBuilder.path
 import io.javalin.http.NotFoundResponse
 import io.javalin.http.UnauthorizedResponse
+import java.util.concurrent.CompletableFuture
 
 @Singleton
 class FilesRouter @Inject
-internal constructor(private val validator: RequestValidator, db: Database) : Router {
+internal constructor(private val validator: RequestValidator, private val db: Database) : Router {
   private val log = getLogger(this::class)
   private val lsCollection = db.getCollection("lsrules")
 
@@ -27,6 +26,15 @@ internal constructor(private val validator: RequestValidator, db: Database) : Ro
       } else {
         NotFoundResponse("Could Not Find Favicon")
       }
+    }
+
+    get("gift-ideas") { ctx ->
+      ctx.json(CompletableFuture.supplyAsync {
+        db.getOrMakeCollection("gift-ideas", CreateCollectionOptions())
+            .find()
+            .map(::cleanDoc)
+            .mapNotNull { it }
+      })
     }
 
     path("files") {

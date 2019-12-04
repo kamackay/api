@@ -42,7 +42,7 @@ metadata:
   labels:
     app: webpage-service
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: webpage-service
@@ -74,6 +74,9 @@ spec:
               port: 8080
             initialDelaySeconds: 5
             periodSeconds: 5
+          resources:
+            limits:
+              memory: 10M
 ---
 apiVersion: apps/v1
 kind: Deployment

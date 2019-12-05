@@ -104,7 +104,7 @@ internal constructor(
       }) { ctx, _ ->
         val time = ctx.pathParam("time", Long::class.java).get()
         log.info("Anonymous requests all news after '$time'")
-        ctx.json(this.getNewsAfter(time, 100))
+        ctx.json(this.getNewsAfter(time, 800))
       }
 
       validator.secureGet("/search/:text", { ctx, _, user ->

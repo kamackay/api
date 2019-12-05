@@ -56,20 +56,20 @@ data:
         }
 
         server {
-            server_name keith.mackay.codes keithmackay.com;
+            server_name api.keithmackay.com;
             listen 80;
 
-            location / {
-                proxy_pass http://webpage-service:8080;
+            location /* {
+                proxy_pass http://api-service:8080$request_uri;
             }
         }
 
         server {
-            server_name api.keithmackay.com;
+            server_name keith.mackay.codes keithmackay.com;
             listen 80;
 
-            location / {
-                proxy_pass http://api-service:8080;
+            location /* {
+                proxy_pass http://webpage-service:8080$request_uri;
             }
         }
     }
@@ -123,4 +123,3 @@ spec:
           configMap:
             name: router-config
 ---
-

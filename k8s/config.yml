@@ -138,6 +138,12 @@ metadata:
     networking.gke.io/managed-certificates: codes-cert, com-cert
 spec:
   rules:
+    # - http:
+    #     paths:
+    #       - path: /*
+    #         backend:
+    #           serviceName: router
+    #           servicePort: 80
     - host: keith.mackay.codes
       http:
         paths:
@@ -160,4 +166,3 @@ spec:
               serviceName: api-service
               servicePort: 8080
 ---
-

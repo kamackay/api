@@ -128,41 +128,67 @@ spec:
           secret:
             secretName: creds
 ---
-apiVersion: extensions/v1beta1
-kind: Ingress
+apiVersion: v1
+kind: Service
 metadata:
-  name: basic-ingress
+  labels:
+    service: db
+  name: db
   namespace: webpage
-  annotations:
-    kubernetes.io/ingress.global-static-ip-name: webpage-static-ip
-    networking.gke.io/managed-certificates: codes-cert, com-cert
 spec:
-  rules:
-    # - http:
-    #     paths:
-    #       - path: /*
-    #         backend:
-    #           serviceName: router
-    #           servicePort: 80
-    - host: keith.mackay.codes
-      http:
-        paths:
-          - path: /*
-            backend:
-              serviceName: webpage-service
-              servicePort: 8080
-    - host: keithmackay.com
-      http:
-        paths:
-          - path: /*
-            backend:
-              serviceName: webpage-service
-              servicePort: 8080
-    - host: api.keithmackay.com
-      http:
-        paths:
-          - path: /*
-            backend:
-              serviceName: api-service
-              servicePort: 8080
+  type: ClusterIP
+  ports:
+    - name: db
+      port: 27017
+      targetPort: 27017
+  selector:
+    service: db
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: db
+spec:
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 1Gi
+  hostPath:
+    path: /api/storage
+  persistentVolumeReclaimPolicy: Retain
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: db
+  namespace: webpage
+spec:
+  serviceName: db
+  replicas: 1
+  selector:
+    matchLabels:
+      service: db
+  template:
+    metadata:
+      labels:
+        service: db
+    spec:
+      containers:
+        - name: mongo
+          image: mongo:latest
+          ports:
+            - name: db
+              containerPort: 27017
+          volumeMounts:
+            - name: db
+              mountPath: /data/db
+  volumeClaimTemplates:
+    - spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
+      metadata:
+        name: db
 ---

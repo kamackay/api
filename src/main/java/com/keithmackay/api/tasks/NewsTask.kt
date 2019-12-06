@@ -3,6 +3,7 @@ package com.keithmackay.api.tasks
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.keithmackay.api.db.Database
+import com.keithmackay.api.db.EphemeralDatabase
 import com.keithmackay.api.megabytes
 import com.keithmackay.api.minutes
 import com.keithmackay.api.utils.*
@@ -23,7 +24,10 @@ import javax.xml.transform.stream.StreamResult
 
 @Singleton
 class NewsTask @Inject
-internal constructor(private val db: Database) : Task() {
+internal constructor(
+    private val db: Database,
+    private val ephemeralDatabase: EphemeralDatabase
+) : Task() {
 
   private val log = getLogger(this::class)
   private val newsRssCollection = db.getCollection("news_rss")
@@ -33,11 +37,11 @@ internal constructor(private val db: Database) : Task() {
 
   override fun run() {
     // This allows dropping the collection to clear old news
-    val newsCollection = db.getOrMakeCollection("news",
+    val newsCollection = ephemeralDatabase.getOrMakeCollection("news",
         CreateCollectionOptions()
+            .capped(true)
             .sizeInBytes(megabytes(2.5))
-            .maxDocuments(1000)
-            .capped(true))
+            .maxDocuments(1000))
     try {
       newsCollection.createIndex(doc("guid", 1),
           IndexOptions()
@@ -47,6 +51,12 @@ internal constructor(private val db: Database) : Task() {
       log.debug("Index already exists")
     }
     val existingGuids = newsCollection.distinct("guid", String::class.java)
+
+    Thread {
+      if (newsCollection.countDocuments() > 1000) {
+        log.error("There are more than 1000 News Items, and there shouldn't be")
+      }
+    }.start()
 
     newsRssCollection.find(and(doc("enabled", ne(false))))
         .into(threadSafeList<Document>())

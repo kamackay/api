@@ -10,9 +10,21 @@ import com.google.inject.matcher.Matchers;
 import com.google.inject.multibindings.Multibinder;
 import com.keithmackay.api.benchmark.Benchmark;
 import com.keithmackay.api.benchmark.FunctionInterceptor;
-import com.keithmackay.api.db.IDatabase;
-import com.keithmackay.api.routes.*;
-import com.keithmackay.api.tasks.*;
+import com.keithmackay.api.db.Database;
+import com.keithmackay.api.db.EphemeralDatabase;
+import com.keithmackay.api.routes.AuthRouter;
+import com.keithmackay.api.routes.FilesRouter;
+import com.keithmackay.api.routes.GroceriesRouter;
+import com.keithmackay.api.routes.NewsRouter;
+import com.keithmackay.api.routes.Router;
+import com.keithmackay.api.routes.StatusRouter;
+import com.keithmackay.api.routes.TrackerRouter;
+import com.keithmackay.api.routes.UserRouter;
+import com.keithmackay.api.tasks.LsRuleTask;
+import com.keithmackay.api.tasks.NewsTask;
+import com.keithmackay.api.tasks.SessionCleanupTask;
+import com.keithmackay.api.tasks.Task;
+import com.keithmackay.api.tasks.TokenCleanupTask;
 
 public class ServerModule extends AbstractModule {
   public static Injector getInjector() {
@@ -24,7 +36,8 @@ public class ServerModule extends AbstractModule {
     bindInterceptor(Matchers.any(),
         Matchers.annotatedWith(Benchmark.class),
         new FunctionInterceptor());
-    bind(IDatabase.class).asEagerSingleton();
+    bind(Database.class).asEagerSingleton();
+    bind(EphemeralDatabase.class).asEagerSingleton();
     Multibinder<Router> routerBinder = Multibinder.newSetBinder(binder(), Router.class);
     routerBinder.addBinding().to(AuthRouter.class);
     routerBinder.addBinding().to(NewsRouter.class);

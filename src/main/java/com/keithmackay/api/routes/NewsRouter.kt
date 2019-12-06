@@ -3,7 +3,7 @@ package com.keithmackay.api.routes
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.keithmackay.api.auth.RequestValidator
-import com.keithmackay.api.db.IDatabase
+import com.keithmackay.api.db.EphemeralDatabase
 import com.keithmackay.api.utils.*
 import com.mongodb.MongoException
 import com.mongodb.client.FindIterable
@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 class NewsRouter @Inject
 internal constructor(
     private val validator: RequestValidator,
-    private val db: IDatabase
+    private val db: EphemeralDatabase
 ) : Router {
   private val log = getLogger(this::class)
   private val healthy = AtomicBoolean(true)

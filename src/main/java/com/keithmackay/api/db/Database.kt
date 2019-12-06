@@ -2,10 +2,12 @@ package com.keithmackay.api.db
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import com.keithmackay.api.minutes
 import com.keithmackay.api.utils.SecretGrabber
 import com.keithmackay.api.utils.getLogger
 import com.keithmackay.api.utils.threadSafeMap
 import com.mongodb.MongoClient
+import com.mongodb.MongoClientOptions
 import com.mongodb.MongoClientURI
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.model.CreateCollectionOptions
@@ -27,12 +29,17 @@ internal constructor(secretGrabber: SecretGrabber) : IDatabase {
     val optionMap = threadSafeMap<String, Any>()
     optionMap["retryWrites"] = true
     optionMap["w"] = "majority"
+    optionMap["maxPoolSize"] = 10
+    optionMap["minPoolSize"] = 5
     optionMap["socketTimeoutMS"] = 60 * 1000
     val options = optionMap.map { "${it.key}=${it.value}" }
         .joinToString(separator = "&")
     log.info("Connecting to mongo with URL Options: $options")
-    this.connectionString = "mongodb+srv://admin:$pass@apicluster-tsly9.mongodb.net/test?$options"
-    this.client = MongoClient(MongoClientURI(this.connectionString))
+    this.connectionString = "mongodb+srv://admin:$pass@apicluster-tsly9.mongodb.net/?$options"
+    this.client = MongoClient(MongoClientURI(this.connectionString,
+        MongoClientOptions.builder()
+            .maxConnectionIdleTime(0)
+            .maxWaitTime(minutes(1).toInt())))
   }
 
   override fun getCollection(db: String, name: String): MongoCollection<Document> =

@@ -37,7 +37,7 @@ public class ServerModule extends AbstractModule {
     Multibinder<Task> taskBinder = Multibinder.newSetBinder(binder(), Task.class);
     taskBinder.addBinding().to(LsRuleTask.class);
     taskBinder.addBinding().to(NewsTask.class);
-    taskBinder.addBinding().to(NewsPriorityTask.class);
+    //taskBinder.addBinding().to(NewsPriorityTask.class);
     taskBinder.addBinding().to(SessionCleanupTask.class);
     taskBinder.addBinding().to(TokenCleanupTask.class);
   }

@@ -82,7 +82,7 @@ internal constructor(
                         log.debug("Could Not Find GUID on item! - {}", item.toXml())
                       }
                       if (guid == null || existingGuids.contains(guid)) {
-                        return;
+                        return@forEachIndexed
                       }
                       val title = item.addPropToDocument("title", newsItem)
                       item.addPropToDocument("link", newsItem, ::forceHttps, ::noop)

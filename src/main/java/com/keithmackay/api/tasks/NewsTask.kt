@@ -74,11 +74,16 @@ internal constructor(
                   try {
                     log.debug(node.toXml())
                     val items = node.getChildrenByTag("item")
-                    log.debug("$url has ${items.size} items")
                     items.forEachIndexed { x, item ->
                       val newsItem = doc("source", cleanDoc(dbDoc))
                           .add("time", System.currentTimeMillis())
                           .add("priority", -1)
+                      val guid = item.addPropToDocument("guid", newsItem) {
+                        log.debug("Could Not Find GUID on item! - {}", item.toXml())
+                      }
+                      if (guid == null || existingGuids.contains(guid)) {
+                        return;
+                      }
                       val title = item.addPropToDocument("title", newsItem)
                       item.addPropToDocument("link", newsItem, ::forceHttps, ::noop)
                       item.addPropToDocument("dc:creator", newsItem)
@@ -94,19 +99,16 @@ internal constructor(
                       item.addPropToDocument("pubDate", newsItem)
                       newsItem.append("categories", item.getChildrenByTag("category")
                           .map { it.textContent })
-                      val guid = item.addPropToDocument("guid", newsItem) {
-                        log.debug("Could Not Find GUID on item! - {}", item.toXml())
+
+                      try {
+                        newsCollection.insertOne(newsItem)
+                        log.info("Successfully Added News from ${dbDoc.getString("site")}: $title")
+                      } catch (me: MongoWriteException) {
+                        log.debug("Could not update document due to Static Size Limit: $guid")
+                      } catch (e: Exception) {
+                        log.warn("Could Not Add News Item to the Database")
                       }
-                      if (guid != null && !existingGuids.contains(guid)) {
-                        try {
-                          newsCollection.insertOne(newsItem)
-                          log.info("Successfully Added News from ${dbDoc.getString("site")}: $title")
-                        } catch (me: MongoWriteException) {
-                          log.debug("Could not update document due to Static Size Limit: $guid")
-                        } catch (e: Exception) {
-                          log.warn("Could Not Add News Item to the Database")
-                        }
-                      }
+
                     }
                   } catch (e: Exception) {
                     log.error("Error Processing News", e)

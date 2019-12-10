@@ -14,8 +14,8 @@ public class HtmlPurgeTest {
     assertEquals("<div></div>",
         purgeHtml("<div><script source='ROUGE URL' /></div>"));
 
-    assertEquals("<tag source=\"/stuff\"></tag>",
-        purgeHtml("<tag source=\"http://doubleclick.net/stuff\"></tag>",
-            threadSafeList("doubleclick.net")));
+//    assertEquals("<tag source=\"/stuff\"></tag>",
+//        purgeHtml("<tag source=\"http://doubleclick.net/stuff\"></tag>",
+//            threadSafeList("doubleclick.net")));
   }
 }

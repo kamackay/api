@@ -1,0 +1,43 @@
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: basic-ingress
+  namespace: webpage
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: webpage-static-ip
+    networking.gke.io/managed-certificates: codes-cert, com-cert
+spec:
+  rules:
+    # - http:
+    #     paths:
+    #       - path: /*
+    #         backend:
+    #           serviceName: router
+    #           servicePort: 80
+    - host: keith.mackay.codes
+      http:
+        paths:
+          - path: /*
+            backend:
+              serviceName: webpage-service
+              servicePort: 8080
+    - host: keithmackay.com
+      http:
+        paths:
+          - path: /*
+            backend:
+              serviceName: webpage-service
+              servicePort: 8080
+    - host: api.keithmackay.com
+      http:
+        paths:
+          - path: /go/*
+            backend:
+              serviceName: go-api-service
+              servicePort: 8080
+          - path: /*
+            backend:
+              serviceName: api-service
+              servicePort: 8080
+---

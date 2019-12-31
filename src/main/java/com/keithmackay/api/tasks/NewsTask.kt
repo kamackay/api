@@ -101,15 +101,16 @@ internal constructor(
                       item.addPropToDocument("description", newsItem, ::forceHttps, ::noop)
                       item.addPropToDocument("pubDate", newsItem, { date ->
                         // See if date can be used for time
-                        threadSafeList(
+                        for (formatter in threadSafeList(
                             DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss zzz"),
                             DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss OOOO")
-                        ).forEach { formatter ->
+                        )) {
                           try {
                             val parsed = LocalDateTime.parse(date, formatter)
                             val ms = parsed.toEpochSecond(ZoneOffset.UTC)
                             newsItem["time"] = ms
                             log.info("Successfully Pulled time from RSS feed: $date")
+                            break
                           } catch (e: Exception) {
                             log.debug("Could not parse Date: $date", e)
                           }

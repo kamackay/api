@@ -3,6 +3,7 @@ apiVersion: networking.gke.io/v1beta1
 kind: ManagedCertificate
 metadata:
   name: codes-cert
+  namespace: webpage
 spec:
   domains:
     - keith.mackay.codes
@@ -11,8 +12,18 @@ apiVersion: networking.gke.io/v1beta1
 kind: ManagedCertificate
 metadata:
   name: com-cert
+  namespace: webpage
 spec:
   domains:
     - keithmackay.com
+---
+apiVersion: networking.gke.io/v1beta1
+kind: ManagedCertificate
+metadata:
+  name: api-com-cert
+  namespace: webpage
+spec:
+  domains:
+    - api.keithmackay.com
 ---
 

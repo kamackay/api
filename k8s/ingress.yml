@@ -6,7 +6,7 @@ metadata:
   namespace: webpage
   annotations:
     kubernetes.io/ingress.global-static-ip-name: webpage-static-ip
-    networking.gke.io/managed-certificates: codes-cert, com-cert
+    networking.gke.io/managed-certificates: codes-cert, com-cert, api-com-cert
 spec:
   rules:
     # - http:
@@ -40,4 +40,3 @@ spec:
             backend:
               serviceName: api-service
               servicePort: 8080
----

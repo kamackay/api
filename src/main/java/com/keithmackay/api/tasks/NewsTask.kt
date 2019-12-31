@@ -14,6 +14,9 @@ import com.mongodb.client.model.IndexOptions
 import org.bson.Document
 import org.w3c.dom.Node
 import java.io.StringWriter
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 import java.util.*
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.OutputKeys
@@ -82,7 +85,7 @@ internal constructor(
                         log.debug("Could Not Find GUID on item! - {}", item.toXml())
                       }
                       if (guid == null || existingGuids.contains(guid)) {
-                        return;
+                        return@forEachIndexed
                       }
                       val title = item.addPropToDocument("title", newsItem)
                       item.addPropToDocument("link", newsItem, ::forceHttps, ::noop)
@@ -96,7 +99,23 @@ internal constructor(
                             newsItem.append("content", value)
                           }
                       item.addPropToDocument("description", newsItem, ::forceHttps, ::noop)
-                      item.addPropToDocument("pubDate", newsItem)
+                      item.addPropToDocument("pubDate", newsItem, { date ->
+                        // See if date can be used for time
+                        threadSafeList(
+                            DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss zzz"),
+                            DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss OOOO")
+                        ).forEach { formatter ->
+                          try {
+                            val parsed = LocalDateTime.parse(date, formatter)
+                            val ms = parsed.toEpochSecond(ZoneOffset.UTC)
+                            newsItem["time"] = ms
+                            log.info("Successfully Pulled time from RSS feed: $date")
+                          } catch (e: Exception) {
+                            log.debug("Could not parse Date: $date", e)
+                          }
+                        }
+                        date
+                      }, {})
                       newsItem.append("categories", item.getChildrenByTag("category")
                           .map { it.textContent })
 

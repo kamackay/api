@@ -18,4 +18,4 @@ WORKDIR /api/
 COPY --from=builder /api .
 
 ENV CREDENTIALS_FILE /api/creds.json
-CMD [ "java", "-jar", "-Xmx350m", "-Xss4m", "api.jar" ]
+CMD [ "java", "-jar", "-Xmx400m", "-Xss200m", "api.jar" ]

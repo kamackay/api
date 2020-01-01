@@ -80,6 +80,7 @@ internal constructor(
                     items.forEachIndexed { x, item ->
                       val newsItem = doc("source", cleanDoc(dbDoc))
                           .add("time", System.currentTimeMillis())
+                          .add("scrapeTime", System.currentTimeMillis())
                           .add("priority", -1)
                       val guid = item.addPropToDocument("guid", newsItem) {
                         log.debug("Could Not Find GUID on item! - {}", item.toXml())

@@ -14,6 +14,7 @@ spec:
         - api.keithmackay.com
         - go-api.keithmackay.com
         - keith.mackay.codes
+        - old.keithmackay.com
         # - keith.mackay.rocks
         - keithm.io
       secretName: cert-secret
@@ -53,4 +54,10 @@ spec:
         paths:
           - backend:
               serviceName: go-api-service
+              servicePort: 8080
+    - host: old.keithmackay.com
+      http:
+        paths:
+          - backend:
+              serviceName: old-webpage-service
               servicePort: 8080

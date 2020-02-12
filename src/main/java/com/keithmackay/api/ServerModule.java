@@ -13,6 +13,7 @@ import com.keithmackay.api.benchmark.FunctionInterceptor;
 import com.keithmackay.api.db.Database;
 import com.keithmackay.api.db.EphemeralDatabase;
 import com.keithmackay.api.routes.AuthRouter;
+import com.keithmackay.api.routes.EmailRouter;
 import com.keithmackay.api.routes.FilesRouter;
 import com.keithmackay.api.routes.GroceriesRouter;
 import com.keithmackay.api.routes.NewsRouter;
@@ -43,6 +44,7 @@ public class ServerModule extends AbstractModule {
     routerBinder.addBinding().to(NewsRouter.class);
     routerBinder.addBinding().to(StatusRouter.class);
     routerBinder.addBinding().to(GroceriesRouter.class);
+    routerBinder.addBinding().to(EmailRouter.class);
     routerBinder.addBinding().to(FilesRouter.class);
     routerBinder.addBinding().to(UserRouter.class);
     routerBinder.addBinding().to(TrackerRouter.class);

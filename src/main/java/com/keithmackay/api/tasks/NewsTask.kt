@@ -13,6 +13,7 @@ import com.mongodb.client.model.CreateCollectionOptions
 import com.mongodb.client.model.IndexOptions
 import org.bson.Document
 import org.w3c.dom.Node
+import org.xml.sax.SAXParseException
 import java.io.StringWriter
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -50,7 +51,7 @@ internal constructor(
           IndexOptions()
               .name("guid-unique")
               .unique(true))
-    } catch (e: MongoCommandException) {
+    } catch (e: Exception) {
       log.debug("Index already exists")
     }
     val existingGuids = newsCollection.distinct("guid", String::class.java)
@@ -68,7 +69,7 @@ internal constructor(
           try {
             val response = khttp.get(url)
             val docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-            val document = docBuilder.parse(inputStream(response.text))
+            val document = docBuilder.parse(inputStream(response.text.trim()))
             val channels = document.getElementsByTagName("channel")
             log.debug("${channels.length} Channels on $url")
             IntRange(0, channels.length - 1)
@@ -110,7 +111,6 @@ internal constructor(
                             val parsed = LocalDateTime.parse(date, formatter)
                             val ms = parsed.toEpochSecond(ZoneOffset.UTC)
                             newsItem["time"] = ms
-                            log.info("Successfully Pulled time from RSS feed: $date")
                             break
                           } catch (e: Exception) {
                             log.debug("Could not parse Date: $date", e)
@@ -135,6 +135,8 @@ internal constructor(
                     log.error("Error Processing News", e)
                   }
                 }
+          } catch (xmlException: SAXParseException) {
+            log.warn("Failed to parse xml")
           } catch (e: Exception) {
             log.error("Error on $url", e)
           }

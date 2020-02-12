@@ -16,7 +16,6 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.*
-import java.util.function.Supplier
 import kotlin.collections.HashMap
 import kotlin.reflect.KClass
 
@@ -27,7 +26,7 @@ fun <T : Any> getLogger(c: Class<T>): Logger = getLogger("keith.${c.simpleName}"
 fun <T : Any> getLogger(c: KClass<T>): Logger = getLogger("keith.${c.simpleName}")
 
 object LogLevels {
-  val HTTP: Level = Level.forName("HTTP", 450)
+  val NETWORK: Level = Level.forName("NETWORK", 450)
   val BENCHMARK: Level = Level.forName("BENCH", 350)
   val TIMER: Level = Level.forName("TIMER", 450)
 }
@@ -114,6 +113,7 @@ private fun BigDecimal.greaterThanEqual(i: Double): Boolean {
   return comparison == 0 || comparison == 1
 }
 
+
 fun httpLog(ctx: Context, time: Float) {
   val logger = LogManager.getLogger("Server")
   val line = "${ctx.protocol()}:${ctx.method()}:${ctx.status()} ${humanizeBytes(ctx.bodyAsBytes().size)} " +
@@ -122,7 +122,7 @@ fun httpLog(ctx: Context, time: Float) {
   val level: Level = if (time >= 10000) {
     Level.WARN
   } else if (time <= 10 && ctx.status() == 200) {
-    LogLevels.HTTP
+    LogLevels.NETWORK
   } else {
     Level.INFO
   }

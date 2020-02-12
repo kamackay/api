@@ -11,7 +11,10 @@ COPY ./src ./src
 RUN mvn install && \
     cp target/*jar-with-dependencies.jar ./api.jar
 
-FROM openjdk:12-alpine
+FROM ubuntu:latest
+
+RUN apt-get update && \
+    apt-get install -y openjdk-11-jdk-headless
 
 WORKDIR /api/
 

@@ -14,8 +14,10 @@ spec:
         - api.keithmackay.com
         - go-api.keithmackay.com
         - keith.mackay.codes
-        # - keith.mackay.rocks
+        - keith.mackay.rocks
         - keithm.io
+        - go.keithm.io
+        # - ns.keithm.io
       secretName: cert-secret
   rules:
     - host: keith.mackay.codes
@@ -24,12 +26,12 @@ spec:
           - backend:
               serviceName: webpage-service
               servicePort: 8080
-    # - host: keith.mackay.rocks
-    #   http:
-    #     paths:
-    #       - backend:
-    #           serviceName: webpage-service
-    #           servicePort: 8080
+    - host: keith.mackay.rocks
+      http:
+        paths:
+          - backend:
+              serviceName: webpage-service
+              servicePort: 8080
     - host: keithm.io
       http:
         paths:
@@ -48,9 +50,21 @@ spec:
           - backend:
               serviceName: api-service
               servicePort: 8080
+    - host: go.keithm.io
+      http:
+        paths:
+          - backend:
+              serviceName: go-api-service
+              servicePort: 8080
     - host: go-api.keithmackay.com
       http:
         paths:
           - backend:
               serviceName: go-api-service
               servicePort: 8080
+    # - host: ns.keithm.io
+    #   http:
+    #     paths:
+    #       - backend:
+    #           serviceName: dns-service
+    #           servicePort: 80

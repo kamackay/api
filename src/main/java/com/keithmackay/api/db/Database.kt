@@ -29,8 +29,8 @@ internal constructor(secretGrabber: SecretGrabber) : IDatabase {
     val optionMap = threadSafeMap<String, Any>()
     optionMap["retryWrites"] = true
     optionMap["w"] = "majority"
-    optionMap["maxPoolSize"] = 10
-    optionMap["minPoolSize"] = 5
+    optionMap["maxPoolSize"] = 8
+    optionMap["minPoolSize"] = 2
     optionMap["socketTimeoutMS"] = 60 * 1000
     val options = optionMap.map { "${it.key}=${it.value}" }
         .joinToString(separator = "&")

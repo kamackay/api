@@ -35,14 +35,13 @@ spec:
     app: api-service
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: DaemonSet
 metadata:
   name: webpage
   namespace: webpage
   labels:
     app: webpage-service
 spec:
-  replicas: 2
   selector:
     matchLabels:
       app: webpage-service
@@ -54,7 +53,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: webpage
-          image: kamackay/webpage:latest
+          image: kamackay/webpage:1.0.15
           imagePullPolicy: Always
           env:
             - name: PORT

@@ -16,6 +16,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.*
+import java.util.function.Supplier
 import kotlin.collections.HashMap
 import kotlin.reflect.KClass
 
@@ -74,7 +75,7 @@ fun Document.cleanTo(vararg values: String): Document {
   return this
 }
 
-fun Document.add(key: String, value: Any?): Document = this.append(key, value)
+fun Document.add(key: String, value: () -> Any?): Document = this.append(key, value())
 fun Document.join(doc: Document): Document = this.join(doc, true)
 fun Document.join(doc: Document, overwrite: Boolean): Document {
   doc.keys.forEach {

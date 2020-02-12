@@ -79,9 +79,9 @@ internal constructor(
                     val items = node.getChildrenByTag("item")
                     items.forEachIndexed { x, item ->
                       val newsItem = doc("source", cleanDoc(dbDoc))
-                          .add("time", System.currentTimeMillis())
-                          .add("scrapeTime", System.currentTimeMillis())
-                          .add("priority", -1)
+                          .add("time", System::currentTimeMillis)
+                          .add("scrapeTime", System::currentTimeMillis)
+                          .append("priority", -1)
                       val guid = item.addPropToDocument("guid", newsItem) {
                         log.debug("Could Not Find GUID on item! - {}", item.toXml())
                       }
@@ -89,17 +89,17 @@ internal constructor(
                         return@forEachIndexed
                       }
                       val title = item.addPropToDocument("title", newsItem)
-                      item.addPropToDocument("link", newsItem, ::forceHttps, ::noop)
+                      item.addPropToDocument("link", newsItem)
                       item.addPropToDocument("dc:creator", newsItem)
                       newsItem["indexInFeed"] = x
                       item.getFirstChildByTag("content:encoded")
                           .map { it.textContent }
                           .map { purgeHtml(it, excludedServers) }
-                          .map(::forceHttps)
+                          //.map(::forceHttps)
                           .ifPresent { value ->
                             newsItem.append("content", value)
                           }
-                      item.addPropToDocument("description", newsItem, ::forceHttps, ::noop)
+                      item.addPropToDocument("description", newsItem)
                       item.addPropToDocument("pubDate", newsItem, { date ->
                         // See if date can be used for time
                         for (formatter in threadSafeList(
@@ -127,7 +127,7 @@ internal constructor(
                       } catch (me: MongoWriteException) {
                         log.debug("Could not update document due to Static Size Limit: $guid")
                       } catch (e: Exception) {
-                        log.warn("Could Not Add News Item to the Database")
+                        log.warn("Could Not Add News Item to the Database", e)
                       }
 
                     }
@@ -169,7 +169,6 @@ internal constructor(
       Optional.ofNullable(IntRange(0, this.childNodes.length - 1)
           .map(this.childNodes::item)
           .firstOrNull { it.nodeName == tag })
-
 
   private fun getExcludedServers(db: Database): Regex =
       Regex("http.?://[^\"']*(${db.getCollection("lsrules")

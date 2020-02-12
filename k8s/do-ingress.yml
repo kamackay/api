@@ -15,6 +15,7 @@ spec:
         - go-api.keithmackay.com
         - keith.mackay.codes
         - keith.mackay.rocks
+        - old.keithmackay.com
         - keithm.io
         - go.keithm.io
         # - ns.keithm.io
@@ -62,9 +63,9 @@ spec:
           - backend:
               serviceName: go-api-service
               servicePort: 8080
-    # - host: ns.keithm.io
-    #   http:
-    #     paths:
-    #       - backend:
-    #           serviceName: dns-service
-    #           servicePort: 80
+    - host: old.keithmackay.com
+      http:
+        paths:
+          - backend:
+              serviceName: old-webpage-service
+              servicePort: 8080

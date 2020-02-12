@@ -5,7 +5,6 @@ import com.google.inject.Singleton
 import com.keithmackay.api.db.Database
 import com.keithmackay.api.minutes
 import com.keithmackay.api.utils.*
-import java.lang.Exception
 import java.util.*
 import java.util.regex.Pattern
 
@@ -30,11 +29,13 @@ internal constructor(db: Database) : Task() {
     } else {
       log.debug("Pulled Ad Server File after " +
           millisToReadableTime(System.currentTimeMillis() - start))
+      val text = response.text
+      log.debug(text)
 
       val added = ArrayList<String>()
-      for (line in response.text.split("\n")) {
-        try{
-        val trimmed = line.trim()
+      for (line in text.split("\n")) {
+        try {
+          val trimmed = line.trim()
           val split = line.split(whitespacePattern)
           if (!trimmed.startsWith("127.0.0.1") || split.size != 2) {
             // This is not a line of the output with a server
@@ -42,14 +43,14 @@ internal constructor(db: Database) : Task() {
           }
           val server = split[1]
           val filter = doc("server", server)
-            val exists = lsCollection.find(filter).count() > 0
-            if (!exists) {
-              lsCollection.updateOne(filter,
-                  set(doc("server", server)
-                      .append("time", System.currentTimeMillis())),
-                  upsert())
-              added.add(server)
-            }
+          val exists = lsCollection.find(filter).count() > 0
+          if (!exists) {
+            lsCollection.updateOne(filter,
+                set(doc("server", server)
+                    .append("time", System.currentTimeMillis())),
+                upsert())
+            added.add(server)
+          }
         } catch (e: Exception) {
           log.warn(e)
           continue

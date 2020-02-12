@@ -3,6 +3,7 @@ package com.keithmackay.api.tasks
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.keithmackay.api.db.Database
+import com.keithmackay.api.minutes
 import com.keithmackay.api.utils.*
 import java.util.*
 import java.util.regex.Pattern
@@ -13,6 +14,9 @@ internal constructor(db: Database) : Task() {
   private val log = getLogger(this::class)
 
   private val lsCollection = db.getCollection("lsrules")
+
+  // Offset so that it doesn't always run at the same time as the main tasks
+  override fun time(): Long = minutes(58)
 
   override fun run() {
     val start = System.currentTimeMillis()

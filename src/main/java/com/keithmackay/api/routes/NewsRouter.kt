@@ -23,7 +23,7 @@ internal constructor(
   private val healthy = AtomicBoolean(true)
 
   private val defaultNewsSort = doc("indexInFeed", 1)
-      .add("time", -1)
+      .append("time", -1)
 
   override fun routes() {
     path("news") {

@@ -59,14 +59,14 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
     val additional = doc("time", System.currentTimeMillis())
     additional.run {
       if (user != null) {
-        this.add("user", user.username)
+        this.append("user", user.username)
       }
     }
     eventCollection.insertOne(body
         .cleanTo("url", "time", "data",
             "feature", "userAgent", "ip", "location")
         .join(doc("ip", ctx.ip())
-            .add("userAgent", ctx.userAgent()), false)
+            .add("userAgent", ctx::userAgent), false)
         .join(additional, true))
     throw SuccessResponse()
   }

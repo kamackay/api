@@ -169,3 +169,6 @@ fun gt(value: Any?): Document = Document("\$gt", value)
 
 /** Less Than Equal */
 fun lte(value: Any?): Document = Document("\$lte", value)
+
+fun async(task: Runnable): Unit = Thread(task).start()
+fun async(task: () -> Unit): Unit = Thread(task).start()

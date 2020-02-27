@@ -45,10 +45,9 @@ internal constructor(db: Database) : Task() {
           val filter = doc("server", server)
           val exists = lsCollection.find(filter).count() > 0
           if (!exists) {
-            lsCollection.updateOne(filter,
-                set(doc("server", server)
-                    .append("time", System.currentTimeMillis())),
-                upsert())
+            async {
+              this.addServer(server)
+            }
             added.add(server)
           }
         } catch (e: Exception) {
@@ -62,6 +61,17 @@ internal constructor(db: Database) : Task() {
       } else {
         log.info("No New Servers found to add to list")
       }
+    }
+  }
+
+  private fun addServer(server: String) {
+    try {
+      lsCollection.updateOne(doc("server", server),
+          set(doc("server", server)
+              .append("time", System.currentTimeMillis())),
+          upsert())
+    } catch (e: Exception) {
+      log.warn("Unable to add server to Database", e)
     }
   }
 }

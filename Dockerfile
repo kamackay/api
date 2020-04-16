@@ -18,7 +18,7 @@ RUN apt-get update && \
 
 WORKDIR /api/
 
-COPY --from=builder /api .
+COPY --from=builder /api/api.jar ./
 
 ENV CREDENTIALS_FILE /api/creds.json
 

@@ -12,20 +12,15 @@ import com.keithmackay.api.benchmark.Benchmark;
 import com.keithmackay.api.benchmark.FunctionInterceptor;
 import com.keithmackay.api.db.Database;
 import com.keithmackay.api.db.EphemeralDatabase;
-import com.keithmackay.api.routes.AuthRouter;
-import com.keithmackay.api.routes.EmailRouter;
-import com.keithmackay.api.routes.FilesRouter;
-import com.keithmackay.api.routes.GroceriesRouter;
-import com.keithmackay.api.routes.NewsRouter;
-import com.keithmackay.api.routes.Router;
-import com.keithmackay.api.routes.StatusRouter;
-import com.keithmackay.api.routes.TrackerRouter;
-import com.keithmackay.api.routes.UserRouter;
+import com.keithmackay.api.routes.*;
 import com.keithmackay.api.tasks.LsRuleTask;
 import com.keithmackay.api.tasks.NewsTask;
 import com.keithmackay.api.tasks.SessionCleanupTask;
 import com.keithmackay.api.tasks.Task;
 import com.keithmackay.api.tasks.TokenCleanupTask;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class ServerModule extends AbstractModule {
   public static Injector getInjector() {
@@ -40,14 +35,17 @@ public class ServerModule extends AbstractModule {
     bind(Database.class).asEagerSingleton();
     bind(EphemeralDatabase.class).asEagerSingleton();
     Multibinder<Router> routerBinder = Multibinder.newSetBinder(binder(), Router.class);
-    routerBinder.addBinding().to(AuthRouter.class);
-    routerBinder.addBinding().to(NewsRouter.class);
-    routerBinder.addBinding().to(StatusRouter.class);
-    routerBinder.addBinding().to(GroceriesRouter.class);
-    routerBinder.addBinding().to(EmailRouter.class);
-    routerBinder.addBinding().to(FilesRouter.class);
-    routerBinder.addBinding().to(UserRouter.class);
-    routerBinder.addBinding().to(TrackerRouter.class);
+    Arrays.asList(
+        AuthRouter.class,
+        NewsRouter.class,
+        PageRouter.class,
+        UserRouter.class,
+        EmailRouter.class,
+        FilesRouter.class,
+        StatusRouter.class,
+        TrackerRouter.class,
+        GroceriesRouter.class
+    ).forEach(action -> routerBinder.addBinding().to(action));
 
     Multibinder<Task> taskBinder = Multibinder.newSetBinder(binder(), Task.class);
     taskBinder.addBinding().to(LsRuleTask.class);

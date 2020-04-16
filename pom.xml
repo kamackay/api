@@ -191,6 +191,21 @@
             <artifactId>bson</artifactId>
             <version>3.11.0</version>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.dom4j/dom4j -->
+        <dependency>
+            <groupId>org.dom4j</groupId>
+            <artifactId>dom4j</artifactId>
+            <version>2.1.1</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.sendgrid/sendgrid-java -->
+        <dependency>
+            <groupId>com.sendgrid</groupId>
+            <artifactId>sendgrid-java</artifactId>
+            <version>4.4.1</version>
+        </dependency>
+
         <dependency>
             <groupId>com.nixxcode.jvmbrotli</groupId>
             <artifactId>jvmbrotli</artifactId>

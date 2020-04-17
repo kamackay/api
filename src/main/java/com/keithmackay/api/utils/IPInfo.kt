@@ -13,8 +13,8 @@ data class IPInfo(
         val countryCode: String,
         val countryName: String,
         val postal: String,
-        val latitude: Double,
-        val longitude: Double,
+        val latitude: Any,
+        val longitude: Any,
         val timezone: String,
         val organization: String
 ) {
@@ -62,14 +62,20 @@ fun getIpInfo(ip: String): IPInfo? {
     }
 }
 
-private fun <T> get(obj: JSONObject, key: String, default: T): T {
+private inline fun <reified T> get(obj: JSONObject, key: String, default: T): T {
     return Optional.of(obj)
             .map {
                 try {
-                    it.get(key) as T
+                    it.get(key)
                 } catch (e: Exception) {
                     null
                 }
+            }.map {
+                if (it is T) {
+                    it
+                } else {
+                    null as T
+                }
             }
-            .orElse(default)!!
+            .orElse(default) as T
 }

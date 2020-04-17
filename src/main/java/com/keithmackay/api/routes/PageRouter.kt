@@ -105,8 +105,7 @@ internal constructor(db: IDatabase, private val creds: Credentials) : Router {
             request.endpoint = "mail/send"
             request.body = mail.build()
             val response: Response = sg.api(request)
-            log.info("Response: {}; body: {}; headers: {}",
-                    response.statusCode, response.body, response.headers)
+            log.info("Successfully Sent New IP Email")
         } catch (ex: IOException) {
             log.error("Error Sending Email", ex)
         }

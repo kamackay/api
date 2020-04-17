@@ -8,6 +8,7 @@ import com.keithmackay.api.domn8.nodes.DomNode
 import com.keithmackay.api.domn8.nodes.HtmlBody
 import com.keithmackay.api.domn8.nodes.HtmlBody.body
 import com.keithmackay.api.domn8.nodes.elements.BreakEl.breakEl
+import com.keithmackay.api.domn8.nodes.elements.CodeNode.codeEl
 import com.keithmackay.api.domn8.nodes.elements.DivEl
 import com.keithmackay.api.domn8.nodes.elements.HeaderEl.headerConfig
 import com.keithmackay.api.domn8.nodes.elements.HeaderEl.headerEl
@@ -15,6 +16,7 @@ import com.keithmackay.api.domn8.nodes.elements.TextNode.textNode
 import com.keithmackay.api.domn8.styles.CSS.css
 import com.keithmackay.api.model.NewIPEmailModel
 import com.keithmackay.api.utils.*
+import com.keithmackay.api.utils.JavaUtils.toMap
 import com.mongodb.client.model.IndexOptions
 import com.mongodb.client.model.UpdateOptions
 import com.sendgrid.Method
@@ -27,8 +29,10 @@ import com.sendgrid.helpers.mail.objects.Email
 import io.javalin.apibuilder.ApiBuilder
 import io.javalin.http.Context
 import org.bson.Document
+import org.json.JSONObject
 import java.io.IOException
 import java.util.*
+import java.util.stream.Collectors
 
 @Singleton
 class PageRouter @Inject
@@ -53,16 +57,24 @@ internal constructor(db: IDatabase, private val creds: Credentials) : Router {
         val ip = Optional.of(body)
                 .map { it.getString("ip") }
                 .orElseGet(ctx::ip)
+        val additional = Optional.ofNullable(body.get("additional", Document::class.java))
+                .orElse(doc())
         val result = collection.updateOne(doc("ip", ip),
-                doc("\$set", doc("ip", ip))
+                doc("\$set", doc("ip", ip)
+                        .join(doc()
+                                .append("userAgent", ctx.userAgent()))
+                        .join(additional))
                         .append("\$inc", doc("count", 1L)),
                 UpdateOptions().upsert(true))
         if (result.matchedCount == 0L) {
             val info = Optional.ofNullable(getIpInfo(ip))
                     .orElseGet { this.defaultInfo(ip) }
-            sendEmailTo(info.getTitle(),
-                    emailRenderer.renderIntoString(NewIPEmailModel(info)),
-                    "keith@keithm.io")
+            if (!ip.matches(Regex("^10\\."))) {
+                sendEmailTo(info.getTitle(),
+                        emailRenderer.renderIntoString(NewIPEmailModel(info = info,
+                                additional = toMap(additional))),
+                        "keith@keithm.io")
+            }
             ctx.result("OK")
             collection.updateOne(doc("ip", ip), doc("\$set",
                     info.toMongo()))
@@ -106,20 +118,23 @@ internal constructor(db: IDatabase, private val creds: Credentials) : Router {
                 body(HtmlBody.BodyConfig(),
                         listOf(
                                 headerEl(headerConfig()
-                                        .level(1)
+                                        .level(2)
                                         .text(info.getTitle())),
-                                renderMainContent(info)
+                                renderMainContent(model)
                         ) as List<DomNode<*>>?)
             }, "New IP")
 
-    private fun renderMainContent(info: IPInfo): DivEl {
+    private fun renderMainContent(model: NewIPEmailModel): DivEl {
+        val info = model.info
         return DivEl.divEl(DivEl.divConfig(),
                 listOf(
                         row("New Page Load on Website"),
                         row("IP: ${info.ip}"),
                         row("${info.city}, ${info.region}, ${info.countryName} ${info.postal}"),
                         row("Coords: ${info.latitude} / ${info.longitude}"),
-                        row("Organization: ${info.organization}")
+                        row("Organization: ${info.organization}"),
+                        headerEl(headerConfig().text("Additional:").level(5)),
+                        codeEl(JSONObject(model.additional).toString(2))
                 )
         )
     }

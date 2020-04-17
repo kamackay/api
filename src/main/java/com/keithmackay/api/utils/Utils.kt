@@ -1,6 +1,8 @@
 package com.keithmackay.api.utils
 
 import com.google.common.collect.Lists
+import com.google.gson.JsonElement
+import com.google.gson.JsonObject
 import com.mongodb.client.model.UpdateOptions
 import io.javalin.http.Context
 import org.apache.logging.log4j.Level
@@ -76,6 +78,7 @@ fun Document.cleanTo(vararg values: String): Document {
 
 fun Document.add(key: String, value: () -> Any?): Document = this.append(key, value())
 fun Document.join(doc: Document): Document = this.join(doc, true)
+
 fun Document.join(doc: Document, overwrite: Boolean): Document {
   doc.keys.forEach {
     if (!this.containsKey(it) || overwrite) {

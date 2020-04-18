@@ -2,10 +2,7 @@ package com.keithmackay.api.domn8.nodes;
 
 import org.dom4j.Element;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.keithmackay.api.domn8.DOMn8.makeAttr;
@@ -49,7 +46,8 @@ public class HeadNode extends DomNode<HeadConfig> {
   }
 
   public static class HeadConfig extends Config {
-    private List<String> stylesheets = newArrayList();
+    private final List<String> stylesheets = new ArrayList<>();
+    private final List<String> scripts = new ArrayList<>();
     private String title;
     private String iconUrl;
 
@@ -57,6 +55,16 @@ public class HeadNode extends DomNode<HeadConfig> {
       this.stylesheets.clear();
       this.stylesheets.addAll(sheets);
       return this;
+    }
+
+    public HeadConfig scripts(final Collection<String> scripts) {
+      this.scripts.clear();
+      this.scripts.addAll(scripts);
+      return this;
+    }
+
+    public HeadConfig scripts(String... scripts) {
+      return this.scripts(Arrays.asList(scripts));
     }
 
     public HeadConfig title(final String title) {

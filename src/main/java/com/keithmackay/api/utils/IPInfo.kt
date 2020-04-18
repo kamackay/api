@@ -18,9 +18,6 @@ data class IPInfo(
         val timezone: String,
         val organization: String
 ) {
-    fun getTitle(): String {
-        return "New Page Load in $city, $countryName"
-    }
 
     fun toMongo(): Document = doc()
             .append("city", city)

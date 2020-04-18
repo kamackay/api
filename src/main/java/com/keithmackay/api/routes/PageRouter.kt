@@ -32,7 +32,6 @@ import org.bson.Document
 import org.json.JSONObject
 import java.io.IOException
 import java.util.*
-import java.util.stream.Collectors
 
 @Singleton
 class PageRouter @Inject
@@ -57,10 +56,14 @@ internal constructor(db: IDatabase, private val creds: Credentials) : Router {
         val ip = Optional.of(body)
                 .map { it.getString("ip") }
                 .orElseGet(ctx::ip)
+        val application = Optional.of(body)
+                .map { it.getString("application") }
+                .orElse("Main Page")
         val additional = Optional.ofNullable(body.get("additional", Document::class.java))
                 .orElse(doc())
         val result = collection.updateOne(doc("ip", ip),
                 doc("\$set", doc("ip", ip)
+                        .append("firstVisit", System.currentTimeMillis())
                         .join(doc()
                                 .append("userAgent", ctx.userAgent()))
                         .join(additional))
@@ -69,10 +72,12 @@ internal constructor(db: IDatabase, private val creds: Credentials) : Router {
         if (result.matchedCount == 0L) {
             val info = Optional.ofNullable(getIpInfo(ip))
                     .orElseGet { this.defaultInfo(ip) }
+            val model = NewIPEmailModel(info = info,
+                    additional = toMap(additional),
+                    application = application)
             if (!ip.matches(Regex("^10\\."))) {
-                sendEmailTo(info.getTitle(),
-                        emailRenderer.renderIntoString(NewIPEmailModel(info = info,
-                                additional = toMap(additional))),
+                sendEmailTo(model.getTitle(),
+                        emailRenderer.renderIntoString(model),
                         "keith@keithm.io")
             }
             ctx.result("OK")
@@ -113,12 +118,11 @@ internal constructor(db: IDatabase, private val creds: Credentials) : Router {
 
     private val emailRenderer = DOMn8.generic(NewIPEmailModel::class.java,
             { model: NewIPEmailModel ->
-                val info = model.info
                 body(HtmlBody.BodyConfig(),
                         listOf(
                                 headerEl(headerConfig()
                                         .level(2)
-                                        .text(info.getTitle())),
+                                        .text(model.getTitle())),
                                 renderMainContent(model)
                         ) as List<DomNode<*>>?)
             }, "New IP")

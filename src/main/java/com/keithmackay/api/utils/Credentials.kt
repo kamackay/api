@@ -14,7 +14,8 @@ internal constructor() {
     private val document: Document
 
     init {
-        val str = Files.readString(Paths.get("/api/creds.json"), StandardCharsets.US_ASCII)
+        val str = Files.readString(Paths.get(System.getenv("CREDENTIALS_FILE")),
+                StandardCharsets.US_ASCII)
         document = Document.parse(str)
     }
 

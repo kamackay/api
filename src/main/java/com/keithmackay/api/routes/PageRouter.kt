@@ -14,28 +14,24 @@ import com.keithmackay.api.domn8.nodes.elements.HeaderEl.headerConfig
 import com.keithmackay.api.domn8.nodes.elements.HeaderEl.headerEl
 import com.keithmackay.api.domn8.nodes.elements.TextNode.textNode
 import com.keithmackay.api.domn8.styles.CSS.css
+import com.keithmackay.api.email.EmailSender
 import com.keithmackay.api.model.NewIPEmailModel
 import com.keithmackay.api.utils.*
 import com.keithmackay.api.utils.JavaUtils.toMap
 import com.mongodb.client.model.IndexOptions
 import com.mongodb.client.model.UpdateOptions
-import com.sendgrid.Method
-import com.sendgrid.Request
-import com.sendgrid.Response
-import com.sendgrid.SendGrid
-import com.sendgrid.helpers.mail.Mail
-import com.sendgrid.helpers.mail.objects.Content
-import com.sendgrid.helpers.mail.objects.Email
 import io.javalin.apibuilder.ApiBuilder
 import io.javalin.http.Context
 import org.bson.Document
 import org.json.JSONObject
-import java.io.IOException
 import java.util.*
 
 @Singleton
 class PageRouter @Inject
-internal constructor(db: IDatabase, private val creds: Credentials) : Router {
+internal constructor(
+    db: IDatabase,
+    private val emailSender: EmailSender
+) : Router {
 
     private val collection = db.getCollection("requests")
     private val log = getLogger(PageRouter::class)
@@ -76,9 +72,9 @@ internal constructor(db: IDatabase, private val creds: Credentials) : Router {
                     additional = toMap(additional),
                     application = application)
             if (!ip.matches(Regex("^10\\."))) {
-                sendEmailTo(model.getTitle(),
-                        emailRenderer.renderIntoString(model),
-                        "keith@keithm.io")
+                emailSender.send(model.getTitle(),
+                    emailRenderer.renderIntoString(model),
+                    emailSender.mainUser())
             }
             ctx.result("OK")
             collection.updateOne(doc("ip", ip), doc("\$set",
@@ -98,23 +94,6 @@ internal constructor(db: IDatabase, private val creds: Credentials) : Router {
         }
     }
 
-    private fun sendEmailTo(title: String, body: String, recipient: String) {
-        val from = Email("api@keithm.io")
-        val to = Email(recipient)
-        val content = Content("text/html", body)
-        val mail = Mail(from, title, to, content)
-        val sg = SendGrid(creds.getString("sendgrid-key"))
-        val request = Request()
-        try {
-            request.method = Method.POST
-            request.endpoint = "mail/send"
-            request.body = mail.build()
-            val response: Response = sg.api(request)
-            log.info("Successfully Sent New IP Email")
-        } catch (ex: IOException) {
-            log.error("Error Sending Email", ex)
-        }
-    }
 
     private val emailRenderer = DOMn8.generic(NewIPEmailModel::class.java,
             { model: NewIPEmailModel ->

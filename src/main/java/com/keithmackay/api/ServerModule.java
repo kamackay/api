@@ -12,14 +12,24 @@ import com.keithmackay.api.benchmark.Benchmark;
 import com.keithmackay.api.benchmark.FunctionInterceptor;
 import com.keithmackay.api.db.Database;
 import com.keithmackay.api.db.EphemeralDatabase;
-import com.keithmackay.api.routes.*;
+import com.keithmackay.api.routes.AuthRouter;
+import com.keithmackay.api.routes.EmailRouter;
+import com.keithmackay.api.routes.FilesRouter;
+import com.keithmackay.api.routes.GroceriesRouter;
+import com.keithmackay.api.routes.NewsRouter;
+import com.keithmackay.api.routes.PageRouter;
+import com.keithmackay.api.routes.Router;
+import com.keithmackay.api.routes.StatusRouter;
+import com.keithmackay.api.routes.TrackerRouter;
+import com.keithmackay.api.routes.UserRouter;
+import com.keithmackay.api.tasks.CronTask;
+import com.keithmackay.api.tasks.GoodMorningTask;
 import com.keithmackay.api.tasks.LsRuleTask;
 import com.keithmackay.api.tasks.NewsTask;
 import com.keithmackay.api.tasks.SessionCleanupTask;
 import com.keithmackay.api.tasks.Task;
 import com.keithmackay.api.tasks.TokenCleanupTask;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 public class ServerModule extends AbstractModule {
@@ -46,6 +56,10 @@ public class ServerModule extends AbstractModule {
         TrackerRouter.class,
         GroceriesRouter.class
     ).forEach(action -> routerBinder.addBinding().to(action));
+
+    Multibinder<CronTask> cronTasks = Multibinder.newSetBinder(binder(), CronTask.class);
+    Arrays.asList(GoodMorningTask.class)
+        .forEach(task -> cronTasks.addBinding().to(task));
 
     Multibinder<Task> taskBinder = Multibinder.newSetBinder(binder(), Task.class);
     taskBinder.addBinding().to(LsRuleTask.class);

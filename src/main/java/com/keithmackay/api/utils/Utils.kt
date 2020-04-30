@@ -1,8 +1,6 @@
 package com.keithmackay.api.utils
 
 import com.google.common.collect.Lists
-import com.google.gson.JsonElement
-import com.google.gson.JsonObject
 import com.mongodb.client.model.UpdateOptions
 import io.javalin.http.Context
 import org.apache.logging.log4j.Level
@@ -165,6 +163,7 @@ fun arr(vararg docs: Document?): MutableList<Document> =
     docs.filter(Objects::nonNull).mapNotNull { it }.toMutableList()
 
 fun set(value: Any?): Document = Document("\$set", value)
+
 /** Greater Than Equal */
 fun gte(value: Any?): Document = Document("\$gte", value)
 
@@ -175,3 +174,13 @@ fun lte(value: Any?): Document = Document("\$lte", value)
 
 fun async(task: Runnable): Unit = Thread(task).start()
 fun async(task: () -> Unit): Unit = Thread(task).start()
+
+fun defer(task: Runnable, time: Long) = defer({ task.run() }, time)
+fun defer(task: () -> Unit, time: Long) = async {
+  try {
+    Thread.sleep(time)
+  } catch (e: Exception) {
+    // Error Waiting
+  }
+  task()
+}

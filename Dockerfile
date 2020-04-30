@@ -11,10 +11,9 @@ COPY ./src ./src
 RUN mvn install && \
     cp target/*jar-with-dependencies.jar ./api.jar
 
-FROM ubuntu:latest
+FROM registry.access.redhat.com/ubi8:latest
 
-RUN apt-get update && \
-    apt-get install -y openjdk-11-jdk-headless
+RUN yum install -y java-11-openjdk
 
 WORKDIR /api/
 

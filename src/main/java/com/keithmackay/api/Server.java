@@ -53,7 +53,7 @@ public class Server {
       config.enableCorsForAllOrigins();
       config.requestLogger((ctx, time) -> {
         UtilsKt.httpLog(ctx, time);
-        if (time > BAD_REQUEST_LIMIT) {
+        if(time > BAD_REQUEST_LIMIT) {
           log.error("Bad Request Time. Reporting.");
           this.lastBadRequest.set(System.currentTimeMillis());
         }
@@ -87,7 +87,7 @@ public class Server {
             / (double) Math.min(runtime.maxMemory(), runtime.totalMemory()))
             * 100;
         final long now = System.currentTimeMillis();
-        if (now - this.lastBadRequest.get() < 1000 || memoryRatio < 5 || !routersHealthy) {
+        if(now - this.lastBadRequest.get() < 1000 || memoryRatio < 5 || !routersHealthy) {
           log.error("Reporting Ping as Error State - {}% memory used", memoryRatio);
           ctx.status(500).result("Not Working");
         } else {

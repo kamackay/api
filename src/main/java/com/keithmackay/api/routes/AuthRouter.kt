@@ -11,7 +11,10 @@ import com.keithmackay.api.db.IDatabase
 import com.keithmackay.api.model.InvalidAuthenticationResponse
 import com.keithmackay.api.model.LoginModel
 import com.keithmackay.api.model.User
-import com.keithmackay.api.utils.*
+import com.keithmackay.api.utils.cleanDoc
+import com.keithmackay.api.utils.doc
+import com.keithmackay.api.utils.getLogger
+import com.keithmackay.api.utils.set
 import io.javalin.apibuilder.ApiBuilder.path
 import io.javalin.apibuilder.ApiBuilder.post
 import io.javalin.http.Context
@@ -21,8 +24,7 @@ import org.bson.Document
 class AuthRouter @Inject
 internal constructor(
     private val db: IDatabase,
-    private val requestValidator: RequestValidator,
-    private val emailSender: EmailSender
+    private val requestValidator: RequestValidator
 ) : Router {
   private val log = getLogger(AuthRouter::class)
 

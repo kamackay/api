@@ -136,7 +136,7 @@ internal constructor(
                   }
                 }
           } catch (xmlException: SAXParseException) {
-            log.warn("Failed to parse xml")
+            log.warn("Failed to parse xml on ${dbDoc.getString("site")}")
           } catch (e: Exception) {
             log.error("Error on $url", e)
           }

@@ -15,6 +15,29 @@ spec:
   selector:
     app: api-service
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-config
+  namespace: webpage
+data:
+  config.json: |
+    {
+      "openWeatherIconUrl": "https://openweathermap.org/img/wn/{}@2x.png",
+      "openWeatherUrl": "https://api.openweathermap.org/data/2.5/onecall",
+      "goodMorningEmails": [
+        {
+          "name": "Keith",
+          "email": "keith@keithm.io",
+          "location": {
+            "name": "Durham, NC",
+            "latitude": 35.995931,
+            "longitude": -78.899109
+          }
+        }
+      ]
+    }
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -62,7 +85,13 @@ spec:
             - name: creds
               mountPath: /api/creds.json
               subPath: creds.json
+            - name: config-file
+              mountPath: /api/config.json
+              subPath: config.json
       volumes:
+        - name: config-file
+          configMap:
+            name: api-config
         - name: creds
           secret:
             secretName: creds

@@ -52,7 +52,7 @@ public class Main {
             .scheduleJob(details,
                 newTrigger()
                     .withIdentity(task.name(), "cron")
-                    .withSchedule(cronSchedule(task.schedule()))
+                    .withSchedule(task.schedule())
                     .forJob(details)
                     .startNow()
                     .build());

@@ -53,11 +53,18 @@ metadata:
 spec:
   tls:
     - hosts:
+        - keith.sh
         - keithm.io
         - go.keithm.io
         - api.keithm.io
       secretName: io-cert-secret
   rules:
+    - host: keith.sh
+      http:
+        paths:
+          - backend:
+              serviceName: webpage-service
+              servicePort: 8080
     - host: keithm.io
       http:
         paths:
@@ -77,3 +84,4 @@ spec:
               serviceName: go-api-service
               servicePort: 8080
 ---
+

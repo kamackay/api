@@ -22,13 +22,7 @@ import com.keithmackay.api.routes.Router;
 import com.keithmackay.api.routes.StatusRouter;
 import com.keithmackay.api.routes.TrackerRouter;
 import com.keithmackay.api.routes.UserRouter;
-import com.keithmackay.api.tasks.CronTask;
-import com.keithmackay.api.tasks.GoodMorningTask;
-import com.keithmackay.api.tasks.LsRuleTask;
-import com.keithmackay.api.tasks.NewsTask;
-import com.keithmackay.api.tasks.SessionCleanupTask;
-import com.keithmackay.api.tasks.Task;
-import com.keithmackay.api.tasks.TokenCleanupTask;
+import com.keithmackay.api.tasks.*;
 
 import java.util.Arrays;
 
@@ -58,8 +52,10 @@ public class ServerModule extends AbstractModule {
     ).forEach(action -> routerBinder.addBinding().to(action));
 
     Multibinder<CronTask> cronTasks = Multibinder.newSetBinder(binder(), CronTask.class);
-    Arrays.asList(GoodMorningTask.class)
-        .forEach(task -> cronTasks.addBinding().to(task));
+    Arrays.asList(
+        GoodMorningTask.class,
+        TestTask.class
+    ).forEach(task -> cronTasks.addBinding().to(task));
 
     Multibinder<Task> taskBinder = Multibinder.newSetBinder(binder(), Task.class);
     taskBinder.addBinding().to(LsRuleTask.class);

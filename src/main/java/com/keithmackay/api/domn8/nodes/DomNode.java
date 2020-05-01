@@ -17,6 +17,7 @@ public abstract class DomNode<C extends DomNode.Config> extends Node {
   protected DomNode(final C config, List<DomNode<?>> children) {
     this.config = config;
     this.children.addAll(children);
+    config.configDone();
   }
 
   @Override
@@ -35,6 +36,10 @@ public abstract class DomNode<C extends DomNode.Config> extends Node {
     public Config additionalAttribute(final String name, final String value) {
       this.attributes.add(makeAttr(name, value));
       return this;
+    }
+
+    public void configDone() {
+      // No-op
     }
   }
 }

@@ -7,6 +7,8 @@ import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.bson.Document
+import org.json.JSONArray
+import org.json.JSONObject
 import java.io.InputStream
 import java.math.BigDecimal
 import java.math.BigInteger
@@ -128,6 +130,14 @@ fun httpLog(ctx: Context, time: Float) {
     Level.INFO
   }
   logger.log(level, line)
+}
+
+fun JSONArray.iterateObjects(): List<JSONObject> {
+  val l = mutableListOf<JSONObject>()
+  for (i in 0 until this.length()) {
+    l.add(this.getJSONObject(i))
+  }
+  return l
 }
 
 fun <T : Any> threadSafeList(content: Collection<T>): MutableList<T> =

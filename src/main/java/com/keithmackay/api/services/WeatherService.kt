@@ -7,7 +7,6 @@ import com.keithmackay.api.utils.SecretGrabber
 import com.keithmackay.api.utils.getLogger
 import com.keithmackay.api.utils.iterateObjects
 import org.json.JSONArray
-import org.json.JSONObject
 
 typealias Temperature = Double
 typealias Precipitation = Map<String, Double>
@@ -54,7 +53,7 @@ internal constructor(
                             rain = null,
                             snow = null
                     ),
-                    hourly = hourly.iterateObjects().map {
+                    hourly = hourly.iterateObjects(24).map {
                         HourlyWeather(
                                 dt = it.optLong("dt") * 1000,
                                 temp = it.optDouble("temp"),

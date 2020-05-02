@@ -132,16 +132,18 @@ fun httpLog(ctx: Context, time: Float) {
   logger.log(level, line)
 }
 
-fun JSONArray.iterateObjects(): List<JSONObject> {
+fun JSONArray.iterateObjects(): List<JSONObject> = this.iterateObjects(Int.MAX_VALUE)
+
+fun JSONArray.iterateObjects(max: Int): List<JSONObject> {
   val l = mutableListOf<JSONObject>()
-  for (i in 0 until this.length()) {
+  for (i in 0 until this.length().coerceAtMost(max)) {
     l.add(this.getJSONObject(i))
   }
   return l
 }
 
 fun <T : Any> threadSafeList(content: Collection<T>): MutableList<T> =
-    Collections.synchronizedList(Lists.newArrayList(content))
+        Collections.synchronizedList(Lists.newArrayList(content))
 
 fun <T : Any> threadSafeList(vararg content: T): MutableList<T> =
     threadSafeList(listOf(*content))

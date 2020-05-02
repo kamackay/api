@@ -6,7 +6,6 @@ import com.keithmackay.api.domn8.DOMn8
 import com.keithmackay.api.domn8.nodes.DomNode
 import com.keithmackay.api.domn8.nodes.HtmlBody
 import com.keithmackay.api.domn8.nodes.HtmlBody.BodyConfig
-import com.keithmackay.api.domn8.nodes.elements.BreakEl
 import com.keithmackay.api.domn8.nodes.elements.BreakEl.breakEl
 import com.keithmackay.api.domn8.nodes.elements.DivEl
 import com.keithmackay.api.domn8.nodes.elements.DivEl.divConfig
@@ -17,7 +16,6 @@ import com.keithmackay.api.domn8.nodes.elements.ImgNode
 import com.keithmackay.api.domn8.nodes.elements.ImgNode.imgNode
 import com.keithmackay.api.domn8.nodes.elements.TextNode
 import com.keithmackay.api.domn8.nodes.elements.TextNode.textNode
-import com.keithmackay.api.domn8.styles.CSS
 import com.keithmackay.api.domn8.styles.CSS.css
 import com.keithmackay.api.email.EmailSender
 import com.keithmackay.api.services.WeatherService
@@ -25,7 +23,6 @@ import com.keithmackay.api.services.WeatherService.Companion.printTemperature
 import com.keithmackay.api.services.WeatherService.Location
 import com.keithmackay.api.utils.ConfigGrabber
 import com.keithmackay.api.utils.getLogger
-import org.joda.time.DateTime
 import org.quartz.CronScheduleBuilder
 import org.quartz.JobExecutionContext
 import java.text.SimpleDateFormat
@@ -42,7 +39,7 @@ class GoodMorningTask
 
     override fun name(): String = "GoodMorning"
 
-//    override fun cron() = CronTimes.minutes(10)
+    //    override fun cron() = CronTimes.minutes(10)
     override fun cron() = CronTimes.CRON_EVERY_MORNING
 
     override fun schedule(): CronScheduleBuilder =
@@ -55,7 +52,8 @@ class GoodMorningTask
         config.getValue("goodMorningEmails").asJsonArray
                 .map { it.asJsonObject }
                 .forEach { el ->
-                    val title = "Good Morning: ${today(el.get("timezone").asString)}"
+                    val timezone = el.get("timezone").asString
+                    val title = "Good Morning: ${today(timezone)}"
                     val locationObj = el.get("location").asJsonObject
                     val location = Location(
                             name = locationObj.get("name").asString,
@@ -67,6 +65,7 @@ class GoodMorningTask
                                     title = title,
                                     location = location,
                                     name = el.get("name").asString,
+                                    timezone = timezone,
                                     weather = weatherService.getWeatherForLocation(location)
                             )),
                             el.get("email").asString)
@@ -119,16 +118,16 @@ class GoodMorningTask
                         .level(5)
                         .text("Low Today: ${printTemperature(weather.lowTemp())}")),
                 divEl(divConfig().styles(css().setValue("display", "inline")),
-                        weather.hourly.map {
+                        weather.hourly.map { hourly ->
                             divEl(divConfig().styles(css()
                                     .setValue("display", "inline-block")
                                     .setValue("padding", "5px")
                                     .setValue("border", "thin solid black")),
                                     listOf(textNode(TextNode.TextConfig()
-                                            .text(printHour(it.dt))
+                                            .text(printHour(hourly.dt, model.timezone))
                                             .styles(css()
                                                     .setValue("display", "block"))),
-                                            *it.conditions.map { condition ->
+                                            *hourly.conditions.map { condition ->
                                                 imgNode(ImgNode.ImgConfig()
                                                         .styles(css()
                                                                 .setValue("display", "block"))
@@ -136,12 +135,22 @@ class GoodMorningTask
                                                         .height(50)
                                                         .preRendered(true)
                                                         .alt(condition.description))
-                                            }.toTypedArray()))
+                                            }.toTypedArray(),
+                                            textNode(TextNode.TextConfig()
+                                                    .text(printTemperature(hourly.temp))
+                                                    .styles(css()
+                                                            .setValue("display", "block")))))
                         })
         ))
     }
 
-    private fun printHour(time: Long) = SimpleDateFormat("MM/dd hha").format(Date(time))
+    private fun dateFormatter(format: String, timezone: String): SimpleDateFormat {
+        val formatter = SimpleDateFormat(format)
+        formatter.timeZone = TimeZone.getTimeZone(timezone)
+        return formatter
+    }
+
+    private fun printHour(time: Long, timezone: String) = dateFormatter("MM/dd hha", timezone).format(Date(time))
 
     private fun row(line: String) =
             divEl(divConfig()
@@ -152,12 +161,10 @@ class GoodMorningTask
             val title: String,
             val name: String,
             val location: Location,
-            val weather: WeatherService.Weather?
+            val weather: WeatherService.Weather?,
+            val timezone: String
     )
 
-    private fun today(timezone: String): String {
-        val formatter = SimpleDateFormat("yyyy-MM-dd")
-        formatter.timeZone = TimeZone.getTimeZone(timezone)
-        return formatter.format(Date())
-    }
+    private fun today(timezone: String): String =
+            dateFormatter("yyyy-MM-dd", timezone).format(Date())
 }

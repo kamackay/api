@@ -37,7 +37,7 @@ internal constructor(
             return Weather(
                     location = location,
                     current = CurrentWeather(
-                            dt = current.optLong("dt"),
+                            dt = current.optLong("dt") * 1000,
                             sunrise = current.optLong("sunrise"),
                             sunset = current.optLong("sunset"),
                             temp = current.optDouble("temp"),
@@ -56,7 +56,7 @@ internal constructor(
                     ),
                     hourly = hourly.iterateObjects().map {
                         HourlyWeather(
-                                dt = it.optLong("dt"),
+                                dt = it.optLong("dt") * 1000,
                                 temp = it.optDouble("temp"),
                                 feelsLike = it.optDouble("feels_like"),
                                 pressure = it.optLong("pressure"),

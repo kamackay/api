@@ -19,7 +19,7 @@ class TestTask
     private val log = getLogger(this::class)
     override fun name() = "TestTask"
 
-    override fun cron() = CronTimes.minutes(5)
+    override fun cron() = CronTimes.CRON_NEVER
 
     override fun execute(ctx: JobExecutionContext?) {
         log.info(GsonBuilder()

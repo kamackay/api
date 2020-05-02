@@ -29,6 +29,7 @@ data:
         {
           "name": "Keith",
           "email": "keith@keithm.io",
+          "timezone": "America/New_York",
           "location": {
             "name": "Durham, NC",
             "latitude": 35.995931,

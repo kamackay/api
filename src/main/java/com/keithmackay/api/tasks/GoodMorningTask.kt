@@ -141,7 +141,7 @@ class GoodMorningTask
         ))
     }
 
-    private fun printHour(time: Long) = SimpleDateFormat("hha").format(Date(time))
+    private fun printHour(time: Long) = SimpleDateFormat("MM/dd hha").format(Date(time))
 
     private fun row(line: String) =
             divEl(divConfig()

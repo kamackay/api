@@ -7,7 +7,6 @@ import com.keithmackay.api.db.EphemeralDatabase
 import com.keithmackay.api.megabytes
 import com.keithmackay.api.minutes
 import com.keithmackay.api.utils.*
-import com.mongodb.MongoCommandException
 import com.mongodb.MongoWriteException
 import com.mongodb.client.model.CreateCollectionOptions
 import com.mongodb.client.model.IndexOptions

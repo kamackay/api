@@ -7,11 +7,7 @@ import com.mongodb.client.MongoCollection;
 import org.apache.logging.log4j.Logger;
 import org.bson.Document;
 
-import static com.keithmackay.api.utils.UtilsKt.doc;
-import static com.keithmackay.api.utils.UtilsKt.eq;
-import static com.keithmackay.api.utils.UtilsKt.getLogger;
-import static com.keithmackay.api.utils.UtilsKt.set;
-import static com.keithmackay.api.utils.UtilsKt.threadSafeList;
+import static com.keithmackay.api.utils.UtilsKt.*;
 
 public class NewsPriorityTask extends Task {
 

@@ -26,7 +26,7 @@ internal constructor(
     private val db: IDatabase,
     private val requestValidator: RequestValidator
 ) : Router {
-  private val log = getLogger(AuthRouter::class)
+  private val log = getLogger(this::class)
 
   override fun routes() {
     path("auth") {

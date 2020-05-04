@@ -1,10 +1,10 @@
-package com.keithmackay.api.domn8.nodes;
+package io.keithm.domn8.nodes;
 
 import org.dom4j.Element;
 
 import java.util.List;
 
-import static com.keithmackay.api.domn8.nodes.HtmlBody.BodyConfig;
+import static io.keithm.domn8.nodes.HtmlBody.BodyConfig;
 
 public class HtmlBody extends DomNode<BodyConfig> {
 

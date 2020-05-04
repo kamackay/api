@@ -116,6 +116,9 @@ private fun BigDecimal.greaterThanEqual(i: Double): Boolean {
   return comparison == 0 || comparison == 1
 }
 
+fun Document.subDoc(name: String): Document {
+  return this[name] as Document
+}
 
 fun httpLog(ctx: Context, time: Float) {
   val logger = LogManager.getLogger("Server")
@@ -143,7 +146,7 @@ fun JSONArray.iterateObjects(max: Int): List<JSONObject> {
 }
 
 fun <T : Any> threadSafeList(content: Collection<T>): MutableList<T> =
-        Collections.synchronizedList(Lists.newArrayList(content))
+    Collections.synchronizedList(Lists.newArrayList(content))
 
 fun <T : Any> threadSafeList(vararg content: T): MutableList<T> =
     threadSafeList(listOf(*content))

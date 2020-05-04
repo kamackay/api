@@ -1,10 +1,10 @@
-package com.keithmackay.api.domn8.nodes;
+package io.keithm.domn8.nodes;
 
 import lombok.Getter;
 import org.dom4j.Element;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.keithmackay.api.domn8.nodes.HtmlPage.HtmlConfig;
+import static io.keithm.domn8.nodes.HtmlPage.HtmlConfig;
 
 public class HtmlPage extends DomNode<HtmlConfig> {
 

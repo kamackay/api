@@ -1,4 +1,4 @@
-package com.keithmackay.api.domn8.nodes;
+package io.keithm.domn8.nodes;
 
 import org.apache.logging.log4j.Logger;
 import org.dom4j.DocumentHelper;
@@ -13,6 +13,7 @@ public abstract class Node {
   final Logger log = getLogger("DomNode");
 
   public abstract Element render();
+
   protected abstract Element build();
 
   protected Element build(final Function<Element, Element> modifier) {

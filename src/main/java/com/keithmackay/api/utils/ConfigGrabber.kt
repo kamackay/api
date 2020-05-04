@@ -9,9 +9,9 @@ import com.google.inject.Singleton
 class ConfigGrabber @Inject
 internal constructor() {
 
-    private val config =
-            JsonParser().parse(fileToString(System.getenv("CONFIG_FILE")).trim())
-                    .asJsonObject
+  private val config =
+      JsonParser().parse(fileToString(System.getenv("CONFIG_FILE")).trim())
+          .asJsonObject
 
-    fun getValue(secret: String): JsonElement = config.get(secret)
+  fun getValue(secret: String): JsonElement = config.get(secret)
 }

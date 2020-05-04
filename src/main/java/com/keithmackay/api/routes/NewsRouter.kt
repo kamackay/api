@@ -4,6 +4,7 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.keithmackay.api.auth.RequestValidator
 import com.keithmackay.api.db.EphemeralDatabase
+import com.keithmackay.api.services.NewsService
 import com.keithmackay.api.utils.*
 import com.mongodb.MongoException
 import com.mongodb.client.FindIterable
@@ -17,13 +18,11 @@ import java.util.concurrent.atomic.AtomicBoolean
 class NewsRouter @Inject
 internal constructor(
     private val validator: RequestValidator,
-    private val db: EphemeralDatabase
+    private val db: EphemeralDatabase,
+    private val newsService: NewsService
 ) : Router {
   private val log = getLogger(this::class)
   private val healthy = AtomicBoolean(true)
-
-  private val defaultNewsSort = doc("indexInFeed", 1)
-      .append("time", -1)
 
   override fun routes() {
     path("news") {
@@ -59,7 +58,7 @@ internal constructor(
                 .toTypedArray()
             db.getCollection("news").find(
                 or(*docs))
-                .sort(defaultNewsSort)
+                .sort(newsService.defaultNewsSort)
                 .limit(1000)
                 .map(::cleanDoc)
                 .mapNotNull { it }
@@ -84,7 +83,7 @@ internal constructor(
         log.info("Anonymous requests all news after '$time'")
         ctx.json(CompletableFuture.supplyAsync {
           db.getCollection("news").find(doc("time", gt(time)))
-              .sort(defaultNewsSort)
+              .sort(newsService.defaultNewsSort)
               .limit(1000)
               .map { it.getObjectId("_id").toString() }
               .into(threadSafeList())
@@ -114,15 +113,12 @@ internal constructor(
   }
 
   private fun getAllNews() = CompletableFuture.supplyAsync {
-    db.getCollection("news").find()
-        .sort(defaultNewsSort)
-        .limit(1000)
-        .bundle()
+    newsService.getAll().bundle()
   }
 
   private fun getNewsForSite(name: String) = CompletableFuture.supplyAsync {
     db.getCollection("news").find(doc("site", name))
-        .sort(defaultNewsSort)
+        .sort(newsService.defaultNewsSort)
         .limit(1000)
         .bundle()
   }
@@ -131,7 +127,7 @@ internal constructor(
 
   private fun getNewsAfter(time: Long, limit: Int) = CompletableFuture.supplyAsync {
     db.getCollection("news").find(doc("time", gt(time)))
-        .sort(defaultNewsSort)
+        .sort(newsService.defaultNewsSort)
         .limit(limit)
         .bundle()
   }

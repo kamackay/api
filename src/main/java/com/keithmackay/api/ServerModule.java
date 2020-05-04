@@ -12,16 +12,7 @@ import com.keithmackay.api.benchmark.Benchmark;
 import com.keithmackay.api.benchmark.FunctionInterceptor;
 import com.keithmackay.api.db.Database;
 import com.keithmackay.api.db.EphemeralDatabase;
-import com.keithmackay.api.routes.AuthRouter;
-import com.keithmackay.api.routes.EmailRouter;
-import com.keithmackay.api.routes.FilesRouter;
-import com.keithmackay.api.routes.GroceriesRouter;
-import com.keithmackay.api.routes.NewsRouter;
-import com.keithmackay.api.routes.PageRouter;
-import com.keithmackay.api.routes.Router;
-import com.keithmackay.api.routes.StatusRouter;
-import com.keithmackay.api.routes.TrackerRouter;
-import com.keithmackay.api.routes.UserRouter;
+import com.keithmackay.api.routes.*;
 import com.keithmackay.api.tasks.*;
 
 import java.util.Arrays;

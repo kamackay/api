@@ -1,10 +1,10 @@
-package com.keithmackay.api.domn8.nodes.elements;
+package io.keithm.domn8.nodes.elements;
 
-import com.keithmackay.api.domn8.styles.CSS;
+import io.keithm.domn8.styles.CSS;
 import org.dom4j.Element;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.keithmackay.api.domn8.nodes.elements.BreakEl.BreakConfig;
+import static io.keithm.domn8.nodes.elements.BreakEl.BreakConfig;
 
 public class BreakEl extends BodyEl<BreakConfig> {
 

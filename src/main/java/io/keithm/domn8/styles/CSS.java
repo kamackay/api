@@ -1,4 +1,4 @@
-package com.keithmackay.api.domn8.styles;
+package io.keithm.domn8.styles;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -21,6 +21,10 @@ public class CSS {
     return this;
   }
 
+  public CSS set(final String name, final Object val) {
+    return this.setValue(name, val);
+  }
+
   public CSS merge(final CSS otherStyles) {
     this.values.putAll(otherStyles.values);
     return this;
@@ -35,7 +39,7 @@ public class CSS {
         .entrySet()
         .stream()
         .map(entry -> String.format("%s: %s", entry.getKey(),
-            String.valueOf(entry.getValue())))
+            entry.getValue()))
         .collect(Collectors.joining("; "));
   }
 }

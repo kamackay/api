@@ -1,4 +1,4 @@
-package com.keithmackay.api.domn8.nodes;
+package io.keithm.domn8.nodes;
 
 import lombok.Getter;
 import org.dom4j.Attribute;
@@ -7,7 +7,7 @@ import org.dom4j.Element;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.keithmackay.api.domn8.DOMn8.makeAttr;
+import static io.keithm.domn8.DOMn8.makeAttr;
 
 public abstract class DomNode<C extends DomNode.Config> extends Node {
 
@@ -30,6 +30,7 @@ public abstract class DomNode<C extends DomNode.Config> extends Node {
 
   public static abstract class Config {
     public abstract String node();
+
     @Getter
     private final List<Attribute> attributes = newArrayList();
 

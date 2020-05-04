@@ -101,7 +101,7 @@ internal constructor(db: Database) {
     val user = tokenCollection
         .find(doc("token", token))
         .first()
-    log.debug("Checking Validity of $token")
+    log.info("Checking Validity (${user != null}) of $token")
     if (Optional.ofNullable(user)
             .map { it.getLong("timeout") }
             .orElse(0L) > System.currentTimeMillis()) {

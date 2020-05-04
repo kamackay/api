@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -26,7 +27,7 @@ public class AuthUtils {
   private static final int BCRYPT_ROUNDS = 4;
 
   private static final char[] CHARS =
-      "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNOPQRSTUVWXYZ234567890-_=+*$#@!`~/\\".toCharArray();
+      "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNOPQRSTUVWXYZ234567890-_=+*#@!`~/".toCharArray();
 
   public static String randomToken() {
     return randomToken(128);
@@ -55,10 +56,12 @@ public class AuthUtils {
   private static Document createNewToken(final String username) {
     final Instant now = now();
     log.info("Creating new Token for {}", username);
+    final long timeout = now
+        .plus(tokenTimeoutDays(), ChronoUnit.DAYS)
+        .toEpochMilli();
     return doc("username", username)
-        .append("timeout", now
-            .plus(tokenTimeoutDays(), ChronoUnit.DAYS)
-            .toEpochMilli())
+        .append("timeout", timeout)
+        .append("timeoutReadable", new Date(timeout))
         .append("timeLoggedIn", now.toEpochMilli())
         .append("timeLoggedInReadable", now.toString())
         .append("token", randomToken());

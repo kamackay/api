@@ -1,7 +1,7 @@
-package com.keithmackay.api.domn8.nodes.elements;
+package io.keithm.domn8.nodes.elements;
 
-import com.keithmackay.api.domn8.nodes.DomNode;
-import com.keithmackay.api.domn8.styles.CSS;
+import io.keithm.domn8.nodes.DomNode;
+import io.keithm.domn8.styles.CSS;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.dom4j.Element;
@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static com.keithmackay.api.domn8.nodes.elements.BodyEl.ElConfig;
+import static io.keithm.domn8.nodes.elements.BodyEl.ElConfig;
 import static java.util.function.Predicate.not;
 
 public abstract class BodyEl<C extends ElConfig> extends DomNode<C> {

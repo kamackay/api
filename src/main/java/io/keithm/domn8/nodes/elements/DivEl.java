@@ -1,12 +1,12 @@
-package com.keithmackay.api.domn8.nodes.elements;
+package io.keithm.domn8.nodes.elements;
 
-import com.keithmackay.api.domn8.nodes.DomNode;
-import com.keithmackay.api.domn8.styles.CSS;
+import io.keithm.domn8.nodes.DomNode;
+import io.keithm.domn8.styles.CSS;
 import org.dom4j.Element;
 
 import java.util.List;
 
-import static com.keithmackay.api.domn8.nodes.elements.DivEl.*;
+import static io.keithm.domn8.nodes.elements.DivEl.DivConfig;
 
 public class DivEl extends BodyEl<DivConfig> {
 
@@ -33,7 +33,7 @@ public class DivEl extends BodyEl<DivConfig> {
       return (DivConfig) super.styles(css);
     }
 
-    public DivConfig classNames(final String...classes) {
+    public DivConfig classNames(final String... classes) {
       return (DivConfig) super.classNames(classes);
     }
 

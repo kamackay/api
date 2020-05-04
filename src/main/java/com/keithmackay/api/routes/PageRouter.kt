@@ -3,17 +3,6 @@ package com.keithmackay.api.routes
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.keithmackay.api.db.IDatabase
-import com.keithmackay.api.domn8.DOMn8
-import com.keithmackay.api.domn8.nodes.DomNode
-import com.keithmackay.api.domn8.nodes.HtmlBody
-import com.keithmackay.api.domn8.nodes.HtmlBody.body
-import com.keithmackay.api.domn8.nodes.elements.BreakEl.breakEl
-import com.keithmackay.api.domn8.nodes.elements.CodeNode.codeEl
-import com.keithmackay.api.domn8.nodes.elements.DivEl
-import com.keithmackay.api.domn8.nodes.elements.HeaderEl.headerConfig
-import com.keithmackay.api.domn8.nodes.elements.HeaderEl.headerEl
-import com.keithmackay.api.domn8.nodes.elements.TextNode.textNode
-import com.keithmackay.api.domn8.styles.CSS.css
 import com.keithmackay.api.email.EmailSender
 import com.keithmackay.api.model.NewIPEmailModel
 import com.keithmackay.api.utils.*
@@ -22,6 +11,17 @@ import com.mongodb.client.model.IndexOptions
 import com.mongodb.client.model.UpdateOptions
 import io.javalin.apibuilder.ApiBuilder
 import io.javalin.http.Context
+import io.keithm.domn8.DOMn8
+import io.keithm.domn8.nodes.DomNode
+import io.keithm.domn8.nodes.HtmlBody
+import io.keithm.domn8.nodes.HtmlBody.body
+import io.keithm.domn8.nodes.elements.BreakEl.breakEl
+import io.keithm.domn8.nodes.elements.CodeNode.codeEl
+import io.keithm.domn8.nodes.elements.DivEl
+import io.keithm.domn8.nodes.elements.HeaderEl.headerConfig
+import io.keithm.domn8.nodes.elements.HeaderEl.headerEl
+import io.keithm.domn8.nodes.elements.TextNode.textNode
+import io.keithm.domn8.styles.CSS.css
 import org.bson.Document
 import org.json.JSONObject
 import java.util.*
@@ -73,8 +73,8 @@ internal constructor(
                     application = application)
             if (!ip.matches(Regex("^10\\."))) {
                 emailSender.send(model.getTitle(),
-                    emailRenderer.renderIntoString(model),
-                    emailSender.mainUser())
+                        emailRenderer.renderIntoString(model),
+                        emailSender.mainUser())
             }
             ctx.result("OK")
             collection.updateOne(doc("ip", ip), doc("\$set",

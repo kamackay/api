@@ -1,11 +1,11 @@
-package com.keithmackay.api.domn8;
+package io.keithm.domn8;
 
-import com.keithmackay.api.domn8.nodes.HeadNode;
-import com.keithmackay.api.domn8.nodes.HtmlBody;
-import com.keithmackay.api.domn8.nodes.HtmlPage;
-import com.keithmackay.api.domn8.nodes.MetaTag;
 import io.javalin.http.Context;
 import io.javalin.plugin.openapi.annotations.ContentType;
+import io.keithm.domn8.nodes.HeadNode;
+import io.keithm.domn8.nodes.HtmlBody;
+import io.keithm.domn8.nodes.HtmlPage;
+import io.keithm.domn8.nodes.MetaTag;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

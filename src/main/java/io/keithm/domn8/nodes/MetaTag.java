@@ -1,11 +1,11 @@
-package com.keithmackay.api.domn8.nodes;
+package io.keithm.domn8.nodes;
 
 import org.dom4j.Element;
 
 import java.util.Collections;
 import java.util.List;
 
-import static com.keithmackay.api.domn8.nodes.MetaTag.*;
+import static io.keithm.domn8.nodes.MetaTag.MetaConfig;
 
 public class MetaTag extends DomNode<MetaConfig> {
 

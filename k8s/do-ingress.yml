@@ -57,6 +57,8 @@ spec:
         - keithm.io
         - go.keithm.io
         - api.keithm.io
+        - go.keith.sh
+        - api.keith.sh
       secretName: io-cert-secret
   rules:
     - host: keith.sh
@@ -78,6 +80,18 @@ spec:
               serviceName: api-service
               servicePort: 8080
     - host: go.keithm.io
+      http:
+        paths:
+          - backend:
+              serviceName: go-api-service
+              servicePort: 8080
+    - host: api.keith.sh
+      http:
+        paths:
+          - backend:
+              serviceName: api-service
+              servicePort: 8080
+    - host: go.keith.sh
       http:
         paths:
           - backend:

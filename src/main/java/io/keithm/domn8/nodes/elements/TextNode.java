@@ -1,11 +1,11 @@
-package com.keithmackay.api.domn8.nodes.elements;
+package io.keithm.domn8.nodes.elements;
 
-import com.keithmackay.api.domn8.styles.CSS;
+import io.keithm.domn8.styles.CSS;
 import lombok.Getter;
 import org.dom4j.Element;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.keithmackay.api.domn8.nodes.elements.TextNode.TextConfig;
+import static io.keithm.domn8.nodes.elements.TextNode.TextConfig;
 
 public class TextNode extends BodyEl<TextConfig> {
 

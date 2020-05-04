@@ -1,12 +1,12 @@
-package com.keithmackay.api.domn8.nodes;
+package io.keithm.domn8.nodes;
 
 import org.dom4j.Element;
 
 import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.keithmackay.api.domn8.DOMn8.makeAttr;
-import static com.keithmackay.api.domn8.nodes.HeadNode.HeadConfig;
+import static io.keithm.domn8.DOMn8.makeAttr;
+import static io.keithm.domn8.nodes.HeadNode.HeadConfig;
 import static java.util.stream.Collectors.toList;
 
 public class HeadNode extends DomNode<HeadConfig> {

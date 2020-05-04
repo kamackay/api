@@ -174,8 +174,11 @@ class GoodMorningTask
   private fun renderNewsItem(item: NewsItem): DomNode<*> {
     return linkEl(LinkConfig()
         .url(item.link)
+        .setNewTab(true)
         .text("${item.source.site}: ${item.title}")
-        .styles(css().set("display", "block")))
+        .styles(css()
+            .set("display", "block")
+            .set("margin-bottom", "5px")))
   }
 
   private fun dateFormatter(format: String, timezone: String): SimpleDateFormat {

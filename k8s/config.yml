@@ -89,6 +89,9 @@ spec:
             - name: config-file
               mountPath: /api/config.json
               subPath: config.json
+            - name: twittercreds
+              mountPath: /api/twitter4j.properties
+              subPath: twitter4j.properties
       volumes:
         - name: config-file
           configMap:
@@ -96,6 +99,9 @@ spec:
         - name: creds
           secret:
             secretName: creds
+        - name: twittercreds
+          secret:
+            secretName: twitter-creds
 ---
 apiVersion: v1
 kind: Service

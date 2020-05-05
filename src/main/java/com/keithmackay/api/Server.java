@@ -88,7 +88,7 @@ public class Server {
             * 100;
         final long now = System.currentTimeMillis();
         if (now - this.lastBadRequest.get() < 1000 || memoryRatio < 5 || !routersHealthy) {
-          log.error("Reporting Ping as Error State - {}% memory used", memoryRatio);
+          log.error("Reporting Ping as Error State - {}% memory available", memoryRatio);
           ctx.status(500).result("Not Working");
         } else {
           ctx.status(200).result("Working Fine");

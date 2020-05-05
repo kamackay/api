@@ -24,11 +24,12 @@ import javax.xml.transform.TransformerException
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
+import kotlin.collections.HashSet
 
 @Singleton
 class NewsTask @Inject
 internal constructor(
-    private val db: Database,
+    db: Database,
     private val ephemeralDatabase: EphemeralDatabase
 ) : Task() {
 
@@ -54,6 +55,7 @@ internal constructor(
       log.debug("Index already exists")
     }
     val existingGuids = newsCollection.distinct("guid", String::class.java)
+        .into(HashSet())
 
     Thread {
       if (newsCollection.countDocuments() > 1000) {
@@ -117,8 +119,9 @@ internal constructor(
                         }
                         date
                       }, {})
-                      newsItem.append("categories", item.getChildrenByTag("category")
-                          .map { it.textContent })
+                      val categories = item.getChildrenByTag("category")
+                          .map { it.textContent }
+                      newsItem.append("categories", categories)
 
                       try {
                         newsCollection.insertOne(newsItem)

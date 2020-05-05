@@ -176,9 +176,11 @@ class GoodMorningTask
         .url(item.link)
         .setNewTab(true)
         .text("${item.source.site}: ${item.title}")
+        .fontSize(12)
         .styles(css()
             .set("display", "block")
-            .set("margin-bottom", "5px")))
+            .set("border-bottom", "thin solid black")
+            .set("margin-bottom", "1rem")))
   }
 
   private fun dateFormatter(format: String, timezone: String): SimpleDateFormat {

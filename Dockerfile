@@ -4,11 +4,11 @@ WORKDIR /api
 
 COPY pom.xml .
 
-RUN mvn dependency:go-offline
+RUN mvn dependency:go-offline && mvn dependency:resolve-plugins
 
 COPY ./src ./src
 
-RUN mvn install && \
+RUN mvn package && \
     cp target/*jar-with-dependencies.jar ./api.jar
 
 FROM registry.access.redhat.com/ubi8:latest

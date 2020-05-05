@@ -29,6 +29,7 @@ public class ServerModule extends AbstractModule {
         new FunctionInterceptor());
     bind(Database.class).asEagerSingleton();
     bind(EphemeralDatabase.class).asEagerSingleton();
+
     Multibinder<Router> routerBinder = Multibinder.newSetBinder(binder(), Router.class);
     Arrays.asList(
         AuthRouter.class,
@@ -45,15 +46,17 @@ public class ServerModule extends AbstractModule {
     Multibinder<CronTask> cronTasks = Multibinder.newSetBinder(binder(), CronTask.class);
     Arrays.asList(
         GoodMorningTask.class,
-        TestTask.class
+        TestTask.class,
+        NewsPriorityTask.class
     ).forEach(task -> cronTasks.addBinding().to(task));
 
     Multibinder<Task> taskBinder = Multibinder.newSetBinder(binder(), Task.class);
-    taskBinder.addBinding().to(LsRuleTask.class);
-    taskBinder.addBinding().to(NewsTask.class);
-    //taskBinder.addBinding().to(NewsPriorityTask.class);
-    taskBinder.addBinding().to(SessionCleanupTask.class);
-    taskBinder.addBinding().to(TokenCleanupTask.class);
+    Arrays.asList(
+        LsRuleTask.class,
+        NewsTask.class,
+        SessionCleanupTask.class,
+        TokenCleanupTask.class
+    ).forEach(task -> taskBinder.addBinding().to(task));
   }
 
 

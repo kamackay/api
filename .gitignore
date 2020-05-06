@@ -8,3 +8,4 @@ creds.json
 .factorypath
 .project
 deploy.sh
+twitter-secret.yaml

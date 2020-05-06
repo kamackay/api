@@ -17,7 +17,7 @@ internal constructor(
 
   private val log = getLogger(this::class)
 
-  val defaultNewsSort: Document = doc("indexInFeed", 1)
+  val defaultNewsSort: Document = doc("priority", -1)
       .append("time", -1)
 
   fun getDaysTopNews(limit: Int = 20): List<NewsItem> {

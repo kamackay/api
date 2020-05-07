@@ -31,7 +31,7 @@ class NewsPriorityTask @Inject internal constructor(db: EphemeralDatabase) : Cro
     log.info("Starting News Priority Task")
     val start = System.currentTimeMillis()
     val l = newsCollection // Find all documents that need to have priorities set
-        .find(doc("priority", -1))
+        .find(doc("priority", doc("\$lte", -1)))
         .sort(doc("time", 1))
         .limit(100)
         .into(threadSafeList<Document>())
@@ -79,7 +79,7 @@ class NewsPriorityTask @Inject internal constructor(db: EphemeralDatabase) : Cro
           try {
             twitter.search(it).tweets
           } catch (e: Exception) {
-            log.warn("Could not search Twitter")
+            log.debug("Could not search Twitter", e)
             listOf<Status>()
           }
         }

@@ -83,6 +83,7 @@ internal constructor(
                       val newsItem = doc("source", cleanDoc(dbDoc))
                           .add("time", System::currentTimeMillis)
                           .add("scrapeTime", System::currentTimeMillis)
+                          .append("priorityUpdated", 0L)
                           .append("priority", -1)
                       val guid = item.addPropToDocument("guid", newsItem) {
                         log.debug("Could Not Find GUID on item! - {}", item.toXml())

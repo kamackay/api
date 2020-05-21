@@ -58,6 +58,8 @@ fun millisToReadableTime(timeDiff: Long): String {
   return builder.append(timeDiff % 1000).append("ms").toString()
 }
 
+fun printTimeDiff(start: Long): String = millisToReadableTime(System.currentTimeMillis() - start)
+
 fun conditionalPlural(n: Number) = if (n.toDouble() > 1) "s" else ""
 
 fun cleanDoc(doc: Document?): Document? {

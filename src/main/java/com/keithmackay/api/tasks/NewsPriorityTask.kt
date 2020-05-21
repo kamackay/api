@@ -3,7 +3,7 @@ package com.keithmackay.api.tasks
 import com.google.inject.Inject
 import com.keithmackay.api.db.EphemeralDatabase
 import com.keithmackay.api.model.Tuple
-import com.keithmackay.api.tasks.CronTimes.Companion.minutes
+import com.keithmackay.api.tasks.CronTimes.Companion.seconds
 import com.keithmackay.api.utils.*
 import com.mongodb.client.MongoCollection
 import org.bson.Document
@@ -33,7 +33,7 @@ class NewsPriorityTask @Inject internal constructor(db: EphemeralDatabase) : Cro
     val l = newsCollection // Find all documents that need to have priorities set
         .find(doc("priority", doc("\$lte", -1)))
         .sort(doc("time", 1))
-        .limit(100)
+        .limit(1)
         .into(threadSafeList<Document>())
     log.info("Found ${l.size} articles that need to be prioritized")
     l.stream()
@@ -95,7 +95,7 @@ class NewsPriorityTask @Inject internal constructor(db: EphemeralDatabase) : Cro
       }
 
 
-  override fun cron(): String = minutes(5)
+  override fun cron(): String = seconds(15)
 
   override fun name(): String = "NewsPriorityTask"
 

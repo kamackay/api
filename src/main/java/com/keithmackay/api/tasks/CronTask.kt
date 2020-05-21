@@ -22,5 +22,7 @@ class CronTimes {
     const val CRON_EVERY_MORNING = "0 0 7 * * ?"
 
     fun minutes(mins: Int) = "0 */$mins * * * ?"
+
+    fun seconds(secs: Int) = "*/$secs * * * * ?"
   }
 }

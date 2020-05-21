@@ -104,6 +104,9 @@ class NewsPriorityTask @Inject internal constructor(db: EphemeralDatabase) : Cro
         }
         .map {
           it.map(Status::exposeParent)
+              .map(Array<Status>::toList)
+              .flatten()
+              .distinctBy(Status::getId)
         }
         .forEach { list.addAll(it) }
     return list
@@ -123,13 +126,13 @@ class NewsPriorityTask @Inject internal constructor(db: EphemeralDatabase) : Cro
 
 }
 
-fun Status.exposeParent(): Status {
+fun Status.exposeParent(): Array<Status> {
   // If this is a retweet, and that original tweet is more popular, get it
   val rs = this.retweetedStatus
   if (this.isRetweet && this.retweetedStatus != null && rs.interactions() > this.interactions()) {
-    return rs
+    return arrayOf(this, *rs.exposeParent())
   }
-  return this
+  return arrayOf(this)
 }
 
 fun Status.interactions(): Int = this.retweetCount + this.favoriteCount + 2

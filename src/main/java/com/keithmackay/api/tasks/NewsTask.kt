@@ -70,7 +70,9 @@ internal constructor(
           try {
             val response = khttp.get(url)
             val docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-            val document = docBuilder.parse(inputStream(response.text.trim()))
+            val document = docBuilder.parse(inputStream(response.text
+                .replace("\u2019", "'")
+                .trim()))
             val channels = document.getElementsByTagName("channel")
             log.debug("${channels.length} Channels on $url")
             IntRange(0, channels.length - 1)

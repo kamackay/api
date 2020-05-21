@@ -3,6 +3,7 @@ package com.keithmackay.api.tasks
 import com.google.inject.Inject
 import com.keithmackay.api.db.EphemeralDatabase
 import com.keithmackay.api.model.Tuple
+import com.keithmackay.api.tasks.CronTimes.Companion.minutes
 import com.keithmackay.api.tasks.CronTimes.Companion.seconds
 import com.keithmackay.api.utils.*
 import com.mongodb.client.MongoCollection
@@ -95,7 +96,7 @@ class NewsPriorityTask @Inject internal constructor(db: EphemeralDatabase) : Cro
       }
 
 
-  override fun cron(): String = seconds(15)
+  override fun cron(): String = minutes(1)
 
   override fun name(): String = "NewsPriorityTask"
 

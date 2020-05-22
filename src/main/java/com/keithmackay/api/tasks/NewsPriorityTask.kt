@@ -31,26 +31,23 @@ class NewsPriorityTask @Inject internal constructor(db: EphemeralDatabase) : Cro
 
   @Throws(JobExecutionException::class)
   override fun execute(jobExecutionContext: JobExecutionContext) {
-    val start = System.currentTimeMillis()
+    //val start = System.currentTimeMillis()
     val l = mutableListOf<Document>()
     this.getTweet()?.let(l::add)
     l.stream()
         .map { doc: Document -> Tuple(doc, getPriority(doc)) }
-        .filter { tuple ->
-          // Don't update if this priority is lower than the current
-          tuple.getB() >= tuple.getA().getInteger("priority")
-        }
         .forEach { tuple: Tuple<Document, Int> ->
           try {
+            val currentPriority = tuple.getA().getInteger("priority")
             log.debug(newsCollection.updateOne(
                 doc("_id", eq(tuple.getA().getObjectId("_id"))),
-                set(doc("priority", tuple.getB())
+                set(doc("priority", tuple.getB().coerceAtLeast(currentPriority))
                     .add("priorityUpdated", System::currentTimeMillis))))
           } catch (e: Exception) {
             log.error("Error Updating Priority", e)
           }
         }
-    log.info("Finished News Priority Task (${printTimeDiff(start)})")
+    //log.info("Finished News Priority Task (${printTimeDiff(start)})")
   }
 
   private fun getTweet(): Document? {
@@ -120,7 +117,7 @@ class NewsPriorityTask @Inject internal constructor(db: EphemeralDatabase) : Cro
       }
 
 
-  override fun cron(): String = seconds(20)
+  override fun cron(): String = seconds(10)
 
   override fun name(): String = "NewsPriorityTask"
 

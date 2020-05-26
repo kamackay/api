@@ -18,6 +18,10 @@ public class HeaderEl extends BodyEl<HeaderConfig> {
     return new HeaderEl(config, newArrayList());
   }
 
+  public static HeaderEl headerEl(final HeaderConfig config, List<DomNode<?>> children) {
+    return new HeaderEl(config, children);
+  }
+
   public static HeaderConfig headerConfig() {
     return new HeaderConfig();
   }

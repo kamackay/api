@@ -2,6 +2,7 @@ package com.keithmackay.api.tasks
 
 import com.google.inject.Inject
 import com.keithmackay.api.db.EphemeralDatabase
+import com.keithmackay.api.email.EmailSender
 import com.keithmackay.api.model.Tuple
 import com.keithmackay.api.tasks.CronTimes.Companion.seconds
 import com.keithmackay.api.utils.*
@@ -20,7 +21,10 @@ import java.nio.charset.StandardCharsets
 import kotlin.math.abs
 import kotlin.math.ceil
 
-class NewsPriorityTask @Inject internal constructor(db: EphemeralDatabase) : CronTask() {
+class NewsPriorityTask @Inject internal constructor(
+    db: EphemeralDatabase,
+    private val emailSender: EmailSender
+) : CronTask() {
   private val log = getLogger(this::class)
   private val newsCollection: MongoCollection<Document> = db.getCollection("news")
   private val twitter: Twitter = TwitterFactory(ConfigurationBuilder()
@@ -38,17 +42,30 @@ class NewsPriorityTask @Inject internal constructor(db: EphemeralDatabase) : Cro
         .map { doc: Document -> Tuple(doc, getPriority(doc)) }
         .forEach { tuple: Tuple<Document, Int> ->
           try {
-            val currentPriority = tuple.getA().getInteger("priority")
+            val doc = tuple.getA()
+            val currentPriority = doc.getInteger("priority")
             log.debug(newsCollection.updateOne(
-                doc("_id", eq(tuple.getA().getObjectId("_id"))),
+                doc("_id", eq(doc.getObjectId("_id"))),
                 set(doc("priority", tuple.getB().coerceAtLeast(currentPriority))
                     .add("priorityUpdated", System::currentTimeMillis))))
+            if (!this.shouldNotify(currentPriority) && this.shouldNotify(tuple.getB())) {
+              // Send email that new Important News Item has been found
+              log.info("Sending Important Article Email")
+              val source = doc.subDoc("source").getString("site")
+              val title = doc.getString("title")
+              emailSender.send("New Article from $source: $title",
+                  doc.getString("description"),
+                  emailSender.mainUser())
+            }
           } catch (e: Exception) {
             log.error("Error Updating Priority", e)
           }
         }
+    
     //log.info("Finished News Priority Task (${printTimeDiff(start)})")
   }
+
+  private fun shouldNotify(priority: Int) = priority > 1000
 
   private fun getTweet(): Document? {
     val tweet = newsCollection
@@ -120,6 +137,13 @@ class NewsPriorityTask @Inject internal constructor(db: EphemeralDatabase) : Cro
   override fun cron(): String = seconds(10)
 
   override fun name(): String = "NewsPriorityTask"
+
+  data class NewsItemEmail(
+      val title: String,
+      val source: String,
+      val url: String,
+      val content: String
+  )
 
 }
 

@@ -65,7 +65,7 @@ class NewsPriorityTask @Inject internal constructor(
     //log.info("Finished News Priority Task (${printTimeDiff(start)})")
   }
 
-  private fun shouldNotify(priority: Int) = priority > 1000
+  private fun shouldNotify(priority: Int) = priority > 2500
 
   private fun getTweet(): Document? {
     val tweet = newsCollection

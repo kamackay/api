@@ -53,9 +53,9 @@ class NewsPriorityTask @Inject internal constructor(
               log.info("Sending Important Article Email")
               val source = doc.subDoc("source").getString("site")
               val title = doc.getString("title")
-              emailSender.send("New Article from $source: $title",
+              /*emailSender.send("New Article from $source: $title",
                   doc.getString("description"),
-                  emailSender.mainUser())
+                  emailSender.mainUser())*/
             }
           } catch (e: Exception) {
             log.error("Error Updating Priority", e)

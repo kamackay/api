@@ -10,6 +10,7 @@ import com.keithmackay.api.services.WeatherService.Companion.printSpeed
 import com.keithmackay.api.services.WeatherService.Companion.printTemperature
 import com.keithmackay.api.services.WeatherService.Location
 import com.keithmackay.api.utils.ConfigGrabber
+import com.keithmackay.api.utils.GenericSecrets
 import com.keithmackay.api.utils.getLogger
 import io.keithm.domn8.DOMn8
 import io.keithm.domn8.nodes.DomNode
@@ -38,6 +39,7 @@ class GoodMorningTask
 @Inject internal constructor(
     private val emailSender: EmailSender,
     private val config: ConfigGrabber,
+    private val secrets: GenericSecrets,
     private val weatherService: WeatherService,
     private val newsService: NewsService
 ) : CronTask() {

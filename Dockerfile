@@ -1,25 +1,26 @@
-FROM maven:3.6.2-jdk-12 as builder
+FROM gradle:jdk11 as builder
 
 WORKDIR /api
 
-COPY pom.xml .
+COPY build.gradle ./
 
-RUN mvn dependency:go-offline && mvn dependency:resolve-plugins
+RUN gradle download
 
-COPY ./src ./src
+COPY ./ ./
 
-RUN mvn package && \
-    cp target/*jar-with-dependencies.jar ./api.jar
+RUN gradle makeJar && \
+    cp build/libs/*-all-*.jar ./api.jar
 
 FROM registry.access.redhat.com/ubi8:latest
 
-RUN yum install -y java-11-openjdk
+RUN yum update -y && yum install -y java-11-openjdk
 
 WORKDIR /api/
 
 COPY --from=builder /api/api.jar ./
 
 ENV CREDENTIALS_FILE /api/creds.json
+ENV SECRETS_FILE /api/secrets.json
 ENV CONFIG_FILE /api/config.json
 
-CMD [ "java", "-jar", "-Xmx400m", "-Xss200m", "api.jar" ]
+CMD [ "java", "-jar", "api.jar" ]

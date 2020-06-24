@@ -7,3 +7,4 @@ yarn.lock
 .gitignore
 rundev.sh
 Dockerfile
+secrets.yml

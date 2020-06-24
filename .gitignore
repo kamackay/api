@@ -8,4 +8,7 @@ creds.json
 .factorypath
 .project
 deploy.sh
+.gradle
 twitter-secret.yaml
+gradle/
+secrets.yml

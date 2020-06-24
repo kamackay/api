@@ -9,6 +9,7 @@ import com.keithmackay.api.utils.*
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.model.Aggregates
 import org.bson.Document
+import org.json.JSONObject
 import org.quartz.JobExecutionContext
 import org.quartz.JobExecutionException
 import twitter4j.Query
@@ -61,7 +62,7 @@ class NewsPriorityTask @Inject internal constructor(
             log.error("Error Updating Priority", e)
           }
         }
-    
+
     //log.info("Finished News Priority Task (${printTimeDiff(start)})")
   }
 
@@ -86,6 +87,46 @@ class NewsPriorityTask @Inject internal constructor(
       .first()
 
   private fun getPriority(doc: Document): Int {
+    return getPriorityFromTwitter(doc) + getPriorityFromReddit(doc)
+  }
+
+  private fun getPriorityFromReddit(doc: Document): Int {
+    try {
+      val response = khttp.get("https://www.reddit.com/api/info.json?url=${doc.getString("link")}")
+      val json = response.jsonObject
+      if ("Listing" == json.getString("kind")) {
+        val data = json.getJSONObject("data")
+        val children = data.getJSONArray("children")
+        var score = 0
+        for (x in 0 until children.length()) {
+          score += getScoreFromRedditPost(children.getJSONObject(x))
+        }
+        log.info("This article has received a total of $score interactions from ${children.length()} Reddit Posts")
+        return score
+      } else {
+        log.warn("Kind of response was ${json.getString("kind")}")
+      }
+    } catch (e: Exception) {
+      log.info("Failed to calculate priority from Reddit", e)
+    }
+    return -1
+  }
+
+  private fun getScoreFromRedditPost(post: JSONObject): Int {
+    return try {
+      val ups = post.getJSONObject("data").getInt("ups")
+      var upsFromParents = 0
+      val parents = post.getJSONArray("crosspost_parent_list")
+      for (x in 0 until parents.length()) {
+        upsFromParents += parents.getJSONObject(x).getInt("ups")
+      }
+      return ups + upsFromParents + 1
+    } catch (e: Exception) {
+      0
+    }
+  }
+
+  private fun getPriorityFromTwitter(doc: Document): Int {
     return try {
       val tweets = this.search("\"${doc.getString("title")}\"",
           "url:${encode(doc.getString("link"))}")

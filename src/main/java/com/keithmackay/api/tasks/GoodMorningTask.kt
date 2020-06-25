@@ -3,6 +3,9 @@ package com.keithmackay.api.tasks
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.keithmackay.api.email.EmailSender
+import com.keithmackay.api.model.CoinHolding
+import com.keithmackay.api.model.CryptoLookupBean
+import com.keithmackay.api.services.CryptoService
 import com.keithmackay.api.services.NewsService
 import com.keithmackay.api.services.NewsService.NewsItem
 import com.keithmackay.api.services.WeatherService
@@ -40,6 +43,7 @@ class GoodMorningTask
     private val emailSender: EmailSender,
     private val config: ConfigGrabber,
     private val secrets: SecretsGrabber,
+    private val cryptoService: CryptoService,
     private val weatherService: WeatherService,
     private val newsService: NewsService
 ) : CronTask() {
@@ -68,6 +72,7 @@ class GoodMorningTask
               latitude = locationObj.get("latitude").asDouble,
               longitude = locationObj.get("longitude").asDouble
           )
+          val coinSecret = secrets.getSecret(el.get("coinbaseSecret").asString)
           emailSender.send(title,
               emailRenderer.renderIntoString(GoodMorningEmail(
                   title = title,
@@ -75,7 +80,11 @@ class GoodMorningTask
                   name = el.get("name").asString,
                   timezone = timezone,
                   weather = weatherService.getWeatherForLocation(location),
-                  news = newsService.getDaysTopNews()
+                  news = newsService.getDaysTopNews(),
+                  coins = cryptoService.getAccounts(CryptoLookupBean(
+                      coinSecret.asJsonObject.get("key").asString,
+                      coinSecret.asJsonObject.get("secret").asString
+                  ))
               )),
               el.get("email").asString)
         }
@@ -95,6 +104,7 @@ class GoodMorningTask
   private fun emailContents(model: GoodMorningEmail): List<DomNode<*>>? {
     return listOf(
         headerEl(headerConfig().level(5).text("Hi, ${model.name}")),
+        cryptoContents(model),
         weatherContents(model),
         newsContents(model)
     )
@@ -162,6 +172,25 @@ class GoodMorningTask
     ))
   }
 
+  private fun cryptoContents(model: GoodMorningEmail): DomNode<*> {
+    return if (model.coins.isEmpty()) {
+      divEl(divConfig(), listOf())
+    } else {
+      divEl(divConfig().styles(css().set("margin-top", "10px")), listOf(
+          headerEl(headerConfig().level(3).text("Cryptocurrencies")),
+          *model.coins.map { coin ->
+            divEl(divConfig()
+                .styles(css().setValue("display", "block")),
+                listOf(textNode(TextConfig()
+                    .styles(css().set("color", coin.color))
+                    .text("${coin.count} ${coin.name} " +
+                        "- Worth \$${String.format("%.2f", coin.count * coin.value)}")),
+                    breakEl()))
+          }.toTypedArray()
+      ))
+    }
+  }
+
   private fun newsContents(model: GoodMorningEmail): DomNode<*> {
     return if (model.news.isEmpty()) {
       divEl(divConfig(), listOf())
@@ -204,7 +233,8 @@ class GoodMorningTask
       val location: Location,
       val weather: WeatherService.Weather?,
       val timezone: String,
-      val news: List<NewsItem>
+      val news: List<NewsItem>,
+      val coins: List<CoinHolding>
   )
 
   private fun today(timezone: String): String =

@@ -31,7 +31,10 @@ class TestTask
     cryptoService.getAccounts(CryptoLookupBean(
         secret.asJsonObject.get("key").asString,
         secret.asJsonObject.get("secret").asString
-    ))
+    )).forEach { coin ->
+      log.info("${coin.count} ${coin.name} " +
+          "- Worth \$${String.format("%.2f", coin.count * coin.value)}")
+    }
   }
 
   private fun testNewsService() = log.info(GsonBuilder()

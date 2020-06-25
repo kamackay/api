@@ -7,6 +7,7 @@ import com.keithmackay.api.model.ScheduleSingleton;
 import com.keithmackay.api.tasks.CronTask;
 import com.keithmackay.api.tasks.TaskRunner;
 import com.keithmackay.api.utils.GuiceJobFactory;
+import com.nixxcode.jvmbrotli.common.BrotliLoader;
 import lombok.Getter;
 import lombok.val;
 import org.apache.logging.log4j.Logger;
@@ -15,23 +16,39 @@ import org.quartz.SchedulerException;
 
 import java.util.Set;
 
-import static com.keithmackay.api.utils.UtilsKt.*;
+import static com.keithmackay.api.utils.UtilsKt.defer;
+import static com.keithmackay.api.utils.UtilsKt.getLogger;
+import static com.keithmackay.api.utils.UtilsKt.humanizeBytes;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
 
 public class Main {
+  private static final Logger log = getLogger(Main.class);
+
   public static void main(String[] args) {
     try {
-      final Logger log = getLogger(Main.class);
       final Runtime runtime = Runtime.getRuntime();
       log.info("CPU Cores Available: {}", runtime.availableProcessors());
       log.info("Memory Limit: {}", humanizeBytes(runtime.maxMemory()));
       final Injector injector = Guice.createInjector(new ServerModule());
+      verifyBrotli();
       configureCron(injector);
       injector.getInstance(Server.class).start();
       injector.getInstance(TaskRunner.class).start();
     } catch (Exception e) {
       getLogger(Main.class).error("Error Running API!", e);
+    }
+  }
+
+  private static void verifyBrotli() {
+    try {
+      final boolean available = BrotliLoader.isBrotliAvailable();
+      if(!available) {
+        throw new Exception("Can't load Brotli");
+      }
+
+    } catch (Exception e) {
+      log.error("Couldn't load Brotli", e);
     }
   }
 

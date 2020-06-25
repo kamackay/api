@@ -3,7 +3,7 @@ package com.keithmackay.api.db
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.keithmackay.api.minutes
-import com.keithmackay.api.utils.SecretGrabber
+import com.keithmackay.api.utils.CredentialsGrabber
 import com.keithmackay.api.utils.getLogger
 import com.keithmackay.api.utils.threadSafeMap
 import com.mongodb.MongoClient
@@ -16,7 +16,7 @@ import org.jongo.Jongo
 
 @Singleton
 class Database @Inject
-internal constructor(secretGrabber: SecretGrabber) : IDatabase {
+internal constructor(credentialsGrabber: CredentialsGrabber) : IDatabase {
 
   private val log = getLogger(this::class)
 
@@ -25,7 +25,7 @@ internal constructor(secretGrabber: SecretGrabber) : IDatabase {
   private val connectionString: String
 
   init {
-    val pass = secretGrabber.getSecret("mongo-password").asString
+    val pass = credentialsGrabber.getSecret("mongo-password").asString
     val optionMap = threadSafeMap<String, Any>()
     optionMap["retryWrites"] = true
     optionMap["w"] = "majority"

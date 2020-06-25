@@ -3,7 +3,7 @@ package com.keithmackay.api.services
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.keithmackay.api.utils.ConfigGrabber
-import com.keithmackay.api.utils.SecretGrabber
+import com.keithmackay.api.utils.CredentialsGrabber
 import com.keithmackay.api.utils.getLogger
 import com.keithmackay.api.utils.iterateObjects
 import org.json.JSONArray
@@ -14,7 +14,7 @@ typealias Precipitation = Map<String, Double>
 @Singleton
 class WeatherService @Inject
 internal constructor(
-    private val secrets: SecretGrabber,
+    private val secrets: CredentialsGrabber,
     private val config: ConfigGrabber
 ) {
 

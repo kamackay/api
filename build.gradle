@@ -69,11 +69,6 @@ group = 'com.keithmackay.api'
 version = '1.0.0'
 sourceCompatibility = '11'
 
-task download(type: Exec) {
-    configurations.testRuntime.files
-    commandLine 'echo', 'Downloaded all dependencies'
-}
-
 //create a single Jar with all dependencies
 task makeJar(type: Jar) {
     manifest {

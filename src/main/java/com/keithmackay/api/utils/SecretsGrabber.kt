@@ -6,11 +6,11 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 
 @Singleton
-class SecretGrabber @Inject
+class SecretsGrabber @Inject
 internal constructor() {
 
   private val secrets =
-      JsonParser().parse(fileToString(System.getenv("CREDENTIALS_FILE")).trim())
+      JsonParser().parse(fileToString(System.getenv("SECRETS_FILE")).trim())
           .asJsonObject
 
   fun getSecret(secret: String): JsonElement = secrets.get(secret)

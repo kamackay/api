@@ -14,6 +14,9 @@ repositories {
         url = uri('https://dl.bintray.com/nitram509/jbrotli')
     }
     maven {
+        url = uri('https://dl.bintray.com/kamackay/mvn')
+    }
+    maven {
         url = uri('https://jcenter.bintray.com')
     }
     maven {
@@ -58,6 +61,7 @@ dependencies {
     compile 'org.postgresql:postgresql:42.2.12'
     compile 'org.hibernate:hibernate-core:5.4.15.Final'
     compile 'org.twitter4j:twitter4j-core:4.0.7'
+    compile 'io.keithm.domn8:DOMn8:1.0'
     testImplementation 'org.jetbrains.kotlin:kotlin-test-junit:1.3.50'
     testImplementation 'org.jetbrains.kotlin:kotlin-test-common:1.3.50'
     testImplementation 'org.jetbrains.kotlin:kotlin-test-annotations-common:1.3.50'

@@ -24,7 +24,7 @@ internal constructor(db: Database) : Task() {
     val result = tokenCollection
         .deleteMany(
             or(
-                doc("created", lessThan(weekAgo)),
+                doc("created", weekAgo),
                 doc("valid", eq(false))))
     if (result.deletedCount > 0) {
       log.info("Deleted ${result.deletedCount} Expired Sessions from the database")

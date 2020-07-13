@@ -95,3 +95,8 @@ task makeJar(type: Jar) {
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
+
+task getDeps(type: Copy) {
+    from sourceSets.main.runtimeClasspath
+    into 'runtime/'
+}

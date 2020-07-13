@@ -70,7 +70,9 @@ class NewsPriorityTask @Inject internal constructor(
 
   private fun getTweet(): Document? {
     val tweet = newsCollection
-        .find(doc())
+        .find(doc("priority", -1)
+            // Don't update a document older than 12 hours old
+            .append("time", gte(System.currentTimeMillis() - 1000 * 60 * 60 * 12)))
         .sort(doc("priorityUpdated", 1)
             .append("priority", 1))
         .first()

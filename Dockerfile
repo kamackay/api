@@ -2,6 +2,10 @@ FROM gradle:jdk11 as builder
 
 WORKDIR /api
 
+COPY build.gradle ./
+
+RUN gradle getDeps
+
 COPY ./ ./
 
 RUN gradle makeJar && \

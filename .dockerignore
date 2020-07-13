@@ -8,3 +8,6 @@ yarn.lock
 rundev.sh
 Dockerfile
 secrets.yml
+.gradle/
+gradle/
+lib/

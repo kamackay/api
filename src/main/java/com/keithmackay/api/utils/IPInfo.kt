@@ -71,7 +71,7 @@ private inline fun <reified T> get(obj: JSONObject, key: String, default: T): T 
         if (it is T) {
           it
         } else {
-          null as T
+          default
         }
       }
       .orElse(default) as T

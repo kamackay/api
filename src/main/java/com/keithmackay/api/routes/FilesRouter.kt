@@ -37,6 +37,15 @@ internal constructor(private val validator: RequestValidator, private val db: Da
       })
     }
 
+    get("ls.json") { ctx ->
+      val servers = lsCollection.find()
+          .map { server ->
+            server.getString("server")
+          }.toList()
+
+      ctx.json(servers)
+    }
+
     path("files") {
       // Empty File just to test credentials
       get("secret.txt") {

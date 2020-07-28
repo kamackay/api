@@ -11,7 +11,7 @@ plugins {
 repositories {
     //mavenLocal()
     maven {
-        url = uri('https://dl.bintray.com/nitram509/jbrotli')
+        url = uri('https://arti.keithm.io/artifactory/mvn/')
     }
     maven {
         url = uri('https://dl.bintray.com/kamackay/mvn')

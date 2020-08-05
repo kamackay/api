@@ -13,21 +13,21 @@ repositories {
     maven {
         url = uri('https://arti.keithm.io/artifactory/mvn/')
     }
-    maven {
-        url = uri('https://dl.bintray.com/kamackay/mvn')
-    }
-    maven {
-        url = uri('https://jcenter.bintray.com')
-    }
-    maven {
-        url = uri('https://maven-central.storage.googleapis.com/maven2/')
-    }
-    maven {
-        url = uri('https://repo.maven.apache.org/maven2')
-    }
-    maven {
-        url = uri('http://downloads.planetmirror.com/pub/maven2')
-    }
+    // maven {
+    //     url = uri('https://dl.bintray.com/kamackay/mvn')
+    // }
+    // maven {
+    //     url = uri('https://jcenter.bintray.com')
+    // }
+    // maven {
+    //     url = uri('https://maven-central.storage.googleapis.com/maven2/')
+    // }
+    // maven {
+    //     url = uri('https://repo.maven.apache.org/maven2')
+    // }
+    // maven {
+    //     url = uri('http://downloads.planetmirror.com/pub/maven2')
+    // }
 }
 
 dependencies {

@@ -71,8 +71,7 @@ internal constructor(
                 .append("url", null)
                 .append("userAgent", ctx.userAgent()))
             .join(additional))
-            .append("\$inc", doc("count", 1L))
-            .append("\$unset", doc("url", 1)),
+            .append("\$inc", doc("count", 1L)),
         UpdateOptions().upsert(true))
     if (result.matchedCount == 0L) {
       log.info("Access from new IP: $ip")

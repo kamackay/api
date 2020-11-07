@@ -12,3 +12,4 @@ secrets.yml
 gradle/
 lib/
 runtime/
+build/

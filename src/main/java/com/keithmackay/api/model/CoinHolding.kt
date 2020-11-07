@@ -5,5 +5,6 @@ data class CoinHolding(
     val code: String,
     val color: String,
     val count: Double,
-    val value: Double
+    val value: Double,
+    val timeCalculated: Long
 )

@@ -60,7 +60,7 @@ internal constructor(
         .orElse("Main Page")
     val additional = Optional.ofNullable(body.get("additional", Document::class.java))
         .orElse(doc())
-    val urls = existing.get("urls", ArrayList<String>().javaClass)
+    val urls = existing.get("urls", ArrayList<String>().javaClass) ?: ArrayList<String>()
     urls.add(additional.getString("url"))
     additional.remove("url")
     val result = collection.updateOne(doc("ip", ip),
@@ -106,7 +106,6 @@ internal constructor(
       // No-op
     }
   }
-
 
   private val emailRenderer = DOMn8.generic(NewIPEmailModel::class.java,
       { model: NewIPEmailModel ->

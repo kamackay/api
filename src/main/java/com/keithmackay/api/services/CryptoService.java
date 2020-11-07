@@ -8,6 +8,7 @@ import com.google.inject.Singleton;
 import com.keithmackay.api.model.CoinHolding;
 import com.keithmackay.api.model.CryptoLookupBean;
 import com.keithmackay.api.utils.JsonOptional;
+import lombok.val;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -92,7 +93,8 @@ public class CryptoService {
                               code,
                               color,
                               amount,
-                              value));
+                              value,
+                              System.currentTimeMillis()));
                     });
               } catch (Exception e) {
                 log.error("Error Handling", e);
@@ -114,6 +116,7 @@ public class CryptoService {
       try (final Response response = client.newCall(request.build())
           .execute()) {
         final String json = response.body().string();
+        log.debug(json);
         final JsonElement el = new JsonParser().parse(json);
         return getDeepDouble(el, "data.amount");
       }

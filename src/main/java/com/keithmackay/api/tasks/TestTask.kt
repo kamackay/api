@@ -27,14 +27,7 @@ class TestTask
   override fun cron() = CronTimes.minutes(2)
 
   override fun execute(ctx: JobExecutionContext?) {
-    val secret = secrets.getSecret("keith-coinbase")
-    cryptoService.getAccounts(CryptoLookupBean(
-        secret.asJsonObject.get("key").asString,
-        secret.asJsonObject.get("secret").asString
-    )).forEach { coin ->
-      log.info("${coin.count} ${coin.name} " +
-          "- Worth \$${String.format("%.2f", coin.count * coin.value)}")
-    }
+    // No-op
   }
 
   private fun testNewsService() = log.info(GsonBuilder()

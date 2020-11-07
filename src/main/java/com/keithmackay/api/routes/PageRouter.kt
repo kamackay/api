@@ -26,6 +26,7 @@ import io.keithm.domn8.styles.CSS.css
 import org.bson.Document
 import org.json.JSONObject
 import java.util.*
+import kotlin.collections.ArrayList
 
 @Singleton
 class PageRouter @Inject
@@ -53,18 +54,25 @@ internal constructor(
     val ip = Optional.of(body)
         .map { it.getString("ip") }
         .orElseGet(ctx::ip)
+    val existing = this.getExistingData(ip)
     val application = Optional.of(body)
         .map { it.getString("application") }
         .orElse("Main Page")
     val additional = Optional.ofNullable(body.get("additional", Document::class.java))
         .orElse(doc())
+    val urls = existing.get("urls", ArrayList<String>().javaClass)
+    urls.add(additional.getString("url"))
+    additional.remove("url")
     val result = collection.updateOne(doc("ip", ip),
         doc("\$set", doc("ip", ip)
-            .append("firstVisit", System.currentTimeMillis())
+            .append("firstVisit", existing.getLong("firstVisit") ?: System.currentTimeMillis())
             .join(doc()
+                .append("urls", urls.filter(Objects::nonNull))
+                .append("url", null)
                 .append("userAgent", ctx.userAgent()))
             .join(additional))
-            .append("\$inc", doc("count", 1L)),
+            .append("\$inc", doc("count", 1L))
+            .append("\$unset", doc("url", 1)),
         UpdateOptions().upsert(true))
     if (result.matchedCount == 0L) {
       log.info("Access from new IP: $ip")
@@ -84,6 +92,10 @@ internal constructor(
     } else {
       ctx.status(205).result("OK")
     }
+  }
+
+  private fun getExistingData(ip: String): Document {
+    return collection.find(doc().append("ip", ip)).first() ?: doc().append("ips", ArrayList<String>())
   }
 
   private fun ensureIndex() {

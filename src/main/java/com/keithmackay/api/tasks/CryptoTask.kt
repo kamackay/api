@@ -8,7 +8,6 @@ import com.keithmackay.api.model.CryptoLookupBean
 import com.keithmackay.api.services.CryptoService
 import com.keithmackay.api.utils.SecretsGrabber
 import com.keithmackay.api.utils.getLogger
-import com.keithmackay.api.utils.millisToReadableTime
 import io.keithm.domn8.DOMn8
 import io.keithm.domn8.nodes.DomNode
 import io.keithm.domn8.nodes.HtmlBody
@@ -18,14 +17,20 @@ import io.keithm.domn8.nodes.elements.TextNode.textNode
 import io.keithm.domn8.styles.CSS.css
 import org.quartz.JobExecutionContext
 import kotlin.math.abs
+import kotlin.math.roundToInt
 
 fun Double.format(digits: Int): String {
   val num = "%.${digits}f".format(abs(this))
 
-  return "${if (this >= 0) "" else "-"}%$num"
+  return "${if (this >= 0) "" else "-"}$num%"
 }
 
 fun Double.currency(): String = "\$${String.format("%.2f", this)}"
+
+fun minutes(time: Long): String {
+  val minutes = (time.toDouble() / 60_000).roundToInt()
+  return if (minutes == 60) "1 hour" else "$minutes minutes"
+}
 
 
 @Singleton
@@ -39,7 +44,7 @@ class CryptoTask
   private val log = getLogger(this::class)
   override fun name() = "TestTask"
 
-  override fun cron() = CronTimes.minutes(2)
+  override fun cron() = CronTimes.minutes(1)
 
   private val history = HashMap<String, MutableList<CoinHolding>>()
 
@@ -58,26 +63,30 @@ class CryptoTask
       }, "Crypto Value Change")
 
   override fun execute(ctx: JobExecutionContext?) {
+    history.entries.forEach { log.debug("${it.key} -> ${it.value.size}") }
     this.calculatePrices()
         .forEach { coin ->
           val list = history.getOrDefault(coin.code, ArrayList())
-          list.sortByDescending { it.timeCalculated }
-          if (list.size > 0) {
-            if (this.compareAndSend(list[0], coin)) {
-              return
-            }
-
-            this.findPriceToCompare(list)?.run {
-              compareAndSend(this, coin)
-            }
+          log.info("Processing Results for ${coin.name} (${list.size} historical results)")
+          this.findPriceToCompare(list)?.run {
+            compareAndSend(this, coin)
           }
           list.add(coin)
           history[coin.code] = list
         }
   }
 
-  private fun compareAndSend(old: CoinHolding, coin: CoinHolding, changeTrigger: Double = 1.0): Boolean {
-    val timeDiffString = "over ${millisToReadableTime(coin.timeCalculated - old.timeCalculated)}"
+  private fun clearOldMetrics(keep: CoinHolding) {
+    val l = this.history[keep.code]
+    l?.clear()
+    l?.add(keep)
+    log.info("Clearing all records except ${this.history[keep.code]?.size ?: 0} most recent")
+  }
+
+  private fun compareAndSend(old: CoinHolding,
+                             coin: CoinHolding,
+                             changeTrigger: Double = 1.0): Boolean {
+    val timeDiffString = "over ${minutes(coin.timeCalculated - old.timeCalculated)}"
     val change = calculateChange(old, coin)
     log.info("${coin.name} has changed by ${change.format(2)} " +
         "(${old.value.currency()} -> ${coin.value.currency()}) $timeDiffString")
@@ -86,6 +95,7 @@ class CryptoTask
           "Crypto Value ${coin.name} has changed by ${change.format(2)} $timeDiffString",
           emailRenderer.renderIntoString(EmailData(old, coin)),
           emailSender.mainUser())
+      this.clearOldMetrics(coin)
       return true
     }
     return false

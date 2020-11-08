@@ -8,7 +8,6 @@ import com.google.inject.Singleton;
 import com.keithmackay.api.model.CoinHolding;
 import com.keithmackay.api.model.CryptoLookupBean;
 import com.keithmackay.api.utils.JsonOptional;
-import lombok.val;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -24,9 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.keithmackay.api.utils.JavaUtils.getDeepDouble;
-import static com.keithmackay.api.utils.JavaUtils.getDeepString;
-import static com.keithmackay.api.utils.JavaUtils.streamIterable;
+import static com.keithmackay.api.utils.JavaUtils.*;
 import static java.util.Collections.synchronizedList;
 
 @Singleton

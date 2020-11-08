@@ -57,12 +57,6 @@ internal constructor(
     val existingGuids = newsCollection.distinct("guid", String::class.java)
         .into(HashSet())
 
-    Thread {
-      if (newsCollection.countDocuments() > 1000) {
-        log.error("There are more than 1000 News Items, and there shouldn't be")
-      }
-    }.start()
-
     newsRssCollection.find(and(doc("enabled", ne(false))))
         .into(threadSafeList<Document>())
         .forEach { dbDoc ->

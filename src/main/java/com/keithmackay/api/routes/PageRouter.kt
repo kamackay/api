@@ -21,11 +21,13 @@ import io.keithm.domn8.nodes.elements.DivEl.divConfig
 import io.keithm.domn8.nodes.elements.DivEl.divEl
 import io.keithm.domn8.nodes.elements.HeaderEl.headerConfig
 import io.keithm.domn8.nodes.elements.HeaderEl.headerEl
+import io.keithm.domn8.nodes.elements.LinkEl
 import io.keithm.domn8.nodes.elements.TextNode.textNode
 import io.keithm.domn8.styles.CSS.css
 import org.bson.Document
 import org.json.JSONObject
 import java.net.URLDecoder
+import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.util.*
 import kotlin.collections.ArrayList
@@ -47,26 +49,45 @@ internal constructor(
   override fun routes() {
     ApiBuilder.path("page") {
       ApiBuilder.put("/", this::addRequest)
-      ApiBuilder.get("/") { ctx ->
-        collection.find().into(ArrayList()).run {
-          ctx.json(this)
-        }
-      }
       ApiBuilder.get("/:ip") { ctx ->
-        try {
-          val ipEncoded = ctx.pathParam("ip")
-          val ip = URLDecoder.decode(ipEncoded, StandardCharsets.UTF_8)
-          log.info("Finding all Page load records for $ip")
+        val ipEncoded = ctx.pathParam("ip")
+        getRecordFromEncodedIp(ipEncoded).run {
+          val builder = StringBuilder()
+          this.forEach { pair ->
+            if (pair.key == "_id" || pair.value == null) {
+              return@forEach
+            }
+            builder.append(pair.key).append(" -> ")
 
-          Optional.of(collection.find(doc("ip", eq(ip))))
-              .map { it.first() }
-              .orElse(doc())
-              ?.run { ctx.json(this) }
-        } catch (e: Exception) {
-          log.error("Error looking up data", e)
-          ctx.result(e.message ?: "Error getting data")
+            if (pair.value is Collection<*>) {
+              val stringValue = (pair.value as Collection<*>).joinToString(separator = ", ") { it.toString() }
+              builder.append(stringValue)
+            } else {
+              builder.append(pair.value?.toString() ?: "null")
+            }
+            builder.append("\n\n")
+          }
+          ctx.result(builder.toString())
         }
       }
+      ApiBuilder.get("/:ip/json") { ctx ->
+        val ipEncoded = ctx.pathParam("ip")
+        getRecordFromEncodedIp(ipEncoded).run { ctx.json(this) }
+      }
+    }
+  }
+
+  private fun getRecordFromEncodedIp(encodedIp: String): Document {
+    return try {
+      val ip = URLDecoder.decode(encodedIp, StandardCharsets.UTF_8)
+      log.info("Finding all Page load records for $ip")
+
+      Optional.of(collection.find(doc("ip", eq(ip))))
+          .map { it.first() }
+          .orElse(doc())
+    } catch (e: Exception) {
+      log.error("Error looking up data", e)
+      doc()
     }
   }
 
@@ -146,6 +167,9 @@ internal constructor(
         listOf(
             row("New Page Load on Website"),
             row("IP: ${info.ip}"),
+            LinkEl.linkEl(LinkEl.LinkConfig()
+                .text("View All Tracked Data")
+                .url("https://api.keith.sh/page/${URLEncoder.encode(info.ip, StandardCharsets.UTF_8)}")),
             row("${info.city}, ${info.region}, ${info.countryName} ${info.postal}"),
             row("Coords: ${info.latitude} / ${info.longitude}"),
             row("Organization: ${info.organization}"),

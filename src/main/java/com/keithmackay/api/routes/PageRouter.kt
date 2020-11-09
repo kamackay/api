@@ -25,6 +25,8 @@ import io.keithm.domn8.nodes.elements.TextNode.textNode
 import io.keithm.domn8.styles.CSS.css
 import org.bson.Document
 import org.json.JSONObject
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -45,6 +47,26 @@ internal constructor(
   override fun routes() {
     ApiBuilder.path("page") {
       ApiBuilder.put("/", this::addRequest)
+      ApiBuilder.get("/") { ctx ->
+        collection.find().into(ArrayList()).run {
+          ctx.json(this)
+        }
+      }
+      ApiBuilder.get("/:ip") { ctx ->
+        try {
+          val ipEncoded = ctx.pathParam("ip")
+          val ip = URLDecoder.decode(ipEncoded, StandardCharsets.UTF_8)
+          log.info("Finding all Page load records for $ip")
+
+          Optional.of(collection.find(doc("ip", eq(ip))))
+              .map { it.first() }
+              .orElse(doc())
+              ?.run { ctx.json(this) }
+        } catch (e: Exception) {
+          log.error("Error looking up data", e)
+          ctx.result(e.message ?: "Error getting data")
+        }
+      }
     }
   }
 

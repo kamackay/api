@@ -1,4 +1,4 @@
-FROM gradle:jdk11
+FROM gradle:jdk11 as gradle
 
 WORKDIR /api
 

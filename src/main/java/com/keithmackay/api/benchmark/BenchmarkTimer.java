@@ -18,7 +18,7 @@ public class BenchmarkTimer {
   private static BenchmarkTimer instance = null;
   private final Map<String, BenchmarkData> startTimes;
   private long limit = 0;
-  private Logger logger = getLogger(BenchmarkTimer.class);
+  private final Logger logger = getLogger(BenchmarkTimer.class);
 
   private BenchmarkTimer() {
     startTimes = new HashMap<>();
@@ -43,7 +43,11 @@ public class BenchmarkTimer {
    * @return - this object, for the builder pattern
    */
   public BenchmarkTimer start(final String name) {
-    return start(BenchmarkData.builder().name(name).limit(limit).build());
+    return start(BenchmarkData.builder()
+        .name(name)
+        .limit(limit)
+        .startTime(System.currentTimeMillis())
+        .build());
   }
 
   /**

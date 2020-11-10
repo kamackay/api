@@ -84,7 +84,7 @@ internal constructor(
 
       Optional.of(collection.find(doc("ip", eq(ip))))
           .map { it.first() }
-          .orElse(doc())
+          .orElse(doc()) ?: doc()
     } catch (e: Exception) {
       log.error("Error looking up data", e)
       doc()

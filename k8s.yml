@@ -76,19 +76,14 @@ spec:
           ports:
             - name: http
               containerPort: 8080
-          livenessProbe:
-            httpGet:
-              path: /ping
-              port: 8080
-            initialDelaySeconds: 30
-            periodSeconds: 5
           readinessProbe:
             httpGet:
               path: /ping
               port: 8080
-            initialDelaySeconds: 10
+            initialDelaySeconds: 20
             periodSeconds: 10
             timeoutSeconds: 2
+            failureThreshold: 100
           volumeMounts:
             - name: creds
               mountPath: /api/creds.json

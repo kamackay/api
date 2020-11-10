@@ -2,12 +2,14 @@ package com.keithmackay.api.tasks
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import com.keithmackay.api.benchmark.BenchmarkTimer
+import com.keithmackay.api.benchmark.BenchmarkTimer.timer
+import com.keithmackay.api.db.IDatabase
 import com.keithmackay.api.email.EmailSender
 import com.keithmackay.api.model.CoinHolding
 import com.keithmackay.api.model.CryptoLookupBean
 import com.keithmackay.api.services.CryptoService
-import com.keithmackay.api.utils.SecretsGrabber
-import com.keithmackay.api.utils.getLogger
+import com.keithmackay.api.utils.*
 import io.keithm.domn8.DOMn8
 import io.keithm.domn8.nodes.DomNode
 import io.keithm.domn8.nodes.HtmlBody
@@ -15,7 +17,10 @@ import io.keithm.domn8.nodes.elements.BreakEl.breakEl
 import io.keithm.domn8.nodes.elements.TextNode
 import io.keithm.domn8.nodes.elements.TextNode.textNode
 import io.keithm.domn8.styles.CSS.css
+import org.bson.Document
 import org.quartz.JobExecutionContext
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -36,17 +41,18 @@ fun minutes(time: Long): String {
 @Singleton
 class CryptoTask
 @Inject internal constructor(
+    db: IDatabase,
     private val emailSender: EmailSender,
     private val secrets: SecretsGrabber,
     private val cryptoService: CryptoService
 ) : CronTask() {
 
   private val log = getLogger(this::class)
-  override fun name() = "TestTask"
+  override fun name() = "CronTask"
 
   override fun cron() = CronTimes.minutes(1)
 
-  private val history = HashMap<String, MutableList<CoinHolding>>()
+  private val collection = db.getCollection("prices")
 
   private val emailRenderer = DOMn8.generic(EmailData::class.java,
       { model: EmailData ->
@@ -63,24 +69,42 @@ class CryptoTask
       }, "Crypto Value Change")
 
   override fun execute(ctx: JobExecutionContext?) {
-    history.entries.forEach { log.debug("${it.key} -> ${it.value.size}") }
+    val taskName = "CryptoTask"
+    timer().start(taskName)
     this.calculatePrices()
         .forEach { coin ->
-          val list = history.getOrDefault(coin.code, ArrayList())
+          this.addToDb(coin)
+          val list = collection.find(lastHourFilter(coin))
+              .into(ArrayList())
+              .map(this::convertDoc)
           log.info("Processing Results for ${coin.name} (${list.size} historical results)")
           this.findPriceToCompare(list)?.run {
             compareAndSend(this, coin)
           }
-          list.add(coin)
-          history[coin.code] = list
         }
+    timer().end(taskName)
   }
 
+  private fun addToDb(coin: CoinHolding) {
+    collection.insertOne(doc()
+        .append("code", coin.code)
+        .append("count", coin.count)
+        .append("name", coin.name)
+        .append("timeCalculated", coin.timeCalculated)
+        .append("color", coin.color)
+        .append("value", coin.value))
+  }
+
+  private fun lastHourFilter(coin: CoinHolding): Document =
+      doc("timeCalculated", gte(LocalDateTime.now()
+          .minusHours(1)
+          .toInstant(ZoneOffset.UTC)
+          .toEpochMilli()))
+          .append("code", coin.code)
+          .append("used", ne(true))
+
   private fun clearOldMetrics(keep: CoinHolding) {
-    val l = this.history[keep.code]
-    l?.clear()
-    l?.add(keep)
-    log.info("Clearing all records except ${this.history[keep.code]?.size ?: 0} most recent")
+    collection.updateMany(lastHourFilter(keep), doc("\$set", doc("used", true)))
   }
 
   private fun compareAndSend(old: CoinHolding,
@@ -126,6 +150,14 @@ class CryptoTask
     val y2 = new.value
     return ((y2 - y1) / y1) * 100
   }
+
+  private fun convertDoc(doc: Document): CoinHolding = CoinHolding(
+      doc.getString("name"),
+      doc.getString("code"),
+      doc.getString("color"),
+      doc.getDouble("count"),
+      doc.getDouble("value"),
+      doc.getLong("timeCalculated"))
 
   private data class EmailData(
       val oldCoin: CoinHolding,

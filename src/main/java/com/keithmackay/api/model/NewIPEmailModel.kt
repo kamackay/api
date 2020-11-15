@@ -8,8 +8,8 @@ data class NewIPEmailModel(
     val additional: Map<String, String>
 ) {
   fun getTitle(returning: Boolean = false): String {
-    return if (returning) "Returning Page Load on $application from ${info.city} ${info.region}, ${info.countryName}"
-    else "New Page Load on $application in ${info.city} ${info.region}, ${info.countryName}"
+    return if (returning) "Returning Page Load on $application from ${info.city}, ${info.region}, ${info.countryName}"
+    else "New Page Load on $application in ${info.city}, ${info.region}, ${info.countryName}"
   }
 
   override fun toString(): String {

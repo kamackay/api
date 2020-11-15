@@ -74,7 +74,7 @@ class CryptoTask
     this.calculatePrices()
         .forEach { coin ->
           this.addToDb(coin)
-          val list = collection.find(lastHourFilter(coin))
+          val list = collection.find(queryFilter(coin))
               .into(ArrayList())
               .map(this::convertDoc)
           log.info("Processing Results for ${coin.name} (${list.size} historical results)")
@@ -95,7 +95,7 @@ class CryptoTask
         .append("value", coin.value))
   }
 
-  private fun lastHourFilter(coin: CoinHolding): Document =
+  private fun queryFilter(coin: CoinHolding): Document =
       doc("timeCalculated", gte(LocalDateTime.now()
           .minusHours(24)
           .toInstant(ZoneOffset.UTC)
@@ -104,7 +104,7 @@ class CryptoTask
           .append("used", ne(true))
 
   private fun clearOldMetrics(keep: CoinHolding) {
-    collection.updateMany(lastHourFilter(keep), doc("\$set", doc("used", true)))
+    collection.updateMany(queryFilter(keep), doc("\$set", doc("used", true)))
   }
 
   private fun compareAndSend(old: CoinHolding,
@@ -126,14 +126,10 @@ class CryptoTask
   }
 
   private fun findPriceToCompare(holdings: List<CoinHolding>): CoinHolding? {
-    val now = System.currentTimeMillis()
-    val filtered = holdings.filter {
-      it.timeCalculated > now - 1000 * 60 * 60
-    }
-    return if (filtered.isEmpty()) {
+    return if (holdings.isEmpty()) {
       null
     } else {
-      filtered.sortedBy { it.timeCalculated }[0]
+      holdings.sortedBy { it.timeCalculated }[0]
     }
   }
 

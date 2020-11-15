@@ -32,7 +32,6 @@ import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.math.abs
 
 @Singleton
 class PageRouter @Inject
@@ -105,20 +104,22 @@ internal constructor(
         .orElse("Main Page")
     val additional = Optional.ofNullable(body.get("additional", Document::class.java))
         .orElse(doc())
-    val urls = existing.get("urls", ArrayList<String>().javaClass) ?: ArrayList<String>()
+    val urls = existing.get("urls", ArrayList<String>().javaClass) ?: ArrayList()
     urls.add(additional.getString("url"))
     additional.remove("url")
     val result = collection.updateOne(doc("ip", ip),
         doc("\$set", doc("ip", ip)
+            .append("lastVisit", System.currentTimeMillis())
             .append("firstVisit", existing.getLong("firstVisit") ?: System.currentTimeMillis())
             .join(doc()
                 .append("urls", urls.filter(Objects::nonNull))
                 .append("url", null)
-                .append("lastVisit", System.currentTimeMillis())
                 .append("userAgent", ctx.userAgent()))
             .join(additional))
             .append("\$inc", doc("count", 1L)),
         UpdateOptions().upsert(true))
+    val timeSinceLastVisit = System.currentTimeMillis() - (existing.getLong("lastVisit") ?: 0)
+    log.info("Time since last visit is $timeSinceLastVisit ms")
     when {
       result.matchedCount == 0L -> {
         log.info("Access from new IP: $ip")
@@ -133,11 +134,10 @@ internal constructor(
               emailSender.mainUser())
         }
         ctx.result("OK")
-        collection.updateOne(doc("ip", ip), doc("\$set",
-            info.toMongo()))
+        collection.updateOne(doc("ip", ip), doc("\$set", info.toMongo()))
       }
 
-      abs(existing.getLong("lastVisit") - System.currentTimeMillis()) > days(1) -> {
+      timeSinceLastVisit > days(1) -> {
         log.info("Access from Old IP: $ip")
         val info = Optional.ofNullable(getIpInfo(ip))
             .orElseGet { this.defaultInfo(ip) }
@@ -155,7 +155,7 @@ internal constructor(
   }
 
   private fun getExistingData(ip: String): Document {
-    return collection.find(doc().append("ip", ip)).first() ?: doc().append("ips", ArrayList<String>())
+    return collection.find(doc().append("ip", ip)).first() ?: doc().append("urls", ArrayList<String>())
   }
 
   private fun ensureIndex() {

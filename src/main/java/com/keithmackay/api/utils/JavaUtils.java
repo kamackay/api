@@ -63,6 +63,24 @@ public class JavaUtils {
     return maybeEl.get();
   }
 
+  public static class Time {
+    public static long seconds(final int seconds) {
+      return seconds * 1000;
+    }
+
+    public static long minutes(final int minutes) {
+      return seconds(minutes) * 60;
+    }
+
+    public static long hours(final int hours) {
+      return minutes(hours) * 60;
+    }
+
+    public static long days(final int days) {
+      return hours(days) * 24;
+    }
+  }
+
   /**
    * Returns a predicate that is the negation of the supplied predicate.
    * This is accomplished by returning result of the calling

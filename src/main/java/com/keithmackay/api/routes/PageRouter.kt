@@ -6,6 +6,7 @@ import com.keithmackay.api.db.IDatabase
 import com.keithmackay.api.email.EmailSender
 import com.keithmackay.api.model.NewIPEmailModel
 import com.keithmackay.api.utils.*
+import com.keithmackay.api.utils.JavaUtils.Time.days
 import com.keithmackay.api.utils.JavaUtils.toMap
 import com.mongodb.client.model.IndexOptions
 import com.mongodb.client.model.UpdateOptions
@@ -31,6 +32,7 @@ import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.math.abs
 
 @Singleton
 class PageRouter @Inject
@@ -112,27 +114,43 @@ internal constructor(
             .join(doc()
                 .append("urls", urls.filter(Objects::nonNull))
                 .append("url", null)
+                .append("lastVisit", System.currentTimeMillis())
                 .append("userAgent", ctx.userAgent()))
             .join(additional))
             .append("\$inc", doc("count", 1L)),
         UpdateOptions().upsert(true))
-    if (result.matchedCount == 0L) {
-      log.info("Access from new IP: $ip")
-      val info = Optional.ofNullable(getIpInfo(ip))
-          .orElseGet { this.defaultInfo(ip) }
-      val model = NewIPEmailModel(info = info,
-          additional = toMap(additional),
-          application = application)
-      if (!ip.matches(Regex("^10\\."))) {
-        emailSender.send(model.getTitle(),
+    when {
+      result.matchedCount == 0L -> {
+        log.info("Access from new IP: $ip")
+        val info = Optional.ofNullable(getIpInfo(ip))
+            .orElseGet { this.defaultInfo(ip) }
+        val model = NewIPEmailModel(info = info,
+            additional = toMap(additional),
+            application = application)
+        if (!ip.matches(Regex("^10\\."))) {
+          emailSender.send(model.getTitle(),
+              emailRenderer.renderIntoString(model),
+              emailSender.mainUser())
+        }
+        ctx.result("OK")
+        collection.updateOne(doc("ip", ip), doc("\$set",
+            info.toMongo()))
+      }
+
+      abs(existing.getLong("lastVisit") - System.currentTimeMillis()) > days(1) -> {
+        log.info("Access from Old IP: $ip")
+        val info = Optional.ofNullable(getIpInfo(ip))
+            .orElseGet { this.defaultInfo(ip) }
+        val model = NewIPEmailModel(info = info,
+            additional = toMap(additional),
+            application = application)
+        emailSender.send(model.getTitle(true),
             emailRenderer.renderIntoString(model),
             emailSender.mainUser())
       }
-      ctx.result("OK")
-      collection.updateOne(doc("ip", ip), doc("\$set",
-          info.toMongo()))
-    } else {
-      ctx.status(205).result("OK")
+      else -> {
+        ctx.status(205).result("OK")
+      }
     }
   }
 

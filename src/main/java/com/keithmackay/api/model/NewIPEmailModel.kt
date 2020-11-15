@@ -7,8 +7,9 @@ data class NewIPEmailModel(
     val application: String,
     val additional: Map<String, String>
 ) {
-  fun getTitle(): String {
-    return "New Page Load on $application in ${info.city}, ${info.countryName}"
+  fun getTitle(returning: Boolean = false): String {
+    return if (returning) "Returning Page Load on $application from ${info.city} ${info.region}, ${info.countryName}"
+    else "New Page Load on $application in ${info.city} ${info.region}, ${info.countryName}"
   }
 
   override fun toString(): String {

@@ -2,7 +2,6 @@ package com.keithmackay.api.tasks
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import com.keithmackay.api.benchmark.BenchmarkTimer
 import com.keithmackay.api.benchmark.BenchmarkTimer.timer
 import com.keithmackay.api.db.IDatabase
 import com.keithmackay.api.email.EmailSender
@@ -22,6 +21,7 @@ import org.quartz.JobExecutionContext
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import kotlin.math.abs
+import kotlin.math.round
 import kotlin.math.roundToInt
 
 fun Double.format(digits: Int): String {
@@ -33,8 +33,8 @@ fun Double.format(digits: Int): String {
 fun Double.currency(): String = "\$${String.format("%.2f", this)}"
 
 fun minutes(time: Long): String {
-  val minutes = (time.toDouble() / 60_000).roundToInt()
-  return if (minutes == 60) "1 hour" else "$minutes minutes"
+  val minutes = (time.toDouble() / 60_000)
+  return if (minutes >= 60) "${round(minutes / 60)} hour(s)" else "${minutes.roundToInt()} minutes"
 }
 
 
@@ -97,7 +97,7 @@ class CryptoTask
 
   private fun lastHourFilter(coin: CoinHolding): Document =
       doc("timeCalculated", gte(LocalDateTime.now()
-          .minusHours(1)
+          .minusHours(24)
           .toInstant(ZoneOffset.UTC)
           .toEpochMilli()))
           .append("code", coin.code)

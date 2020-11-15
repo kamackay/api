@@ -10,7 +10,7 @@ class SecretsGrabber @Inject
 internal constructor() {
 
   private val secrets =
-      JsonParser().parse(fileToString(System.getenv("SECRETS_FILE")).trim())
+      JsonParser.parseString(fileToString(System.getenv("SECRETS_FILE")).trim())
           .asJsonObject
 
   fun getSecret(secret: String): JsonElement = secrets.get(secret)

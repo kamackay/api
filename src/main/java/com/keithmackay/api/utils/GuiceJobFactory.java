@@ -25,11 +25,11 @@ public final class GuiceJobFactory implements JobFactory {
   public Job newJob(TriggerFiredBundle triggerFiredBundle, Scheduler scheduler) throws SchedulerException {
     // Get the job detail so we can get the job class
     JobDetail jobDetail = triggerFiredBundle.getJobDetail();
-    Class jobClass = jobDetail.getJobClass();
+    Class<? extends Job> jobClass = jobDetail.getJobClass();
 
     try {
       // Get a new instance of that class from Guice so we can do dependency injection
-      return (Job) guice.getInstance(jobClass);
+      return guice.getInstance(jobClass);
     } catch (Exception e) {
       // Something went wrong.  Print out the stack trace here so SLF4J doesn't hide it.
       e.printStackTrace();

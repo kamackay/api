@@ -59,7 +59,7 @@ public class CryptoService {
             })
             .orElse("{}");
         log.debug(json);
-        final JsonElement node = new JsonParser().parse(json);
+        final JsonElement node = JsonParser.parseString(json);
         final JsonArray data = JsonOptional.of(node)
             .map(JsonElement::getAsJsonObject)
             .map(o -> o.get("data"))
@@ -114,7 +114,7 @@ public class CryptoService {
           .execute()) {
         final String json = response.body().string();
         log.debug(json);
-        final JsonElement el = new JsonParser().parse(json);
+        final JsonElement el = JsonParser.parseString(json);
         return getDeepDouble(el, "data.amount");
       }
     } catch (Exception e) {

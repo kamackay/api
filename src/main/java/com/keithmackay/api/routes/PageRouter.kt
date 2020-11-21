@@ -30,8 +30,11 @@ import org.json.JSONObject
 import java.net.URLDecoder
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
+import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
+
+val FORMAT = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 
 @Singleton
 class PageRouter @Inject
@@ -104,17 +107,22 @@ internal constructor(
         .orElse("Main Page")
     val additional = Optional.ofNullable(body.get("additional", Document::class.java))
         .orElse(doc())
-    val urls = existing.get("urls", ArrayList<String>().javaClass) ?: ArrayList()
-    urls.add(additional.getString("url"))
+    val urls = existing.get("urls", ArrayList<Document>().javaClass) ?: ArrayList()
+    urls.add(doc("url", additional.getString("url"))
+        .append("time", System.currentTimeMillis())
+        .append("date", FORMAT.format(Date())))
     additional.remove("url")
     val result = collection.updateOne(doc("ip", ip),
         doc("\$set", doc("ip", ip)
             .append("lastVisit", System.currentTimeMillis())
+            .append("lastVisitDate", FORMAT.format(Date()))
             .append("firstVisit", existing.getLong("firstVisit") ?: System.currentTimeMillis())
+            .append("firstVisitDate", existing.getString("firstVisitDate") ?: FORMAT.format(Date()))
             .join(doc()
                 .append("urls", urls.filter(Objects::nonNull))
                 .append("url", null)
                 .append("userAgent", ctx.userAgent()))
+            .drop("ip")
             .join(additional))
             .append("\$inc", doc("count", 1L)),
         UpdateOptions().upsert(true))

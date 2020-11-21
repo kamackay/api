@@ -80,6 +80,10 @@ fun Document.cleanTo(vararg values: String): Document {
 
 fun Document.add(key: String, value: () -> Any?): Document = this.append(key, value())
 fun Document.join(doc: Document): Document = this.join(doc, true)
+fun Document.drop(key: String): Document {
+  this.remove(key)
+  return this
+}
 
 fun Document.join(doc: Document, overwrite: Boolean): Document {
   doc.keys.forEach {

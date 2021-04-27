@@ -1,4 +1,4 @@
-FROM gradle:jdk11 as builder
+FROM gradle:jdk15 as builder
 
 WORKDIR /api
 
@@ -8,7 +8,7 @@ RUN gradle getDeps
 
 COPY ./ ./
 
-RUN gradle makeJar && \
+RUN gradle makeJar --console verbose && \
     cp build/libs/*-all-*.jar ./api.jar
 
 FROM registry.access.redhat.com/ubi8:latest

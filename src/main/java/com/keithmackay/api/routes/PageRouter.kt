@@ -98,6 +98,11 @@ internal constructor(
   private fun addRequest(ctx: Context) {
     ensureIndex()
     val body = Document.parse(ctx.body())
+    val userAgent = ctx.userAgent() ?: ""
+    if (Regex("""compatible; \w{2,8}Bot""").containsMatchIn(userAgent)) {
+      log.info("Indexer Request")
+      return
+    }
     val ip = Optional.of(body)
         .map { it.getString("ip") }
         .orElseGet(ctx::ip)
@@ -121,7 +126,7 @@ internal constructor(
             .join(doc()
                 .append("urls", urls.filter(Objects::nonNull))
                 .append("url", null)
-                .append("userAgent", ctx.userAgent()))
+                .append("userAgent", userAgent))
             .drop("ip")
             .join(additional))
             .append("\$inc", doc("count", 1L)),

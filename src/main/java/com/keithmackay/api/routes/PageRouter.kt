@@ -99,7 +99,7 @@ internal constructor(
     ensureIndex()
     val body = Document.parse(ctx.body())
     val userAgent = ctx.userAgent() ?: ""
-    if (Regex("""compatible; \w{2,8}Bot""").containsMatchIn(userAgent)) {
+    if (Regex("""compatible; \w{2,12}Bot""").containsMatchIn(userAgent)) {
       log.info("Indexer Request")
       return
     }

@@ -82,7 +82,7 @@ internal constructor(
 
   private fun getRecordFromEncodedIp(encodedIp: String): Document {
     return try {
-      val ip = URLDecoder.decode(encodedIp, StandardCharsets.UTF_8)
+      val ip = URLDecoder.decode(encodedIp, StandardCharsets.UTF_8.toString())
       log.info("Finding all Page load records for $ip")
 
       Optional.of(collection.find(doc("ip", eq(ip))))
@@ -230,7 +230,7 @@ internal constructor(
         LinkEl.linkEl(
           LinkEl.LinkConfig()
             .text("View All Tracked Data")
-            .url("https://api.keith.sh/page/${URLEncoder.encode(info.ip, StandardCharsets.UTF_8)}")
+            .url("https://api.keith.sh/page/${URLEncoder.encode(info.ip, StandardCharsets.UTF_8.toString())}")
         ),
         row("${info.city}, ${info.region}, ${info.countryName} ${info.postal}"),
         row("Coords: ${info.latitude} / ${info.longitude}"),

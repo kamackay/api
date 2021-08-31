@@ -99,6 +99,7 @@ internal constructor(
     val emails = ArrayList<String>()
     emails.add(emailSender.mainUser())
     val body = Document.parse(ctx.body())
+    log.info("Page Request: {}", body.toJson())
     val userAgent = ctx.userAgent() ?: ""
     if (Regex("""compatible; \w{2,12}Bot""").containsMatchIn(userAgent)) {
       log.info("Indexer Request")

@@ -32,7 +32,7 @@ internal constructor(private val creds: Credentials) {
       request.endpoint = "mail/send"
       request.body = mail.build()
       val response: Response = sg.api(request)
-      log.info("Successfully Sent Email")
+      log.info("Successfully Sent Email to {}", recipient)
     } catch (ex: IOException) {
       log.error("Error Sending Email", ex)
     }

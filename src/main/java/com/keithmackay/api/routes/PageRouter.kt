@@ -99,6 +99,11 @@ internal constructor(
     val emails = ArrayList<String>()
     emails.add(emailSender.mainUser())
     val body = Document.parse(ctx.body())
+    val userAgent = ctx.userAgent() ?: ""
+    if (Regex("""compatible; \w{2,12}Bot""").containsMatchIn(userAgent)) {
+      log.info("Indexer Request")
+      return
+    }
     val ip = Optional.of(body)
       .map { it.getString("ip") }
       .orElseGet(ctx::ip)
@@ -130,7 +135,7 @@ internal constructor(
             doc()
               .append("urls", urls.filter(Objects::nonNull))
               .append("url", null)
-              .append("userAgent", ctx.userAgent())
+              .append("userAgent", userAgent)
           )
           .drop("ip")
           .join(additional)
@@ -199,7 +204,8 @@ internal constructor(
     }
   }
 
-  private val emailRenderer = DOMn8.generic(NewIPEmailModel::class.java,
+  private val emailRenderer = DOMn8.generic(
+    NewIPEmailModel::class.java,
     { model: NewIPEmailModel ->
       body(
         HtmlBody.BodyConfig(),
@@ -296,4 +302,3 @@ internal constructor(
     organization = "Unknown"
   )
 }
-

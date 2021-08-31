@@ -157,13 +157,11 @@ internal constructor(
           application = application
         )
         if (!ip.matches(Regex("^10\\."))) {
-          emails.forEach { address ->
-            emailSender.send(
-              model.getTitle(),
-              emailRenderer.renderIntoString(model),
-              address
-            )
-          }
+          emailSender.send(
+            model.getTitle(),
+            emailRenderer.renderIntoString(model),
+            emails
+          )
         }
         ctx.result("OK")
         collection.updateOne(doc("ip", ip), doc("\$set", info.toMongo()))

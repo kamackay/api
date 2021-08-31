@@ -11,6 +11,7 @@ import com.sendgrid.SendGrid
 import com.sendgrid.helpers.mail.Mail
 import com.sendgrid.helpers.mail.objects.Content
 import com.sendgrid.helpers.mail.objects.Email
+import com.sendgrid.helpers.mail.objects.Personalization
 import java.io.IOException
 
 @Singleton
@@ -21,10 +22,21 @@ internal constructor(private val creds: Credentials) {
   fun mainUser() = "keith@keithm.io"
 
   fun send(title: String, body: String, recipient: String) {
+    this.send(title, body, listOf(recipient))
+  }
+
+  fun send(title: String, body: String, recipients: List<String>) {
     val from = Email("api@keithm.io")
-    val to = Email(recipient)
     val content = Content("text/html", body)
-    val mail = Mail(from, title, to, content)
+    val mail = Mail()
+    mail.setFrom(from)
+    mail.setSubject(title)
+    mail.addContent(content)
+    val personalization = Personalization()
+    recipients
+      .map(::Email)
+      .forEach(personalization::addTo)
+    mail.addPersonalization(personalization)
     val sg = SendGrid(creds.getString("sendgrid-key"))
     val request = Request()
     try {
@@ -32,7 +44,7 @@ internal constructor(private val creds: Credentials) {
       request.endpoint = "mail/send"
       request.body = mail.build()
       val response: Response = sg.api(request)
-      log.info("Successfully Sent Email to {}", recipient)
+      log.info("Successfully Sent Email to {}", recipients)
     } catch (ex: IOException) {
       log.error("Error Sending Email", ex)
     }

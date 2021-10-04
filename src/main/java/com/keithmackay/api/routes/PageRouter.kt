@@ -101,7 +101,7 @@ internal constructor(
     val body = Document.parse(ctx.body())
     log.info("Page Request: {}", body.toJson())
     val userAgent = ctx.userAgent() ?: ""
-    if (Regex("""compatible; \w{2,12}Bot""").containsMatchIn(userAgent)) {
+    if (Regex("""compatible;\s?\w{2,12}Bot""").containsMatchIn(userAgent)) {
       log.info("Indexer Request")
       return
     }

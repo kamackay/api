@@ -2,11 +2,9 @@ package com.keithmackay.api.services
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import com.keithmackay.api.utils.ConfigGrabber
-import com.keithmackay.api.utils.CredentialsGrabber
-import com.keithmackay.api.utils.getLogger
-import com.keithmackay.api.utils.iterateObjects
+import com.keithmackay.api.utils.*
 import org.json.JSONArray
+import org.json.JSONObject
 
 typealias Temperature = Double
 typealias Precipitation = Map<String, Double>
@@ -22,16 +20,17 @@ internal constructor(
 
   fun getWeatherForLocation(location: Location): Weather? {
     try {
-      val response = khttp.get(
+      val response = httpGet(
           url = config.getValue("openWeatherUrl").asString,
           params = mapOf(
               "lat" to location.latitude.toString(),
               "lon" to location.longitude.toString(),
               "appid" to secrets.getSecret("open-weather-key").asString
           ))
-      val current = response.jsonObject.getJSONObject("current")
-      val hourly = response.jsonObject.getJSONArray("hourly")
-      val daily = response.jsonObject.getJSONArray("daily")
+      val jsonObject = JSONObject(response.body!!.string())
+      val current = jsonObject.getJSONObject("current")
+      val hourly = jsonObject.getJSONArray("hourly")
+      val daily = jsonObject.getJSONArray("daily")
 
       return Weather(
           location = location,

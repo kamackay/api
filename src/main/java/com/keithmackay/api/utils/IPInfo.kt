@@ -36,9 +36,9 @@ data class IPInfo(
 
 fun getIpInfo(ip: String): IPInfo? {
   val log = getLogger("IPUtils")
-  val response = khttp.get("https://ipapi.co/$ip/json/")
-  if (response.statusCode == 200) {
-    val json = response.jsonObject
+  val response = httpGet("https://ipapi.co/$ip/json/")
+  if (response.code == 200) {
+    val json = JSONObject(response.body!!.string())
     return IPInfo(
         ip = ip,
         city = get(json, "city", "Unknown"),
@@ -54,7 +54,7 @@ fun getIpInfo(ip: String): IPInfo? {
         organization = get(json, "org", "Unknown")
     )
   } else {
-    log.error("Error Fetching ip info", response.text)
+    log.error("Error Fetching ip info", response.body!!.string())
     return null
   }
 }

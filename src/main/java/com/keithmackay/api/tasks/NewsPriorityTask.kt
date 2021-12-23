@@ -94,8 +94,8 @@ class NewsPriorityTask @Inject internal constructor(
 
   private fun getPriorityFromReddit(doc: Document): Int {
     try {
-      val response = khttp.get("https://www.reddit.com/api/info.json?url=${doc.getString("link")}")
-      val json = response.jsonObject
+      val response = httpGet("https://www.reddit.com/api/info.json?url=${doc.getString("link")}")
+      val json = JSONObject(response.body!!.string())
       if ("Listing" == json.getString("kind")) {
         val data = json.getJSONObject("data")
         val children = data.getJSONArray("children")

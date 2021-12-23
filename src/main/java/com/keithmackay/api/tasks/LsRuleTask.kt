@@ -5,8 +5,12 @@ import com.google.inject.Singleton
 import com.keithmackay.api.db.Database
 import com.keithmackay.api.minutes
 import com.keithmackay.api.utils.*
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
 import java.util.*
 import java.util.regex.Pattern
+
 
 @Singleton
 class LsRuleTask @Inject
@@ -21,15 +25,25 @@ internal constructor(db: Database) : Task() {
   override fun time(): Long = minutes(46.9)
 
   override fun run() {
-    val start = System.currentTimeMillis()
     log.info("Started Task to calculate Little Snitch Servers")
-    val response = khttp.get("https://pgl.yoyo.org/adservers/serverlist.php?hostformat=hosts;showintro=0")
-    if (response.statusCode != 200) {
-      log.error("HTTP Status ${response.statusCode} from ServerList")
+    listOf(
+      "https://pgl.yoyo.org/adservers/serverlist.php?hostformat=hosts;showintro=0",
+      "https://someonewhocares.org/hosts/zero/hosts",
+      "https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts"
+    ).forEach(this::processList)
+  }
+
+  private fun processList(url: String) {
+    val start = System.currentTimeMillis()
+    val response = httpGet(url)
+    if (response.code != 200) {
+      log.error("HTTP Status ${response.code} from ServerList")
     } else {
-      log.debug("Pulled Ad Server File after " +
-          millisToReadableTime(System.currentTimeMillis() - start))
-      val text = response.text
+      log.debug(
+        "Pulled Ad Server File after " +
+            millisToReadableTime(System.currentTimeMillis() - start)
+      )
+      val text = response.body!!.string()
       log.debug(text)
 
       val added = ArrayList<String>()
@@ -56,8 +70,10 @@ internal constructor(db: Database) : Task() {
         }
       }
       if (added.count() > 0) {
-        log.info("Successfully Added ${added.count()} new servers " +
-            "(${millisToReadableTime(System.currentTimeMillis() - start)})")
+        log.info(
+          "Successfully Added ${added.count()} new servers " +
+              "(${millisToReadableTime(System.currentTimeMillis() - start)})"
+        )
       } else {
         log.info("No New Servers found to add to list")
       }
@@ -66,10 +82,14 @@ internal constructor(db: Database) : Task() {
 
   private fun addServer(server: String) {
     try {
-      lsCollection.updateOne(doc("server", server),
-          set(doc("server", server)
-              .append("time", System.currentTimeMillis())),
-          upsert())
+      lsCollection.updateOne(
+        doc("server", server),
+        set(
+          doc("server", server)
+            .append("time", System.currentTimeMillis())
+        ),
+        upsert()
+      )
     } catch (e: Exception) {
       log.warn("Unable to add server to Database", e)
     }

@@ -3,12 +3,18 @@ package com.keithmackay.api.utils
 import com.google.common.collect.Lists
 import com.mongodb.client.model.UpdateOptions
 import io.javalin.http.Context
+import okhttp3.HttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.bson.Document
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.File
 import java.io.InputStream
 import java.math.BigDecimal
 import java.math.BigInteger
@@ -18,6 +24,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.*
+import java.util.function.Consumer
 import kotlin.collections.HashMap
 import kotlin.reflect.KClass
 
@@ -162,7 +169,7 @@ fun <T : Any, S : Any> threadSafeMap(): MutableMap<T, S> = Collections.synchroni
 fun urlEncode(s: String): String = URLEncoder.encode(s, StandardCharsets.UTF_8.toString())
 
 fun fileToString(filename: String): String =
-    Files.readString(Paths.get(filename))
+    File(Paths.get(filename).toAbsolutePath().toString()).readText(Charsets.UTF_8)
 
 fun upsert(): UpdateOptions = UpdateOptions().upsert(true)
 
@@ -204,4 +211,22 @@ fun defer(task: () -> Unit, time: Long) = async {
     // Error Waiting
   }
   task()
+}
+
+fun <T> Optional<T>.ifPresentOrElse(present: (T) -> Unit, notPresent: () -> Unit) {
+  if (this.isPresent) {
+    present(this.get())
+  } else {
+    notPresent()
+  }
+}
+
+fun httpGet(url: String, params: Map<String, String> = emptyMap()): Response {
+  val urlBuilder = url.toHttpUrlOrNull()!!.newBuilder()
+  params.forEach { (key, value) -> urlBuilder.addQueryParameter(key, value) }
+  val client = OkHttpClient()
+  val request: Request = Request.Builder()
+    .url(urlBuilder.build())
+    .build()
+  return client.newCall(request).execute()
 }

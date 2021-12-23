@@ -15,23 +15,23 @@ import com.keithmackay.api.services.WeatherService.Location
 import com.keithmackay.api.utils.ConfigGrabber
 import com.keithmackay.api.utils.SecretsGrabber
 import com.keithmackay.api.utils.getLogger
-import io.keithm.domn8.DOMn8
-import io.keithm.domn8.nodes.DomNode
-import io.keithm.domn8.nodes.HtmlBody
-import io.keithm.domn8.nodes.HtmlBody.BodyConfig
-import io.keithm.domn8.nodes.elements.BreakEl.breakEl
-import io.keithm.domn8.nodes.elements.DivEl
-import io.keithm.domn8.nodes.elements.DivEl.divConfig
-import io.keithm.domn8.nodes.elements.DivEl.divEl
-import io.keithm.domn8.nodes.elements.HeaderEl.headerConfig
-import io.keithm.domn8.nodes.elements.HeaderEl.headerEl
-import io.keithm.domn8.nodes.elements.ImgNode
-import io.keithm.domn8.nodes.elements.ImgNode.imgNode
-import io.keithm.domn8.nodes.elements.LinkEl.LinkConfig
-import io.keithm.domn8.nodes.elements.LinkEl.linkEl
-import io.keithm.domn8.nodes.elements.TextNode.TextConfig
-import io.keithm.domn8.nodes.elements.TextNode.textNode
-import io.keithm.domn8.styles.CSS.css
+import domn8.DOMn8
+import domn8.nodes.DomNode
+import domn8.nodes.HtmlBody
+import domn8.nodes.HtmlBody.BodyConfig
+import domn8.nodes.elements.BreakEl.breakEl
+import domn8.nodes.elements.DivEl
+import domn8.nodes.elements.DivEl.divConfig
+import domn8.nodes.elements.DivEl.divEl
+import domn8.nodes.elements.HeaderEl.headerConfig
+import domn8.nodes.elements.HeaderEl.headerEl
+import domn8.nodes.elements.ImgNode
+import domn8.nodes.elements.ImgNode.imgNode
+import domn8.nodes.elements.LinkEl.LinkConfig
+import domn8.nodes.elements.LinkEl.linkEl
+import domn8.nodes.elements.TextNode.TextConfig
+import domn8.nodes.elements.TextNode.textNode
+import domn8.styles.CSS.css
 import org.quartz.CronScheduleBuilder
 import org.quartz.JobExecutionContext
 import java.text.SimpleDateFormat
@@ -120,7 +120,8 @@ class GoodMorningTask
             .level(3)
             .text("Weather for ${model.location.name}")),
         *weather.current.conditions.map {
-          imgNode(ImgNode.ImgConfig()
+          imgNode(
+            ImgNode.ImgConfig()
               .src(it.iconUrl)
               .height(50)
               .preRendered(true)
@@ -149,7 +150,8 @@ class GoodMorningTask
                       .level(5)
                       .text(printHour(hourly.dt, model.timezone))),
                       *hourly.conditions.map { condition ->
-                        imgNode(ImgNode.ImgConfig()
+                        imgNode(
+                          ImgNode.ImgConfig()
                             .styles(css()
                                 .set("margin-left", "auto")
                                 .set("margin-right", "auto")

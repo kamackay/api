@@ -3,8 +3,7 @@ package com.keithmackay.api.utils
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import org.bson.Document
-import java.nio.charset.StandardCharsets
-import java.nio.file.Files
+import java.io.File
 import java.nio.file.Paths
 
 @Singleton
@@ -14,8 +13,8 @@ internal constructor() {
   private val document: Document
 
   init {
-    val str = Files.readString(Paths.get(System.getenv("CREDENTIALS_FILE")),
-        StandardCharsets.US_ASCII)
+    val str = File(Paths.get(System.getenv("CREDENTIALS_FILE")).toAbsolutePath().toString())
+      .readText(Charsets.UTF_8)
     document = Document.parse(str)
   }
 

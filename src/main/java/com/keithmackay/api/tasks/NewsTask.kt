@@ -62,9 +62,9 @@ internal constructor(
         .forEach { dbDoc ->
           val url = dbDoc.getString("url")
           try {
-            val response = khttp.get(url)
+            val response = httpGet(url)
             val docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-            val document = docBuilder.parse(inputStream(response.text
+            val document = docBuilder.parse(inputStream(response.body!!.string()
                 .replace("\u2019", "'")
                 .trim()))
             val channels = document.getElementsByTagName("channel")

@@ -4,7 +4,7 @@ WORKDIR /api
 
 COPY build.gradle ./
 
-RUN gradle getDeps
+# RUN gradle getDeps
 
 COPY ./ ./
 

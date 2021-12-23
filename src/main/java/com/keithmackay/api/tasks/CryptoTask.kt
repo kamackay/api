@@ -9,13 +9,13 @@ import com.keithmackay.api.model.CoinHolding
 import com.keithmackay.api.model.CryptoLookupBean
 import com.keithmackay.api.services.CryptoService
 import com.keithmackay.api.utils.*
-import io.keithm.domn8.DOMn8
-import io.keithm.domn8.nodes.DomNode
-import io.keithm.domn8.nodes.HtmlBody
-import io.keithm.domn8.nodes.elements.BreakEl.breakEl
-import io.keithm.domn8.nodes.elements.TextNode
-import io.keithm.domn8.nodes.elements.TextNode.textNode
-import io.keithm.domn8.styles.CSS.css
+import domn8.DOMn8
+import domn8.nodes.DomNode
+import domn8.nodes.HtmlBody
+import domn8.nodes.elements.BreakEl.breakEl
+import domn8.nodes.elements.TextNode
+import domn8.nodes.elements.TextNode.textNode
+import domn8.styles.CSS.css
 import org.bson.Document
 import org.quartz.JobExecutionContext
 import java.time.LocalDateTime
@@ -56,9 +56,11 @@ class CryptoTask
 
   private val emailRenderer = DOMn8.generic(EmailData::class.java,
       { model: EmailData ->
-        HtmlBody.body(HtmlBody.BodyConfig(),
+        HtmlBody.body(
+          HtmlBody.BodyConfig(),
             listOf(
-                textNode(TextNode.TextConfig()
+                textNode(
+                  TextNode.TextConfig()
                     .styles(css().set("display", "block"))
                     .text("${model.newCoin.name} is now at ${model.newCoin.value.currency()}, " +
                         "making your share worth ${(model.newCoin.count * model.newCoin.value).currency()}")),

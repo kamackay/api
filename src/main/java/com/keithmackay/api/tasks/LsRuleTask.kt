@@ -5,10 +5,8 @@ import com.google.inject.Singleton
 import com.keithmackay.api.db.Database
 import com.keithmackay.api.minutes
 import com.keithmackay.api.utils.*
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
 import java.util.*
+import java.util.concurrent.Executors
 import java.util.regex.Pattern
 
 
@@ -21,8 +19,10 @@ internal constructor(db: Database) : Task() {
 
   private val lsCollection = db.getCollection("lsrules")
 
+  private val additionPool = Executors.newFixedThreadPool(16)
+
   // Offset so that it doesn't always run at the same time as the main tasks
-  override fun time(): Long = minutes(46.9)
+  override fun time(): Long = minutes(9.9)
 
   override fun run() {
     log.info("Started Task to calculate Little Snitch Servers")
@@ -47,11 +47,13 @@ internal constructor(db: Database) : Task() {
       log.debug(text)
 
       val added = ArrayList<String>()
-      for (line in text.split("\n")) {
+      val lines = text.split("\n")
+      log.info("Block List $url has ${lines.size} Items")
+      for (line in lines) {
         try {
           val trimmed = line.trim()
           val split = line.split(whitespacePattern)
-          if (!trimmed.startsWith("127.0.0.1") || split.size != 2) {
+          if (!(trimmed.startsWith("127.0.0.1") || trimmed.startsWith("0.0.0.0")) || split.size != 2) {
             // This is not a line of the output with a server
             continue
           }
@@ -59,7 +61,7 @@ internal constructor(db: Database) : Task() {
           val filter = doc("server", server)
           val exists = lsCollection.find(filter).count() > 0
           if (!exists) {
-            async {
+            additionPool.submit {
               this.addServer(server)
             }
             added.add(server)
@@ -69,7 +71,7 @@ internal constructor(db: Database) : Task() {
           continue
         }
       }
-      if (added.count() > 0) {
+      if (added.isNotEmpty()) {
         log.info(
           "Successfully Added ${added.count()} new servers " +
               "(${millisToReadableTime(System.currentTimeMillis() - start)})"
@@ -90,6 +92,7 @@ internal constructor(db: Database) : Task() {
         ),
         upsert()
       )
+      log.info("Added $server")
     } catch (e: Exception) {
       log.warn("Unable to add server to Database", e)
     }

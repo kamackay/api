@@ -16,17 +16,19 @@ class BlockListRouter @Inject
 internal constructor(private val validator: RequestValidator, private val db: Database) : Router {
   private val log = getLogger(this::class)
   private val lsCollection = db.getCollection("lsrules")
-  private val rulesCache = Cacher<List<Document>>(Duration.ofMinutes(15), "LS Block Hosts")
+  private val rulesCache = Cacher<List<String>>(Duration.ofMinutes(15), "LS Block Hosts")
 
   override fun isHealthy(): Boolean = true
 
   private fun getDocuments() = rulesCache.get("all") {
-    lsCollection.find().into(ArrayList())
+    lsCollection.find()
+      .into(ArrayList())
+      .map { it.getString("server") }
   }
 
   override fun routes() {
     get("ls.json") { ctx ->
-      val servers = getDocuments().map { it.getString("server") }
+      val servers = getDocuments()
       ctx.json(servers)
     }
 
@@ -42,7 +44,7 @@ internal constructor(private val validator: RequestValidator, private val db: Da
               .append("modificationDate", time)
               .append("owner", "any")
               .append("process", "any")
-              .append("remote-domains", server.getString("server"))
+              .append("remote-domains", server)
 
           }
         ctx.json(
@@ -55,14 +57,12 @@ internal constructor(private val validator: RequestValidator, private val db: Da
       get("rules/list") { ctx ->
         log.info("Request to Count Domain Blocks")
         val rules = getDocuments()
-          .map { it.getString("server") }
         ctx.result(rules.joinToString(separator = "\n"))
       }
 
       get("rules/list.json") { ctx ->
         log.info("Request to Count Domain Blocks")
         val rules = getDocuments()
-          .map { it.getString("server") }
         ctx.json(rules)
       }
 
@@ -77,7 +77,7 @@ internal constructor(private val validator: RequestValidator, private val db: Da
         log.info("Request for Domain Block Rules")
         val rules = getDocuments()
           .map {
-            "0.0.0.0 ${it.getString("server")}"
+            "0.0.0.0 $it"
           }
         ctx.result(rules.joinToString(separator = "\n"))
       }

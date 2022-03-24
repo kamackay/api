@@ -3,6 +3,7 @@ dist/
 .vscode/
 target/
 creds.json
+config.json
 .settings/
 .classpath
 .factorypath

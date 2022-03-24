@@ -15,6 +15,7 @@ import org.bson.Document
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
+import java.io.FileNotFoundException
 import java.io.InputStream
 import java.math.BigDecimal
 import java.math.BigInteger
@@ -168,8 +169,9 @@ fun <T : Any, S : Any> threadSafeMap(): MutableMap<T, S> = Collections.synchroni
 
 fun urlEncode(s: String): String = URLEncoder.encode(s, StandardCharsets.UTF_8.toString())
 
+@Throws(FileNotFoundException::class)
 fun fileToString(filename: String): String =
-    File(Paths.get(filename).toAbsolutePath().toString()).readText(Charsets.UTF_8)
+   File(Paths.get(filename).toAbsolutePath().toString()).readText(Charsets.UTF_8)
 
 fun upsert(): UpdateOptions = UpdateOptions().upsert(true)
 

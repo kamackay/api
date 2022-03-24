@@ -18,52 +18,53 @@ import com.keithmackay.api.tasks.*;
 import java.util.Arrays;
 
 public class ServerModule extends AbstractModule {
-  public static Injector getInjector() {
-    return Guice.createInjector(new ServerModule());
-  }
+    public static Injector getInjector() {
+        return Guice.createInjector(new ServerModule());
+    }
 
-  @Override
-  protected void configure() {
-    bindInterceptor(Matchers.any(),
-        Matchers.annotatedWith(Benchmark.class),
-        new FunctionInterceptor());
-    bind(Database.class).asEagerSingleton();
-    bind(EphemeralDatabase.class).asEagerSingleton();
+    @Override
+    protected void configure() {
+        bindInterceptor(Matchers.any(),
+                Matchers.annotatedWith(Benchmark.class),
+                new FunctionInterceptor());
+        bind(Database.class).asEagerSingleton();
+        bind(EphemeralDatabase.class).asEagerSingleton();
 
-    Multibinder<Router> routerBinder = Multibinder.newSetBinder(binder(), Router.class);
-    Arrays.asList(
-        AuthRouter.class,
-        NewsRouter.class,
-        PageRouter.class,
-        UserRouter.class,
-        EmailRouter.class,
-        FilesRouter.class,
-        StatusRouter.class,
-        TrackerRouter.class,
-        GroceriesRouter.class
-    ).forEach(action -> routerBinder.addBinding().to(action));
+        Multibinder<Router> routerBinder = Multibinder.newSetBinder(binder(), Router.class);
+        Arrays.asList(
+                AuthRouter.class,
+                NewsRouter.class,
+                PageRouter.class,
+                UserRouter.class,
+                EmailRouter.class,
+                FilesRouter.class,
+                BlockListRouter.class,
+                StatusRouter.class,
+                TrackerRouter.class,
+                GroceriesRouter.class
+        ).forEach(action -> routerBinder.addBinding().to(action));
 
-    Multibinder<CronTask> cronTasks = Multibinder.newSetBinder(binder(), CronTask.class);
-    Arrays.asList(
-        GoodMorningTask.class,
-        CryptoTask.class,
-        TestTask.class,
-        NewsPriorityTask.class
-    ).forEach(task -> cronTasks.addBinding().to(task));
+        Multibinder<CronTask> cronTasks = Multibinder.newSetBinder(binder(), CronTask.class);
+        Arrays.asList(
+                GoodMorningTask.class,
+                CryptoTask.class,
+                TestTask.class,
+                NewsPriorityTask.class
+        ).forEach(task -> cronTasks.addBinding().to(task));
 
-    Multibinder<Task> taskBinder = Multibinder.newSetBinder(binder(), Task.class);
-    Arrays.asList(
-        LsRuleTask.class,
-        NewsTask.class,
-        SessionCleanupTask.class,
-        TokenCleanupTask.class
-    ).forEach(task -> taskBinder.addBinding().to(task));
-  }
+        Multibinder<Task> taskBinder = Multibinder.newSetBinder(binder(), Task.class);
+        Arrays.asList(
+                LsRuleTask.class,
+                NewsTask.class,
+                SessionCleanupTask.class,
+                TokenCleanupTask.class
+        ).forEach(task -> taskBinder.addBinding().to(task));
+    }
 
 
-  @Provides
-  public Gson getGson() {
-    return new GsonBuilder().create();
-  }
+    @Provides
+    public Gson getGson() {
+        return new GsonBuilder().create();
+    }
 }
 

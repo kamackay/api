@@ -1,1 +1,1 @@
-version: "3"services:  api:    build:      context: .    ports:      - 9876:9876    environment:      - PORT=9876    volumes:      - ./creds.json:/api/creds.json
+version: "3"services:  api:    build:      context: .    ports:      - 9876:9876    environment:      - PORT=9876    volumes:      - ./creds.json:/api/creds.json      - ./config.json:/api/config.json  db:    image: mongo:latest    ports:      - 27017:27017

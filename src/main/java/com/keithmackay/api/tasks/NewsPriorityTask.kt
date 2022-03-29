@@ -100,14 +100,14 @@ class NewsPriorityTask @Inject internal constructor(
     // If tweet was last updated within a minute
     if (article != null && abs(System.currentTimeMillis() - article.getLong("priorityUpdated")) <= 60000) {
       log.warn("Couldn't find any articles to prioritize, grabbing a random one")
-      return listOf(this.getRandomTweet())
+      return this.getRandomTweets()
     }
     return listOf(article)
   }
 
-  private fun getRandomTweet() = newsCollection
-    .aggregate(listOf(Aggregates.sample(1)))
-    .first()
+  private fun getRandomTweets(count: Int = 2) = newsCollection
+    .aggregate(listOf(Aggregates.sample(count)))
+    .into(ArrayList())
 
   private fun getPriority(doc: Document): Int {
     val twitterFuture = CompletableFuture.supplyAsync { getPriorityFromTwitter(doc) }

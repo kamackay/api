@@ -2,20 +2,21 @@ package com.keithmackay.api.services
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import com.keithmackay.api.db.Database
 import com.keithmackay.api.db.EphemeralDatabase
-import com.keithmackay.api.utils.doc
-import com.keithmackay.api.utils.getLogger
-import com.keithmackay.api.utils.subDoc
+import com.keithmackay.api.utils.*
 import com.mongodb.client.FindIterable
 import org.bson.Document
 
 @Singleton
 class NewsService @Inject
 internal constructor(
-  private val db: EphemeralDatabase
+  db: Database,
+  private val ephemeralDatabase: EphemeralDatabase
 ) {
-
   private val log = getLogger(this::class)
+
+  private val newsRssCollection = db.getCollection("news_rss")
 
   val defaultNewsSort: Document = doc("priority", -1)
     .append("time", -1)
@@ -24,7 +25,7 @@ internal constructor(
     val l = mutableListOf<NewsItem>()
     try {
       l.addAll(
-        db.getCollection("news")
+        ephemeralDatabase.getCollection("news")
           .find()
           .sort(defaultNewsSort)
           .limit(limit)
@@ -37,7 +38,10 @@ internal constructor(
     return l
   }
 
-  fun getAll(): FindIterable<Document> = db.getCollection("news").find()
+  fun getSources(): List<Document> = newsRssCollection.find(and(doc("enabled", ne(false))))
+    .into(threadSafeList<Document>())
+
+  fun getAll(): FindIterable<Document> = ephemeralDatabase.getCollection("news").find()
     .sort(defaultNewsSort)
     .limit(1000)
 

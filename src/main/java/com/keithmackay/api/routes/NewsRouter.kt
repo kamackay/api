@@ -52,6 +52,10 @@ internal constructor(
         ctx.json(newsService.defaultNewsSort)
       }
 
+      get("sources") { ctx ->
+        ctx.json(newsService.getSources())
+      }
+
       post("/ids") { ctx ->
         ctx.json(CompletableFuture.supplyAsync {
           try {

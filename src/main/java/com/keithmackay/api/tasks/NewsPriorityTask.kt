@@ -20,14 +20,19 @@ import twitter4j.TwitterFactory
 import twitter4j.conf.ConfigurationBuilder
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
+import java.util.concurrent.CompletableFuture
 import kotlin.math.abs
 import kotlin.math.ceil
+
+const val HOUR = 1000 * 60 * 60;
 
 class NewsPriorityTask @Inject internal constructor(
   db: EphemeralDatabase,
   private val emailSender: EmailSender
 ) : CronTask() {
   private val log = getLogger(this::class)
+
+
   private val newsCollection: MongoCollection<Document> = db.getCollection("news")
   private val twitter: Twitter = TwitterFactory(
     ConfigurationBuilder()
@@ -41,7 +46,7 @@ class NewsPriorityTask @Inject internal constructor(
   override fun execute(jobExecutionContext: JobExecutionContext) {
     //val start = System.currentTimeMillis()
     val l = mutableListOf<Document>()
-    this.getTweet()?.let(l::add)
+    this.getArticle()?.let(l::add)
     l.stream()
       .map { doc: Document -> Tuple(doc, getPriority(doc)) }
       .forEach { tuple: Tuple<Document, Int> ->
@@ -76,24 +81,26 @@ class NewsPriorityTask @Inject internal constructor(
 
   private fun shouldNotify(priority: Int) = priority > 2500
 
-  private fun getTweet(): Document? {
-    val tweet = newsCollection
+  private fun getArticle(): Document? {
+    val article = newsCollection
       .find(
         doc("priority", -1)
-          // Don't update a document older than 12 hours old
-          .append("time", gte(System.currentTimeMillis() - 1000 * 60 * 60 * 12))
+          // Don't update a document that was posted during the current hour
+          .append("time", lte(System.currentTimeMillis() - HOUR))
       )
       .sort(
         doc("priorityUpdated", 1)
           .append("priority", 1)
+          .append("time", -1)
       )
       .first()
 
     // If tweet was last updated within a minute
-    if (tweet != null && abs(System.currentTimeMillis() - tweet.getLong("priorityUpdated")) <= 60000) {
+    if (article != null && abs(System.currentTimeMillis() - article.getLong("priorityUpdated")) <= 60000) {
+      log.warn("Couldn't find any articles to prioritize, grabbing a random one")
       return this.getRandomTweet()
     }
-    return tweet
+    return article
   }
 
   private fun getRandomTweet() = newsCollection
@@ -101,7 +108,9 @@ class NewsPriorityTask @Inject internal constructor(
     .first()
 
   private fun getPriority(doc: Document): Int {
-    return getPriorityFromTwitter(doc) + getPriorityFromReddit(doc)
+    val twitterFuture = CompletableFuture.supplyAsync { getPriorityFromTwitter(doc) }
+    val redditFuture = CompletableFuture.supplyAsync { getPriorityFromReddit(doc) }
+    return twitterFuture.get() + redditFuture.get()
   }
 
   private fun getPriorityFromReddit(doc: Document): Int {
@@ -110,7 +119,11 @@ class NewsPriorityTask @Inject internal constructor(
       val json = JSONObject(response.body!!.string())
       if ("Listing" == json.getString("kind")) {
         val data = json.getJSONObject("data")
-        val children = data.getJSONArray("children")
+        val children = if (data.has("children")) {
+          data.getJSONArray("children")
+        } else {
+          JSONArray()
+        }
         var score = 0
         for (x in 0 until children.length()) {
           score += getScoreFromRedditPost(children.getJSONObject(x))

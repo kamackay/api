@@ -45,7 +45,7 @@ internal constructor(
       CreateCollectionOptions()
         .capped(true)
         .sizeInBytes(megabytes(2.5))
-        .maxDocuments(1000)
+        .maxDocuments(2500)
     )
     try {
       newsCollection.createIndex(
@@ -60,6 +60,7 @@ internal constructor(
     val existingGuids = newsCollection.distinct("guid", String::class.java)
       .into(HashSet())
 
+    var numDocuments = 0
     newsRssCollection.find(and(doc("enabled", ne(false))))
       .into(threadSafeList<Document>())
       .forEach { dbDoc ->
@@ -83,6 +84,7 @@ internal constructor(
                 log.debug(node.toXml())
                 val items = node.getChildrenByTag("item")
                 items.forEachIndexed { x, item ->
+                  numDocuments++
                   val newsItem = doc("source", cleanDoc(dbDoc))
                     .add("time", System::currentTimeMillis)
                     .add("scrapeTime", System::currentTimeMillis)
@@ -147,6 +149,7 @@ internal constructor(
           log.error("Error on $url", e)
         }
       }
+    log.info("Found a total of $numDocuments Articles")
   }
 
   private fun Node.addPropToDocument(

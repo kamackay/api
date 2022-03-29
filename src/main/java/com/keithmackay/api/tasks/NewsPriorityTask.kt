@@ -112,7 +112,7 @@ class NewsPriorityTask @Inject internal constructor(
   private fun getPriority(doc: Document): Int {
     val twitterFuture = CompletableFuture.supplyAsync { getPriorityFromTwitter(doc) }
     val redditFuture = CompletableFuture.supplyAsync { getPriorityFromReddit(doc) }
-    return twitterFuture.get() + redditFuture.get()
+    return (twitterFuture.get() + redditFuture.get()).coerceAtMost(0)
   }
 
   private fun getPriorityFromReddit(doc: Document): Int {
@@ -176,7 +176,7 @@ class NewsPriorityTask @Inject internal constructor(
         "This article has received a total of $interactions interactions from ${tweets.size} Tweets " +
             "([${doc.subDoc("source").getString("site")}] ${doc.getString("title")})"
       )
-      ceil(interactions.toDouble() / tweets.size).toInt() - 1 // Evaluate 0 as -1, in case Twitter limit is reached
+      ceil(interactions.toDouble() / tweets.size).toInt()
     } catch (e: Exception) {
       log.info("Failed to calculate priority from twitter", e)
       -1

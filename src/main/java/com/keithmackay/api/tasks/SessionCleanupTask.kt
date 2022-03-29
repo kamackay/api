@@ -18,14 +18,18 @@ internal constructor(db: Database) : Task() {
 
   override fun run() {
     log.info("Checking to see if any sessions can be cleaned from the Database")
-    val weekAgo = lte(Instant.now()
+    val weekAgo = lte(
+      Instant.now()
         .minus(tokenTimeoutDays(), ChronoUnit.DAYS)
-        .toEpochMilli())
+        .toEpochMilli()
+    )
     val result = tokenCollection
-        .deleteMany(
-            or(
-                doc("created", weekAgo),
-                doc("valid", eq(false))))
+      .deleteMany(
+        or(
+          doc("created", weekAgo),
+          doc("valid", eq(false))
+        )
+      )
     if (result.deletedCount > 0) {
       log.info("Deleted ${result.deletedCount} Expired Sessions from the database")
     } else {

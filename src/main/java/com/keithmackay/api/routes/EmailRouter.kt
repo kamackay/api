@@ -11,8 +11,8 @@ import io.javalin.apibuilder.ApiBuilder.path
 @Singleton
 class EmailRouter @Inject
 internal constructor(
-    private val validator: RequestValidator,
-    private val injector: Injector
+  private val validator: RequestValidator,
+  private val injector: Injector
 ) : Router {
 
   override fun routes() {

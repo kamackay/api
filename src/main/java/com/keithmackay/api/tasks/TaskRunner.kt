@@ -17,19 +17,19 @@ internal constructor() {
   private val scheduler = Executors.newScheduledThreadPool(2)
 
   fun start() =
-      tasks.forEach {
-        scheduler.scheduleAtFixedRate({
-          val start = System.currentTimeMillis()
-          try {
-            it.run()
-          } catch (e: Exception) {
-            log.error("Error in ${it.javaClass.simpleName}", e)
-          }
-          val finish = System.currentTimeMillis()
-          if (it.log()) {
-            log.info("${it.javaClass.simpleName} finished in ${millisToReadableTime(finish - start)}")
-          }
-        }, 0, it.time(), TimeUnit.MILLISECONDS)
-      }
+    tasks.forEach {
+      scheduler.scheduleAtFixedRate({
+        val start = System.currentTimeMillis()
+        try {
+          it.run()
+        } catch (e: Exception) {
+          log.error("Error in ${it.javaClass.simpleName}", e)
+        }
+        val finish = System.currentTimeMillis()
+        if (it.log()) {
+          log.info("${it.javaClass.simpleName} finished in ${millisToReadableTime(finish - start)}")
+        }
+      }, 0, it.time(), TimeUnit.MILLISECONDS)
+    }
 
 }

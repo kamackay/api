@@ -6,13 +6,13 @@ import org.quartz.impl.StdSchedulerFactory;
 
 public class ScheduleSingleton {
 
-  private static Scheduler instance = null;
+    private static Scheduler instance = null;
 
-  public static Scheduler getInstance() throws SchedulerException {
-    if (instance == null) {
-      instance = StdSchedulerFactory.getDefaultScheduler();
+    public static Scheduler getInstance() throws SchedulerException {
+        if (instance == null) {
+            instance = StdSchedulerFactory.getDefaultScheduler();
+        }
+
+        return instance;
     }
-
-    return instance;
-  }
 }

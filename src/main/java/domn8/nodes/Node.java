@@ -10,24 +10,24 @@ import java.util.function.Function;
 import static org.apache.logging.log4j.LogManager.getLogger;
 
 public abstract class Node {
-  final Logger log = getLogger("DomNode");
+    final Logger log = getLogger("DomNode");
 
-  public abstract Element render();
+    protected static Element newNode(final String tag) {
+        return DocumentHelper.createElement(tag);
+    }
 
-  protected abstract Element build();
+    public abstract Element render();
 
-  protected Element build(final Function<Element, Element> modifier) {
-    return modifier.apply(build());
-  }
+    protected abstract Element build();
 
-  // TODO Remove?
-  protected Element _build(final Consumer<Element> modifier) {
-    final Element el = build();
-    modifier.accept(el);
-    return el;
-  }
+    protected Element build(final Function<Element, Element> modifier) {
+        return modifier.apply(build());
+    }
 
-  protected static Element newNode(final String tag) {
-    return DocumentHelper.createElement(tag);
-  }
+    // TODO Remove?
+    protected Element _build(final Consumer<Element> modifier) {
+        final Element el = build();
+        modifier.accept(el);
+        return el;
+    }
 }

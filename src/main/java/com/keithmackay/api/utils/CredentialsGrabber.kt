@@ -10,8 +10,8 @@ class CredentialsGrabber @Inject
 internal constructor() {
 
   private val secrets =
-      JsonParser.parseString(fileToString(System.getenv("CREDENTIALS_FILE")).trim())
-          .asJsonObject
+    JsonParser.parseString(fileToString(System.getenv("CREDENTIALS_FILE")).trim())
+      .asJsonObject
 
   fun getSecret(secret: String): JsonElement = secrets.get(secret)
 }

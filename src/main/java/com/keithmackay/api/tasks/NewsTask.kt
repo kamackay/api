@@ -24,13 +24,12 @@ import javax.xml.transform.TransformerException
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
-import kotlin.collections.HashSet
 
 @Singleton
 class NewsTask @Inject
 internal constructor(
-    db: Database,
-    private val ephemeralDatabase: EphemeralDatabase
+  db: Database,
+  private val ephemeralDatabase: EphemeralDatabase
 ) : Task() {
 
   private val log = getLogger(this::class)
@@ -41,140 +40,153 @@ internal constructor(
 
   override fun run() {
     // This allows dropping the collection to clear old news
-    val newsCollection = ephemeralDatabase.getOrMakeCollection("news",
-        CreateCollectionOptions()
-            .capped(true)
-            .sizeInBytes(megabytes(2.5))
-            .maxDocuments(1000))
+    val newsCollection = ephemeralDatabase.getOrMakeCollection(
+      "news",
+      CreateCollectionOptions()
+        .capped(true)
+        .sizeInBytes(megabytes(2.5))
+        .maxDocuments(1000)
+    )
     try {
-      newsCollection.createIndex(doc("guid", 1),
-          IndexOptions()
-              .name("guid-unique")
-              .unique(true))
+      newsCollection.createIndex(
+        doc("guid", 1),
+        IndexOptions()
+          .name("guid-unique")
+          .unique(true)
+      )
     } catch (e: Exception) {
       log.debug("Index already exists")
     }
     val existingGuids = newsCollection.distinct("guid", String::class.java)
-        .into(HashSet())
+      .into(HashSet())
 
     newsRssCollection.find(and(doc("enabled", ne(false))))
-        .into(threadSafeList<Document>())
-        .forEach { dbDoc ->
-          val url = dbDoc.getString("url")
-          try {
-            val response = httpGet(url)
-            val docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-            val document = docBuilder.parse(inputStream(response.body!!.string()
+      .into(threadSafeList<Document>())
+      .forEach { dbDoc ->
+        val url = dbDoc.getString("url")
+        try {
+          val response = httpGet(url)
+          val docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+          val document = docBuilder.parse(
+            inputStream(
+              response.body!!.string()
                 .replace("\u2019", "'")
-                .trim()))
-            val channels = document.getElementsByTagName("channel")
-            log.debug("${channels.length} Channels on $url")
-            IntRange(0, channels.length - 1)
-                .map(channels::item)
-                .forEach { node ->
-                  try {
-                    log.debug(node.toXml())
-                    val items = node.getChildrenByTag("item")
-                    items.forEachIndexed { x, item ->
-                      val newsItem = doc("source", cleanDoc(dbDoc))
-                          .add("time", System::currentTimeMillis)
-                          .add("scrapeTime", System::currentTimeMillis)
-                          .append("priorityUpdated", 0L)
-                          .append("priority", -1)
-                      val guid = item.addPropToDocument("guid", newsItem) {
-                        log.debug("Could Not Find GUID on item! - {}", item.toXml())
-                      }
-                      if (guid == null || existingGuids.contains(guid)) {
-                        return@forEachIndexed
-                      }
-                      val title = item.addPropToDocument("title", newsItem)
-                      item.addPropToDocument("link", newsItem)
-                      item.addPropToDocument("dc:creator", newsItem)
-                      newsItem["indexInFeed"] = x
-                      item.getFirstChildByTag("content:encoded")
-                          .map { it.textContent }
-                          .map { purgeHtml(it, excludedServers) }
-                          //.map(::forceHttps)
-                          .ifPresent { value ->
-                            newsItem.append("content", value)
-                          }
-                      item.addPropToDocument("description", newsItem)
-                      item.addPropToDocument("pubDate", newsItem, { date ->
-                        // See if date can be used for time
-                        for (formatter in threadSafeList(
-                            DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss zzz"),
-                            DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss OOOO")
-                        )) {
-                          try {
-                            val parsed = LocalDateTime.parse(date, formatter)
-                            val ms = parsed.toEpochSecond(ZoneOffset.UTC)
-                            newsItem["time"] = ms
-                            break
-                          } catch (e: Exception) {
-                            log.debug("Could not parse Date: $date", e)
-                          }
-                        }
-                        date
-                      }, {})
-                      val categories = item.getChildrenByTag("category")
-                          .map { it.textContent }
-                      newsItem.append("categories", categories)
-
-                      try {
-                        newsCollection.insertOne(newsItem)
-                        log.info("Successfully Added News from ${dbDoc.getString("site")}: $title")
-                      } catch (me: MongoWriteException) {
-                        log.debug("Could not update document due to Static Size Limit: $guid")
-                      } catch (e: Exception) {
-                        log.warn("Could Not Add News Item to the Database", e)
-                      }
-
-                    }
-                  } catch (e: Exception) {
-                    log.error("Error Processing News", e)
+                .trim()
+            )
+          )
+          val channels = document.getElementsByTagName("channel")
+          log.debug("${channels.length} Channels on $url")
+          IntRange(0, channels.length - 1)
+            .map(channels::item)
+            .forEach { node ->
+              try {
+                log.debug(node.toXml())
+                val items = node.getChildrenByTag("item")
+                items.forEachIndexed { x, item ->
+                  val newsItem = doc("source", cleanDoc(dbDoc))
+                    .add("time", System::currentTimeMillis)
+                    .add("scrapeTime", System::currentTimeMillis)
+                    .append("priorityUpdated", 0L)
+                    .append("priority", -1)
+                  val guid = item.addPropToDocument("guid", newsItem) {
+                    log.debug("Could Not Find GUID on item! - {}", item.toXml())
                   }
+                  if (guid == null || existingGuids.contains(guid)) {
+                    return@forEachIndexed
+                  }
+                  val title = item.addPropToDocument("title", newsItem)
+                  item.addPropToDocument("link", newsItem)
+                  item.addPropToDocument("dc:creator", newsItem)
+                  newsItem["indexInFeed"] = x
+                  item.getFirstChildByTag("content:encoded")
+                    .map { it.textContent }
+                    .map { purgeHtml(it, excludedServers) }
+                    //.map(::forceHttps)
+                    .ifPresent { value ->
+                      newsItem.append("content", value)
+                    }
+                  item.addPropToDocument("description", newsItem)
+                  item.addPropToDocument("pubDate", newsItem, { date ->
+                    // See if date can be used for time
+                    for (formatter in threadSafeList(
+                      DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss zzz"),
+                      DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss OOOO")
+                    )) {
+                      try {
+                        val parsed = LocalDateTime.parse(date, formatter)
+                        val ms = parsed.toEpochSecond(ZoneOffset.UTC)
+                        newsItem["time"] = ms
+                        break
+                      } catch (e: Exception) {
+                        log.debug("Could not parse Date: $date", e)
+                      }
+                    }
+                    date
+                  }, {})
+                  val categories = item.getChildrenByTag("category")
+                    .map { it.textContent }
+                  newsItem.append("categories", categories)
+
+                  try {
+                    newsCollection.insertOne(newsItem)
+                    log.info("Successfully Added News from ${dbDoc.getString("site")}: $title")
+                  } catch (me: MongoWriteException) {
+                    log.debug("Could not update document due to Static Size Limit: $guid")
+                  } catch (e: Exception) {
+                    log.warn("Could Not Add News Item to the Database", e)
+                  }
+
                 }
-          } catch (xmlException: SAXParseException) {
-            log.warn("Failed to parse xml on ${dbDoc.getString("site")}")
-          } catch (e: Exception) {
-            log.error("Error on $url", e)
-          }
+              } catch (e: Exception) {
+                log.error("Error Processing News", e)
+              }
+            }
+        } catch (xmlException: SAXParseException) {
+          log.warn("Failed to parse xml on ${dbDoc.getString("site")}")
+        } catch (e: Exception) {
+          log.error("Error on $url", e)
         }
+      }
   }
 
   private fun Node.addPropToDocument(
-      name: String,
-      doc: Document,
-      map: (String) -> String,
-      notPresent: () -> Unit = {}): String? {
+    name: String,
+    doc: Document,
+    map: (String) -> String,
+    notPresent: () -> Unit = {}
+  ): String? {
     var s: String? = null
     this.getFirstChildByTag(name)
-        .map { it.textContent }
-        .map(map)
-        .ifPresentOrElse({ value ->
-          doc[name] = value
-          s = value
-        }, notPresent)
+      .map { it.textContent }
+      .map(map)
+      .ifPresentOrElse({ value ->
+        doc[name] = value
+        s = value
+      }, notPresent)
     return s
   }
 
   private fun Node.addPropToDocument(name: String, doc: Document, notPresent: () -> Unit = {}): String? =
-      this.addPropToDocument(name, doc, { it }, notPresent)
+    this.addPropToDocument(name, doc, { it }, notPresent)
 
   private fun Node.getChildrenByTag(tag: String): List<Node> =
-      IntRange(0, this.childNodes.length - 1)
-          .map(this.childNodes::item)
-          .filter { it.nodeName == tag }
+    IntRange(0, this.childNodes.length - 1)
+      .map(this.childNodes::item)
+      .filter { it.nodeName == tag }
 
   private fun Node.getFirstChildByTag(tag: String): Optional<Node> =
-      Optional.ofNullable(IntRange(0, this.childNodes.length - 1)
-          .map(this.childNodes::item)
-          .firstOrNull { it.nodeName == tag })
+    Optional.ofNullable(IntRange(0, this.childNodes.length - 1)
+      .map(this.childNodes::item)
+      .firstOrNull { it.nodeName == tag })
 
   private fun getExcludedServers(db: Database): Regex =
-      Regex("http.?://[^\"']*(${db.getCollection("lsrules")
+    Regex(
+      "http.?://[^\"']*(${
+        db.getCollection("lsrules")
           .distinct("server", String::class.java)
-          .into(threadSafeList<String>()).joinToString(separator = "|")})")
+          .into(threadSafeList<String>()).joinToString(separator = "|")
+      })"
+    )
 
   private fun Node.toXml(): String {
     val sw = StringWriter()

@@ -33,23 +33,27 @@ internal constructor(credentialsGrabber: CredentialsGrabber) : IDatabase {
     optionMap["minPoolSize"] = 2
     optionMap["socketTimeoutMS"] = 60 * 1000
     val options = optionMap.map { "${it.key}=${it.value}" }
-        .joinToString(separator = "&")
+      .joinToString(separator = "&")
     log.info("Connecting to mongo with URL Options: $options")
     this.connectionString = "mongodb+srv://admin:$pass@apicluster-tsly9.mongodb.net/?$options"
-    this.client = MongoClient(MongoClientURI(this.connectionString,
+    this.client = MongoClient(
+      MongoClientURI(
+        this.connectionString,
         MongoClientOptions.builder()
-            .maxConnectionIdleTime(0)
-            .maxWaitTime(minutes(1).toInt())))
+          .maxConnectionIdleTime(0)
+          .maxWaitTime(minutes(1).toInt())
+      )
+    )
   }
 
   override fun getCollection(db: String, name: String): MongoCollection<Document> =
-      this.client.getDatabase(db).getCollection(name)
+    this.client.getDatabase(db).getCollection(name)
 
   override fun getCollection(name: String): MongoCollection<Document> =
-      getCollection("api", name)
+    getCollection("api", name)
 
   override fun getJongoCollection(name: String?): org.jongo.MongoCollection =
-      Jongo(this.client.getDB("api")).getCollection("name")
+    Jongo(this.client.getDB("api")).getCollection("name")
 
   private fun getOrMakeCollection(db: String, name: String, opts: CreateCollectionOptions?): MongoCollection<Document> {
     val dbInstance = client.getDatabase(db)
@@ -65,7 +69,7 @@ internal constructor(credentialsGrabber: CredentialsGrabber) : IDatabase {
   }
 
   fun getOrMakeCollection(name: String, opts: CreateCollectionOptions): MongoCollection<Document> =
-      this.getOrMakeCollection("api", name, opts)
+    this.getOrMakeCollection("api", name, opts)
 
   override fun getConnectionString(): String = this.connectionString
 }

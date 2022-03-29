@@ -26,13 +26,17 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
 
       validator.securePut("create", { ctx, body, user ->
         if (user.admin) {
-          val result = userCollection.updateOne(doc("username", body.getString("username")),
-              set(doc("username", body.getString("username"))
-                  .append("firstName", body.getString("firstName"))
-                  .append("lastName", body.getString("lastName"))
-                  .append("email", body.getString("email"))
-                  .append("password", hashPass(body.getString("password")))
-                  .append("admin", false)), upsert())
+          val result = userCollection.updateOne(
+            doc("username", body.getString("username")),
+            set(
+              doc("username", body.getString("username"))
+                .append("firstName", body.getString("firstName"))
+                .append("lastName", body.getString("lastName"))
+                .append("email", body.getString("email"))
+                .append("password", hashPass(body.getString("password")))
+                .append("admin", false)
+            ), upsert()
+          )
           if (result.upsertedId != null) {
             log.info("Successfully created user ${body.getString("username")}")
             throw SuccessResponse()

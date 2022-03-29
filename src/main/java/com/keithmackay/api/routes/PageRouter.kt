@@ -10,8 +10,6 @@ import com.keithmackay.api.utils.JavaUtils.Time.days
 import com.keithmackay.api.utils.JavaUtils.toMap
 import com.mongodb.client.model.IndexOptions
 import com.mongodb.client.model.UpdateOptions
-import io.javalin.apibuilder.ApiBuilder
-import io.javalin.http.Context
 import domn8.DOMn8
 import domn8.nodes.DomNode
 import domn8.nodes.HtmlBody
@@ -25,6 +23,8 @@ import domn8.nodes.elements.HeaderEl.headerEl
 import domn8.nodes.elements.LinkEl
 import domn8.nodes.elements.TextNode.textNode
 import domn8.styles.CSS.css
+import io.javalin.apibuilder.ApiBuilder
+import io.javalin.http.Context
 import org.bson.Document
 import org.json.JSONObject
 import java.net.URLDecoder

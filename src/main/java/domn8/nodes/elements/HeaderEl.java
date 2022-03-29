@@ -10,51 +10,51 @@ import java.util.List;
 import static domn8.nodes.elements.HeaderEl.HeaderConfig;
 
 public class HeaderEl extends BodyEl<HeaderConfig> {
-  HeaderEl(HeaderConfig config, List<DomNode<?>> children) {
-    super(config, children);
-  }
-
-  public static HeaderEl headerEl(final HeaderConfig config) {
-    return new HeaderEl(config, new ArrayList<>());
-  }
-
-  public static HeaderConfig headerConfig() {
-    return new HeaderConfig();
-  }
-
-  @Override
-  public Element render() {
-    return build(el -> {
-      el.setText(config.text);
-      return el;
-    });
-  }
-
-  public static class HeaderConfig extends ElConfig {
-    private int level;
-    private String text;
-
-    public HeaderConfig level(final int level) {
-      this.level = level;
-      return this;
+    HeaderEl(HeaderConfig config, List<DomNode<?>> children) {
+        super(config, children);
     }
 
-    public HeaderConfig text(final String text) {
-      this.text = text;
-      return this;
+    public static HeaderEl headerEl(final HeaderConfig config) {
+        return new HeaderEl(config, new ArrayList<>());
+    }
+
+    public static HeaderConfig headerConfig() {
+        return new HeaderConfig();
     }
 
     @Override
-    public String node() {
-      return String.format("h%d", level);
+    public Element render() {
+        return build(el -> {
+            el.setText(config.text);
+            return el;
+        });
     }
 
-    public HeaderConfig classNames(final String... classes) {
-      return (HeaderConfig) super.classNames(classes);
-    }
+    public static class HeaderConfig extends ElConfig {
+        private int level;
+        private String text;
 
-    public HeaderConfig styles(final CSS css) {
-      return (HeaderConfig) super.styles(css);
+        public HeaderConfig level(final int level) {
+            this.level = level;
+            return this;
+        }
+
+        public HeaderConfig text(final String text) {
+            this.text = text;
+            return this;
+        }
+
+        @Override
+        public String node() {
+            return String.format("h%d", level);
+        }
+
+        public HeaderConfig classNames(final String... classes) {
+            return (HeaderConfig) super.classNames(classes);
+        }
+
+        public HeaderConfig styles(final CSS css) {
+            return (HeaderConfig) super.styles(css);
+        }
     }
-  }
 }

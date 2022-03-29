@@ -9,6 +9,7 @@ import com.keithmackay.api.utils.*
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.model.Aggregates
 import org.bson.Document
+import org.json.JSONArray
 import org.json.JSONObject
 import org.quartz.JobExecutionContext
 import org.quartz.JobExecutionException
@@ -23,16 +24,18 @@ import kotlin.math.abs
 import kotlin.math.ceil
 
 class NewsPriorityTask @Inject internal constructor(
-    db: EphemeralDatabase,
-    private val emailSender: EmailSender
+  db: EphemeralDatabase,
+  private val emailSender: EmailSender
 ) : CronTask() {
   private val log = getLogger(this::class)
   private val newsCollection: MongoCollection<Document> = db.getCollection("news")
-  private val twitter: Twitter = TwitterFactory(ConfigurationBuilder()
+  private val twitter: Twitter = TwitterFactory(
+    ConfigurationBuilder()
       .setGZIPEnabled(true)
       .setTweetModeExtended(true)
-      .build())
-      .instance
+      .build()
+  )
+    .instance
 
   @Throws(JobExecutionException::class)
   override fun execute(jobExecutionContext: JobExecutionContext) {
@@ -40,28 +43,33 @@ class NewsPriorityTask @Inject internal constructor(
     val l = mutableListOf<Document>()
     this.getTweet()?.let(l::add)
     l.stream()
-        .map { doc: Document -> Tuple(doc, getPriority(doc)) }
-        .forEach { tuple: Tuple<Document, Int> ->
-          try {
-            val doc = tuple.getA()
-            val currentPriority = doc.getInteger("priority")
-            log.debug(newsCollection.updateOne(
-                doc("_id", eq(doc.getObjectId("_id"))),
-                set(doc("priority", tuple.getB().coerceAtLeast(currentPriority))
-                    .add("priorityUpdated", System::currentTimeMillis))))
-            if (!this.shouldNotify(currentPriority) && this.shouldNotify(tuple.getB())) {
-              // Send email that new Important News Item has been found
-              log.info("Sending Important Article Email")
-              val source = doc.subDoc("source").getString("site")
-              val title = doc.getString("title")
-              /*emailSender.send("New Article from $source: $title",
-                  doc.getString("description"),
-                  emailSender.mainUser())*/
-            }
-          } catch (e: Exception) {
-            log.error("Error Updating Priority", e)
+      .map { doc: Document -> Tuple(doc, getPriority(doc)) }
+      .forEach { tuple: Tuple<Document, Int> ->
+        try {
+          val doc = tuple.getA()
+          val currentPriority = doc.getInteger("priority")
+          log.debug(
+            newsCollection.updateOne(
+              doc("_id", eq(doc.getObjectId("_id"))),
+              set(
+                doc("priority", tuple.getB().coerceAtLeast(currentPriority))
+                  .add("priorityUpdated", System::currentTimeMillis)
+              )
+            )
+          )
+          if (!this.shouldNotify(currentPriority) && this.shouldNotify(tuple.getB())) {
+            // Send email that new Important News Item has been found
+            log.info("Sending Important Article Email")
+            val source = doc.subDoc("source").getString("site")
+            val title = doc.getString("title")
+            /*emailSender.send("New Article from $source: $title",
+                doc.getString("description"),
+                emailSender.mainUser())*/
           }
+        } catch (e: Exception) {
+          log.error("Error Updating Priority", e)
         }
+      }
 
     //log.info("Finished News Priority Task (${printTimeDiff(start)})")
   }
@@ -70,12 +78,16 @@ class NewsPriorityTask @Inject internal constructor(
 
   private fun getTweet(): Document? {
     val tweet = newsCollection
-        .find(doc("priority", -1)
-            // Don't update a document older than 12 hours old
-            .append("time", gte(System.currentTimeMillis() - 1000 * 60 * 60 * 12)))
-        .sort(doc("priorityUpdated", 1)
-            .append("priority", 1))
-        .first()
+      .find(
+        doc("priority", -1)
+          // Don't update a document older than 12 hours old
+          .append("time", gte(System.currentTimeMillis() - 1000 * 60 * 60 * 12))
+      )
+      .sort(
+        doc("priorityUpdated", 1)
+          .append("priority", 1)
+      )
+      .first()
 
     // If tweet was last updated within a minute
     if (tweet != null && abs(System.currentTimeMillis() - tweet.getLong("priorityUpdated")) <= 60000) {
@@ -85,8 +97,8 @@ class NewsPriorityTask @Inject internal constructor(
   }
 
   private fun getRandomTweet() = newsCollection
-      .aggregate(listOf(Aggregates.sample(1)))
-      .first()
+    .aggregate(listOf(Aggregates.sample(1)))
+    .first()
 
   private fun getPriority(doc: Document): Int {
     return getPriorityFromTwitter(doc) + getPriorityFromReddit(doc)
@@ -118,28 +130,37 @@ class NewsPriorityTask @Inject internal constructor(
     return try {
       val ups = post.getJSONObject("data").getInt("ups")
       var upsFromParents = 0
-      val parents = post.getJSONArray("crosspost_parent_list")
+      val parents = if (post.has("crosspost_parent_list")) {
+        post.getJSONArray("crosspost_parent_list")
+      } else {
+        JSONArray()
+      }
       for (x in 0 until parents.length()) {
         upsFromParents += parents.getJSONObject(x).getInt("ups")
       }
       return ups + upsFromParents + 1
     } catch (e: Exception) {
+      log.error("Error getting score from post", e)
       0
     }
   }
 
   private fun getPriorityFromTwitter(doc: Document): Int {
     return try {
-      val tweets = this.search("\"${doc.getString("title")}\"",
-          "url:${encode(doc.getString("link"))}")
+      val tweets = this.search(
+        "\"${doc.getString("title")}\"",
+        "url:${encode(doc.getString("link"))}"
+      )
       var interactions = 0
       tweets
-          .forEach {
-            it.retweetedStatus
-            interactions += it.interactions()
-          }
-      log.info("This article has received a total of $interactions interactions from ${tweets.size} Tweets " +
-          "([${doc.subDoc("source").getString("site")}] ${doc.getString("title")})")
+        .forEach {
+          it.retweetedStatus
+          interactions += it.interactions()
+        }
+      log.info(
+        "This article has received a total of $interactions interactions from ${tweets.size} Tweets " +
+            "([${doc.subDoc("source").getString("site")}] ${doc.getString("title")})"
+      )
       ceil(interactions.toDouble() / tweets.size).toInt() - 1 // Evaluate 0 as -1, in case Twitter limit is reached
     } catch (e: Exception) {
       log.info("Failed to calculate priority from twitter", e)
@@ -150,31 +171,31 @@ class NewsPriorityTask @Inject internal constructor(
   private fun search(vararg query: String): List<Status> {
     val list = mutableListOf<Status>()
     query
-        .map { Query(it) }
-        .map {
-          try {
-            twitter.search(it).tweets
-          } catch (e: Exception) {
-            log.debug("Could not search Twitter", e)
-            listOf<Status>()
-          }
+      .map { Query(it) }
+      .map {
+        try {
+          twitter.search(it).tweets
+        } catch (e: Exception) {
+          log.debug("Could not search Twitter", e)
+          listOf<Status>()
         }
-        .map {
-          it.map(Status::exposeParent)
-              .map(Array<Status>::toList)
-              .flatten()
-              .distinctBy(Status::getId)
-        }
-        .forEach { list.addAll(it) }
+      }
+      .map {
+        it.map(Status::exposeParent)
+          .map(Array<Status>::toList)
+          .flatten()
+          .distinctBy(Status::getId)
+      }
+      .forEach { list.addAll(it) }
     return list
   }
 
   private fun encode(s: String): String =
-      try {
-        URLEncoder.encode(s, StandardCharsets.UTF_8.toString())
-      } catch (e: Exception) {
-        s
-      }
+    try {
+      URLEncoder.encode(s, StandardCharsets.UTF_8.toString())
+    } catch (e: Exception) {
+      s
+    }
 
 
   override fun cron(): String = seconds(10)
@@ -182,10 +203,10 @@ class NewsPriorityTask @Inject internal constructor(
   override fun name(): String = "NewsPriorityTask"
 
   data class NewsItemEmail(
-      val title: String,
-      val source: String,
-      val url: String,
-      val content: String
+    val title: String,
+    val source: String,
+    val url: String,
+    val content: String
   )
 
 }

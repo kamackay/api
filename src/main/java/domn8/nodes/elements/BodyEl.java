@@ -16,44 +16,44 @@ import static java.util.function.Predicate.not;
 
 public abstract class BodyEl<C extends ElConfig> extends DomNode<C> {
 
-  BodyEl(final C config, final List<DomNode<?>> children) {
-    super(config, children);
-  }
-
-  @Override
-  protected Element build() {
-    final Element el = super.build();
-    Optional.ofNullable(config.getClassNames())
-        .filter(not(List::isEmpty))
-        .map(l -> String.join(" ", l))
-        .ifPresent(str -> el.addAttribute("class", str));
-
-    Optional.ofNullable(config.getCss())
-        .filter(not(CSS::isEmpty))
-        .map(CSS::print)
-        .ifPresent(str -> el.addAttribute("style", str));
-
-    return el;
-  }
-
-  public abstract static class ElConfig extends Config {
-    @Getter(value = AccessLevel.PROTECTED)
-    private final CSS css = CSS.css();
-    @Getter(value = AccessLevel.PROTECTED)
-    private final List<String> classNames = new ArrayList<>();
-
-    public ElConfig styles(final CSS styles) {
-      this.css.merge(styles);
-      return this;
+    BodyEl(final C config, final List<DomNode<?>> children) {
+        super(config, children);
     }
 
-    public ElConfig classNames(final List<String> classNames) {
-      this.classNames.addAll(classNames);
-      return this;
+    @Override
+    protected Element build() {
+        final Element el = super.build();
+        Optional.ofNullable(config.getClassNames())
+                .filter(not(List::isEmpty))
+                .map(l -> String.join(" ", l))
+                .ifPresent(str -> el.addAttribute("class", str));
+
+        Optional.ofNullable(config.getCss())
+                .filter(not(CSS::isEmpty))
+                .map(CSS::print)
+                .ifPresent(str -> el.addAttribute("style", str));
+
+        return el;
     }
 
-    public ElConfig classNames(final String... classNames) {
-      return classNames(Arrays.asList(classNames));
+    public abstract static class ElConfig extends Config {
+        @Getter(value = AccessLevel.PROTECTED)
+        private final CSS css = CSS.css();
+        @Getter(value = AccessLevel.PROTECTED)
+        private final List<String> classNames = new ArrayList<>();
+
+        public ElConfig styles(final CSS styles) {
+            this.css.merge(styles);
+            return this;
+        }
+
+        public ElConfig classNames(final List<String> classNames) {
+            this.classNames.addAll(classNames);
+            return this;
+        }
+
+        public ElConfig classNames(final String... classNames) {
+            return classNames(Arrays.asList(classNames));
+        }
     }
-  }
 }

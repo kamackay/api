@@ -9,48 +9,48 @@ import static domn8.util.Utils.listOf;
 
 public class TextNode extends BodyEl<TextConfig> {
 
-  TextNode(TextConfig config) {
-    super(config, listOf());
-  }
-
-  public static TextNode textNode(final String text) {
-    return textNode(new TextConfig().text(text));
-  }
-
-  public static TextNode textNode(final TextConfig config) {
-    return new TextNode(config);
-  }
-
-  @Override
-  public Element render() {
-    return _build(el -> {
-      el.setText(config.getText());
-    });
-  }
-
-  public static class TextConfig extends ElConfig {
-    @Getter
-    private String text;
-
-    public TextConfig text(final String text) {
-      this.text = text;
-      return this;
+    TextNode(TextConfig config) {
+        super(config, listOf());
     }
 
-    public TextConfig fontSize(final int size) {
-      return this.styles(CSS.css()
-          .setValue("font-size",
-              String.format("%dpx", size)));
+    public static TextNode textNode(final String text) {
+        return textNode(new TextConfig().text(text));
+    }
+
+    public static TextNode textNode(final TextConfig config) {
+        return new TextNode(config);
     }
 
     @Override
-    public String node() {
-      return "text";
+    public Element render() {
+        return _build(el -> {
+            el.setText(config.getText());
+        });
     }
 
-    @Override
-    public TextConfig styles(CSS styles) {
-      return (TextConfig) super.styles(styles);
+    public static class TextConfig extends ElConfig {
+        @Getter
+        private String text;
+
+        public TextConfig text(final String text) {
+            this.text = text;
+            return this;
+        }
+
+        public TextConfig fontSize(final int size) {
+            return this.styles(CSS.css()
+                    .setValue("font-size",
+                            String.format("%dpx", size)));
+        }
+
+        @Override
+        public String node() {
+            return "text";
+        }
+
+        @Override
+        public TextConfig styles(CSS styles) {
+            return (TextConfig) super.styles(styles);
+        }
     }
-  }
 }

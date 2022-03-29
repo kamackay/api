@@ -10,8 +10,8 @@ class ConfigGrabber @Inject
 internal constructor() {
 
   private val config =
-      JsonParser.parseString(fileToString(System.getenv("CONFIG_FILE")).trim())
-          .asJsonObject
+    JsonParser.parseString(fileToString(System.getenv("CONFIG_FILE")).trim())
+      .asJsonObject
 
   fun getValue(secret: String): JsonElement = config.get(secret)
 }

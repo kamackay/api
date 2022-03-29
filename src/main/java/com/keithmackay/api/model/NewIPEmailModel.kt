@@ -3,9 +3,9 @@ package com.keithmackay.api.model
 import com.keithmackay.api.utils.IPInfo
 
 data class NewIPEmailModel(
-    val info: IPInfo,
-    val application: String,
-    val additional: Map<String, String>
+  val info: IPInfo,
+  val application: String,
+  val additional: Map<String, String>
 ) {
   fun getTitle(returning: Boolean = false): String {
     return if (returning) "Returning Page Load on $application from ${info.city}, ${info.region}, ${info.countryName}"

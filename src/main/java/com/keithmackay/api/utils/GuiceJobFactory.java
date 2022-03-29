@@ -14,29 +14,29 @@ import org.quartz.spi.TriggerFiredBundle;
  */
 // Some guidance from: http://codesmell.wordpress.com/2009/01/11/quartz-fits/
 public final class GuiceJobFactory implements JobFactory {
-  private final Injector guice;
+    private final Injector guice;
 
-  @Inject
-  public GuiceJobFactory(final Injector guice) {
-    this.guice = guice;
-  }
-
-  @Override
-  public Job newJob(TriggerFiredBundle triggerFiredBundle, Scheduler scheduler) throws SchedulerException {
-    // Get the job detail so we can get the job class
-    JobDetail jobDetail = triggerFiredBundle.getJobDetail();
-    Class<? extends Job> jobClass = jobDetail.getJobClass();
-
-    try {
-      // Get a new instance of that class from Guice so we can do dependency injection
-      return guice.getInstance(jobClass);
-    } catch (Exception e) {
-      // Something went wrong.  Print out the stack trace here so SLF4J doesn't hide it.
-      e.printStackTrace();
-
-      // Rethrow the exception as an UnsupportedOperationException
-      throw new UnsupportedOperationException(e);
+    @Inject
+    public GuiceJobFactory(final Injector guice) {
+        this.guice = guice;
     }
-  }
+
+    @Override
+    public Job newJob(TriggerFiredBundle triggerFiredBundle, Scheduler scheduler) throws SchedulerException {
+        // Get the job detail so we can get the job class
+        JobDetail jobDetail = triggerFiredBundle.getJobDetail();
+        Class<? extends Job> jobClass = jobDetail.getJobClass();
+
+        try {
+            // Get a new instance of that class from Guice so we can do dependency injection
+            return guice.getInstance(jobClass);
+        } catch (Exception e) {
+            // Something went wrong.  Print out the stack trace here so SLF4J doesn't hide it.
+            e.printStackTrace();
+
+            // Rethrow the exception as an UnsupportedOperationException
+            throw new UnsupportedOperationException(e);
+        }
+    }
 }
 

@@ -1,7 +1,9 @@
 package com.keithmackay.api.utils
 
-val pattern = Regex("(<script.*>.*<\\/script>)|(<script.*\\/>)",
-    RegexOption.IGNORE_CASE)
+val pattern = Regex(
+  "(<script.*>.*<\\/script>)|(<script.*\\/>)",
+  RegexOption.IGNORE_CASE
+)
 
 fun purgeHtml(s: String): String = purgeHtml(s, null)
 
@@ -19,4 +21,4 @@ fun purgeHtml(s: String, servers: Regex?): String {
 }
 
 fun forceHttps(s: String): String =
-    s.replace("http://", "https://", true)
+  s.replace("http://", "https://", true)

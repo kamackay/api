@@ -34,7 +34,7 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
           throw UnauthorizedResponse()
         }
         val limit = Integer.parseInt(ctx.queryParam("pageSize"))
-            .coerceAtMost(1000)
+          .coerceAtMost(1000)
         val page = Integer.parseInt(ctx.queryParam("page", "0"))
         val query = try {
           Document.parse(ctx.queryParam("query"))
@@ -45,11 +45,11 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
 
         ctx.json(CompletableFuture.supplyAsync {
           eventCollection
-              .find(query)
-              .skip(page * limit)
-              .limit(limit)
-              .into(threadSafeList<Document>())
-              .map(::cleanDoc)
+            .find(query)
+            .skip(page * limit)
+            .limit(limit)
+            .into(threadSafeList<Document>())
+            .map(::cleanDoc)
         })
       })
     }
@@ -62,12 +62,18 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
         this.append("user", user.username)
       }
     }
-    eventCollection.insertOne(body
-        .cleanTo("url", "time", "data",
-            "feature", "userAgent", "ip", "location")
-        .join(doc("ip", ctx.ip())
-            .add("userAgent", ctx::userAgent), false)
-        .join(additional, true))
+    eventCollection.insertOne(
+      body
+        .cleanTo(
+          "url", "time", "data",
+          "feature", "userAgent", "ip", "location"
+        )
+        .join(
+          doc("ip", ctx.ip())
+            .add("userAgent", ctx::userAgent), false
+        )
+        .join(additional, true)
+    )
     throw SuccessResponse()
   }
 

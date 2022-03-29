@@ -25,13 +25,13 @@ internal constructor() : IDatabase {
   }
 
   override fun getCollection(db: String, name: String): MongoCollection<Document> =
-      this.client.getDatabase(db).getCollection(name)
+    this.client.getDatabase(db).getCollection(name)
 
   override fun getCollection(name: String): MongoCollection<Document> =
-      getCollection("api", name)
+    getCollection("api", name)
 
   override fun getJongoCollection(name: String?): org.jongo.MongoCollection =
-      throw NotImplementedError("Not Using Jongo")
+    throw NotImplementedError("Not Using Jongo")
 
   private fun getOrMakeCollection(db: String, name: String, opts: CreateCollectionOptions?): MongoCollection<Document> {
     val dbInstance = client.getDatabase(db)
@@ -47,7 +47,7 @@ internal constructor() : IDatabase {
   }
 
   fun getOrMakeCollection(name: String, opts: CreateCollectionOptions): MongoCollection<Document> =
-      this.getOrMakeCollection("api", name, opts)
+    this.getOrMakeCollection("api", name, opts)
 
   override fun getConnectionString(): String = ""
 }

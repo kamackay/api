@@ -17,9 +17,9 @@ import java.util.concurrent.atomic.AtomicBoolean
 @Singleton
 class NewsRouter @Inject
 internal constructor(
-    private val validator: RequestValidator,
-    private val db: EphemeralDatabase,
-    private val newsService: NewsService
+  private val validator: RequestValidator,
+  private val db: EphemeralDatabase,
+  private val newsService: NewsService
 ) : Router {
   private val log = getLogger(this::class)
   private val healthy = AtomicBoolean(true)
@@ -38,9 +38,9 @@ internal constructor(
         it.json(CompletableFuture.supplyAsync {
           try {
             db.getCollection("news")
-                .distinct("_id", ObjectId::class.java)
-                .map(ObjectId::toString)
-                .into(threadSafeList())
+              .distinct("_id", ObjectId::class.java)
+              .map(ObjectId::toString)
+              .into(threadSafeList())
           } catch (e: MongoException) {
             this.healthy.set(false)
             throw e
@@ -58,14 +58,15 @@ internal constructor(
             val body = Document.parse(ctx.body())
             val ids = body.getList("ids", String::class.java)
             val docs = ids
-                .map { doc("_id", eq(ObjectId(it))) }
-                .toTypedArray()
+              .map { doc("_id", eq(ObjectId(it))) }
+              .toTypedArray()
             db.getCollection("news").find(
-                or(*docs))
-                .sort(newsService.defaultNewsSort)
-                .limit(1000)
-                .map(::cleanDoc)
-                .mapNotNull { it }
+              or(*docs)
+            )
+              .sort(newsService.defaultNewsSort)
+              .limit(1000)
+              .map(::cleanDoc)
+              .mapNotNull { it }
           } catch (e: MongoException) {
             this.healthy.set(false)
             throw e
@@ -77,8 +78,8 @@ internal constructor(
         it.json(CompletableFuture.supplyAsync {
           val id = it.pathParam("id")
           db.getCollection("news").find(doc("_id", ObjectId(id)))
-              .map(::cleanDoc)
-              .first()
+            .map(::cleanDoc)
+            .first()
         })
       }
 
@@ -87,10 +88,10 @@ internal constructor(
         log.info("Anonymous requests all news after '$time'")
         ctx.json(CompletableFuture.supplyAsync {
           db.getCollection("news").find(doc("time", gt(time)))
-              .sort(newsService.defaultNewsSort)
-              .limit(1000)
-              .map { it.getObjectId("_id").toString() }
-              .into(threadSafeList())
+            .sort(newsService.defaultNewsSort)
+            .limit(1000)
+            .map { it.getObjectId("_id").toString() }
+            .into(threadSafeList())
         })
       }
 
@@ -122,23 +123,23 @@ internal constructor(
 
   private fun getNewsForSite(name: String) = CompletableFuture.supplyAsync {
     db.getCollection("news").find(doc("site", name))
-        .sort(newsService.defaultNewsSort)
-        .limit(1000)
-        .bundle()
+      .sort(newsService.defaultNewsSort)
+      .limit(1000)
+      .bundle()
   }
 
   private fun getNewsAfter(time: Long) = getNewsAfter(time, 1000)
 
   private fun getNewsAfter(time: Long, limit: Int) = CompletableFuture.supplyAsync {
     db.getCollection("news").find(doc("time", gt(time)))
-        .sort(newsService.defaultNewsSort)
-        .limit(limit)
-        .bundle()
+      .sort(newsService.defaultNewsSort)
+      .limit(limit)
+      .bundle()
   }
 
   override fun isHealthy(): Boolean = this.healthy.get()
 }
 
 private fun FindIterable<Document>.bundle() =
-    this.into(threadSafeList<Document>())
-        .map(::cleanDoc)
+  this.into(threadSafeList<Document>())
+    .map(::cleanDoc)

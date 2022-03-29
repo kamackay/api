@@ -32,12 +32,16 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
         if (exists) {
           throw ConflictResponse("List With that name already Exists")
         } else {
-          val result = groceriesListsCollection.updateOne(doc("name", name),
-              set(doc("name", name)
-                  .append("timeCreated", System.currentTimeMillis())
-                  .append("createdBy", user.username)
-                  .append("users", threadSafeList(user.username))),
-              upsert())
+          val result = groceriesListsCollection.updateOne(
+            doc("name", name),
+            set(
+              doc("name", name)
+                .append("timeCreated", System.currentTimeMillis())
+                .append("createdBy", user.username)
+                .append("users", threadSafeList(user.username))
+            ),
+            upsert()
+          )
           if (result.upsertedId != null) {
             ctx.status(200).result("Successfully Created $name")
           } else {
@@ -49,25 +53,27 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
       validator.secureGet("lists", { ctx, _, user ->
         log.info("${user.username} wants a list of grocery lists")
         ctx.json(groceriesListsCollection.find()
-            .map {
-              doc("id", it.getObjectId("_id").toString())
-                  .append("name", it.getString("name"))
-            }
-            .into(threadSafeList()))
+          .map {
+            doc("id", it.getObjectId("_id").toString())
+              .append("name", it.getString("name"))
+          }
+          .into(threadSafeList()))
       })
 
       validator.secureGet("list/:listId", { ctx, _, user ->
         val listId = ctx.pathParam("listId")
         val list = groceriesListsCollection
-            .find(doc("_id", ObjectId(listId)))
-            .first()
+          .find(doc("_id", ObjectId(listId)))
+          .first()
         if (list != null) {
           val users = list.getList("users", String::class.java)
           if (users.contains(user.username)) {
-            ctx.json(groceriesCollection
+            ctx.json(
+              groceriesCollection
                 .find(doc("list", listId))
                 .into(threadSafeList<Document>())
-                .mapNotNull(::cleanDoc))
+                .mapNotNull(::cleanDoc)
+            )
           } else {
             throw BadRequestResponse("User is not a member of the list")
           }
@@ -79,18 +85,19 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
       validator.securePost("list/:listName", { ctx, body, user ->
         val listName = ctx.pathParam("listName")
         val list = groceriesListsCollection.find(doc("_id", ObjectId(listName)))
-            .first()
+          .first()
         if (list != null) {
           val users = list.getList("users", String::class.java)
           if (users.contains(user.username)) {
             groceriesCollection.insertOne(
-                doc("name", body.getString("name"))
-                    .append("list", list.getObjectId("_id").toString())
-                    .append("addedBy", user.username)
-                    .append("addedAt", System.currentTimeMillis())
-                    .append("count", body.getInteger("count"))
-                    .append("done", false)
-                    .append("removed", false))
+              doc("name", body.getString("name"))
+                .append("list", list.getObjectId("_id").toString())
+                .append("addedBy", user.username)
+                .append("addedAt", System.currentTimeMillis())
+                .append("count", body.getInteger("count"))
+                .append("done", false)
+                .append("removed", false)
+            )
             throw SuccessResponse("Added")
           } else {
             throw BadRequestResponse("User is not a member of the list")

@@ -23,8 +23,8 @@ import org.bson.Document
 @Singleton
 class AuthRouter @Inject
 internal constructor(
-    private val db: IDatabase,
-    private val requestValidator: RequestValidator
+  private val db: IDatabase,
+  private val requestValidator: RequestValidator
 ) : Router {
   private val log = getLogger(this::class)
 
@@ -42,8 +42,10 @@ internal constructor(
   private fun setPassword(ctx: Context, body: Document, user: User) {
     val creds = ctx.bodyAsClass(LoginModel::class.java)
     if (user.username == creds.username) {
-      db.getCollection("users").updateOne(doc("username", creds.username),
-          set(doc("password", hashPass(creds.password))))
+      db.getCollection("users").updateOne(
+        doc("username", creds.username),
+        set(doc("password", hashPass(creds.password)))
+      )
       ctx.status(200).result("Updated")
     } else {
       throw InvalidAuthenticationResponse()
@@ -54,15 +56,16 @@ internal constructor(
   private fun login(ctx: Context) {
     val creds = ctx.bodyAsClass(LoginModel::class.java)
     val documentElective = AuthUtils.login(
-        db.getCollection("users"),
-        db.getCollection("tokens"),
-        creds)
+      db.getCollection("users"),
+      db.getCollection("tokens"),
+      creds
+    )
     documentElective
-        .map<Document> { cleanDoc(it) }
-        .ifPresentOrElse({
-          ctx.sessionAttribute(authSessionAttribute(), it.getString("token"))
-          ctx.json(it)
-        }, { ctx.status(400) })
+      .map<Document> { cleanDoc(it) }
+      .ifPresentOrElse({
+        ctx.sessionAttribute(authSessionAttribute(), it.getString("token"))
+        ctx.json(it)
+      }, { ctx.status(400) })
 
   }
 

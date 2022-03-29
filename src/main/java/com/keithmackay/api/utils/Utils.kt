@@ -3,7 +3,6 @@ package com.keithmackay.api.utils
 import com.google.common.collect.Lists
 import com.mongodb.client.model.UpdateOptions
 import io.javalin.http.Context
-import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -22,11 +21,8 @@ import java.math.BigInteger
 import java.net.URLEncoder
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
-import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.*
-import java.util.function.Consumer
-import kotlin.collections.HashMap
 import kotlin.reflect.KClass
 
 const val byteUnitIncrement: Long = 1000
@@ -160,10 +156,10 @@ fun JSONArray.iterateObjects(max: Int): List<JSONObject> {
 }
 
 fun <T : Any> threadSafeList(content: Collection<T>): MutableList<T> =
-    Collections.synchronizedList(Lists.newArrayList(content))
+  Collections.synchronizedList(Lists.newArrayList(content))
 
 fun <T : Any> threadSafeList(vararg content: T): MutableList<T> =
-    threadSafeList(listOf(*content))
+  threadSafeList(listOf(*content))
 
 fun <T : Any, S : Any> threadSafeMap(): MutableMap<T, S> = Collections.synchronizedMap(HashMap())
 
@@ -171,7 +167,7 @@ fun urlEncode(s: String): String = URLEncoder.encode(s, StandardCharsets.UTF_8.t
 
 @Throws(FileNotFoundException::class)
 fun fileToString(filename: String): String =
-   File(Paths.get(filename).toAbsolutePath().toString()).readText(Charsets.UTF_8)
+  File(Paths.get(filename).toAbsolutePath().toString()).readText(Charsets.UTF_8)
 
 fun upsert(): UpdateOptions = UpdateOptions().upsert(true)
 
@@ -190,7 +186,7 @@ fun or(content: Collection<Any>): Document = doc("\$or", content)
 fun lessThan(content: Any): Document = doc("\$lt", content)
 fun matchPattern(content: String): Document = doc("\$match", content)
 fun arr(vararg docs: Document?): MutableList<Document> =
-    docs.filter(Objects::nonNull).mapNotNull { it }.toMutableList()
+  docs.filter(Objects::nonNull).mapNotNull { it }.toMutableList()
 
 fun set(value: Any?): Document = Document("\$set", value)
 

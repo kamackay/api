@@ -10,36 +10,36 @@ import static domn8.nodes.elements.DivEl.DivConfig;
 
 public class DivEl extends BodyEl<DivConfig> {
 
-  DivEl(DivConfig config, List<DomNode<?>> children) {
-    super(config, children);
-  }
-
-  public static DivEl divEl(final DivConfig config, List<DomNode<?>> children) {
-    return new DivEl(config, children);
-  }
-
-  public static DivConfig divConfig() {
-    return new DivConfig();
-  }
-
-  @Override
-  public Element render() {
-    return build(el -> el);
-  }
-
-  public static final class DivConfig extends ElConfig {
-
-    public DivConfig styles(final CSS css) {
-      return (DivConfig) super.styles(css);
+    DivEl(DivConfig config, List<DomNode<?>> children) {
+        super(config, children);
     }
 
-    public DivConfig classNames(final String... classes) {
-      return (DivConfig) super.classNames(classes);
+    public static DivEl divEl(final DivConfig config, List<DomNode<?>> children) {
+        return new DivEl(config, children);
+    }
+
+    public static DivConfig divConfig() {
+        return new DivConfig();
     }
 
     @Override
-    public String node() {
-      return "div";
+    public Element render() {
+        return build(el -> el);
     }
-  }
+
+    public static final class DivConfig extends ElConfig {
+
+        public DivConfig styles(final CSS css) {
+            return (DivConfig) super.styles(css);
+        }
+
+        public DivConfig classNames(final String... classes) {
+            return (DivConfig) super.classNames(classes);
+        }
+
+        @Override
+        public String node() {
+            return "div";
+        }
+    }
 }

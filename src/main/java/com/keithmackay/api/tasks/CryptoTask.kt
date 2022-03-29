@@ -41,10 +41,10 @@ fun minutes(time: Long): String {
 @Singleton
 class CryptoTask
 @Inject internal constructor(
-    db: IDatabase,
-    private val emailSender: EmailSender,
-    private val secrets: SecretsGrabber,
-    private val cryptoService: CryptoService
+  db: IDatabase,
+  private val emailSender: EmailSender,
+  private val secrets: SecretsGrabber,
+  private val cryptoService: CryptoService
 ) : CronTask() {
 
   private val log = getLogger(this::class)
@@ -55,72 +55,90 @@ class CryptoTask
   private val collection = db.getCollection("prices")
 
   private val emailRenderer = DOMn8.generic(EmailData::class.java,
-      { model: EmailData ->
-        HtmlBody.body(
-          HtmlBody.BodyConfig(),
-            listOf(
-                textNode(
-                  TextNode.TextConfig()
-                    .styles(css().set("display", "block"))
-                    .text("${model.newCoin.name} is now at ${model.newCoin.value.currency()}, " +
-                        "making your share worth ${(model.newCoin.count * model.newCoin.value).currency()}")),
-                breakEl(),
-                textNode("Old Value: ${(model.oldCoin.count * model.oldCoin.value).currency()} " +
-                    "(${model.oldCoin.value.currency()} Per)")
-            ) as List<DomNode<*>>?)
-      }, "Crypto Value Change")
+    { model: EmailData ->
+      HtmlBody.body(
+        HtmlBody.BodyConfig(),
+        listOf(
+          textNode(
+            TextNode.TextConfig()
+              .styles(css().set("display", "block"))
+              .text(
+                "${model.newCoin.name} is now at ${model.newCoin.value.currency()}, " +
+                    "making your share worth ${(model.newCoin.count * model.newCoin.value).currency()}"
+              )
+          ),
+          breakEl(),
+          textNode(
+            "Old Value: ${(model.oldCoin.count * model.oldCoin.value).currency()} " +
+                "(${model.oldCoin.value.currency()} Per)"
+          )
+        ) as List<DomNode<*>>?
+      )
+    }, "Crypto Value Change"
+  )
 
   override fun execute(ctx: JobExecutionContext?) {
     val taskName = "CryptoTask"
     timer().start(taskName)
     this.calculatePrices()
-        .forEach { coin ->
-          this.addToDb(coin)
-          val list = collection.find(queryFilter(coin))
-              .into(ArrayList())
-              .map(this::convertDoc)
-          log.info("Processing Results for ${coin.name} (${list.size} historical results)")
-          this.findPriceToCompare(list)?.run {
-            compareAndSend(this, coin)
-          }
+      .forEach { coin ->
+        this.addToDb(coin)
+        val list = collection.find(queryFilter(coin))
+          .into(ArrayList())
+          .map(this::convertDoc)
+        log.info("Processing Results for ${coin.name} (${list.size} historical results)")
+        this.findPriceToCompare(list)?.run {
+          compareAndSend(this, coin)
         }
+      }
     timer().end(taskName)
   }
 
   private fun addToDb(coin: CoinHolding) {
-    collection.insertOne(doc()
+    collection.insertOne(
+      doc()
         .append("code", coin.code)
         .append("count", coin.count)
         .append("name", coin.name)
         .append("timeCalculated", coin.timeCalculated)
         .append("color", coin.color)
-        .append("value", coin.value))
+        .append("value", coin.value)
+    )
   }
 
   private fun queryFilter(coin: CoinHolding): Document =
-      doc("timeCalculated", gte(LocalDateTime.now()
+    doc(
+      "timeCalculated", gte(
+        LocalDateTime.now()
           .minusHours(24)
           .toInstant(ZoneOffset.UTC)
-          .toEpochMilli()))
-          .append("code", coin.code)
-          .append("used", ne(true))
+          .toEpochMilli()
+      )
+    )
+      .append("code", coin.code)
+      .append("used", ne(true))
 
   private fun clearOldMetrics(keep: CoinHolding) {
     collection.updateMany(queryFilter(keep), doc("\$set", doc("used", true)))
   }
 
-  private fun compareAndSend(old: CoinHolding,
-                             coin: CoinHolding,
-                             changeTrigger: Double = 1.0): Boolean {
+  private fun compareAndSend(
+    old: CoinHolding,
+    coin: CoinHolding,
+    changeTrigger: Double = 1.0
+  ): Boolean {
     val timeDiffString = "over ${minutes(coin.timeCalculated - old.timeCalculated)}"
     val change = calculateChange(old, coin)
-    log.info("${coin.name} has changed by ${change.format(2)} " +
-        "(${old.value.currency()} -> ${coin.value.currency()}) $timeDiffString")
+    log.info(
+      "${coin.name} has changed by ${change.format(2)} " +
+          "(${old.value.currency()} -> ${coin.value.currency()}) $timeDiffString"
+    )
     if (abs(change) > changeTrigger) {
       emailSender.send(
-          "Crypto Value ${coin.name} has changed by ${change.format(2)} $timeDiffString",
-          emailRenderer.renderIntoString(EmailData(old, coin)),
-          emailSender.mainUser())
+        "Crypto Value ${coin.name} has changed by ${change.format(2)} $timeDiffString",
+        emailRenderer.renderIntoString(EmailData(old, coin)),
+        emailSender.mainUser()
+      )
       this.clearOldMetrics(coin)
       return true
     }
@@ -137,10 +155,12 @@ class CryptoTask
 
   private fun calculatePrices(): MutableList<CoinHolding> {
     val secret = secrets.getSecret("keith-coinbase")
-    return cryptoService.getAccounts(CryptoLookupBean(
+    return cryptoService.getAccounts(
+      CryptoLookupBean(
         secret.asJsonObject.get("key").asString,
         secret.asJsonObject.get("secret").asString
-    ))
+      )
+    )
   }
 
   private fun calculateChange(old: CoinHolding, new: CoinHolding): Double {
@@ -150,15 +170,16 @@ class CryptoTask
   }
 
   private fun convertDoc(doc: Document): CoinHolding = CoinHolding(
-      doc.getString("name"),
-      doc.getString("code"),
-      doc.getString("color"),
-      doc.getDouble("count"),
-      doc.getDouble("value"),
-      doc.getLong("timeCalculated"))
+    doc.getString("name"),
+    doc.getString("code"),
+    doc.getString("color"),
+    doc.getDouble("count"),
+    doc.getDouble("value"),
+    doc.getLong("timeCalculated")
+  )
 
   private data class EmailData(
-      val oldCoin: CoinHolding,
-      val newCoin: CoinHolding
+    val oldCoin: CoinHolding,
+    val newCoin: CoinHolding
   )
 }

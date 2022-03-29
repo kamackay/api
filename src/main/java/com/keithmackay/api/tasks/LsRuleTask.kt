@@ -5,7 +5,6 @@ import com.google.inject.Singleton
 import com.keithmackay.api.db.Database
 import com.keithmackay.api.minutes
 import com.keithmackay.api.utils.*
-import java.util.*
 import java.util.concurrent.Executors
 import java.util.regex.Pattern
 

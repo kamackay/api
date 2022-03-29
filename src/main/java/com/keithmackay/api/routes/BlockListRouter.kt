@@ -76,9 +76,7 @@ internal constructor(private val validator: RequestValidator, private val db: Da
       get("rules.list") { ctx ->
         log.info("Request for Domain Block Rules")
         val rules = getDocuments()
-          .map {
-            "0.0.0.0 $it"
-          }
+          .map { "0.0.0.0 $it" }
         ctx.result(rules.joinToString(separator = "\n"))
       }
 

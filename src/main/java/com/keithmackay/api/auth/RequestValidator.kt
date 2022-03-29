@@ -42,53 +42,64 @@ internal constructor(db: Database) {
     }
   }
 
-  fun secureGet(path: String, handler: RequestHandler,
-                reject: RejectionHandler = defaultReject) {
+  fun secureGet(
+    path: String, handler: RequestHandler,
+    reject: RejectionHandler = defaultReject
+  ) {
     return ApiBuilder.get(path) {
       secureRequest(it, handler, reject)
     }
   }
 
-  fun securePost(path: String, handler: RequestHandler,
-                 reject: RejectionHandler = defaultReject) {
+  fun securePost(
+    path: String, handler: RequestHandler,
+    reject: RejectionHandler = defaultReject
+  ) {
     return ApiBuilder.post(path) {
       secureRequest(it, handler, reject)
     }
   }
 
-  fun securePut(path: String, handler: RequestHandler,
-                reject: RejectionHandler = defaultReject) {
+  fun securePut(
+    path: String, handler: RequestHandler,
+    reject: RejectionHandler = defaultReject
+  ) {
     return ApiBuilder.put(path) {
       secureRequest(it, handler, reject)
     }
   }
 
-  fun secureDelete(path: String, handler: RequestHandler,
-                   reject: RejectionHandler = defaultReject) {
+  fun secureDelete(
+    path: String, handler: RequestHandler,
+    reject: RejectionHandler = defaultReject
+  ) {
     return ApiBuilder.delete(path) {
       secureRequest(it, handler, reject)
     }
   }
 
   private fun secureRequest(
-      ctx: Context,
-      handler: RequestHandler,
-      onReject: RejectionHandler) {
+    ctx: Context,
+    handler: RequestHandler,
+    onReject: RejectionHandler
+  ) {
     log.info("Validating ${ctx.method()} Request on ${ctx.path()}")
     val token = lookup(ctx)
     val body = if ("GET" == ctx.method()) doc() else Document.parse(ctx.body())
     if (token != null) {
       val user = userCollection
-          .find(doc("username", token.getString("username")))
-          .first()
+        .find(doc("username", token.getString("username")))
+        .first()
       if (user == null) {
         log.error("Validated token $token, but could not find user data")
         onReject(ctx, body)
       } else {
         log.debug("Valid Request, triggering handler")
-        handler.invoke(ctx,
-            body,
-            User().fromJson(user))
+        handler.invoke(
+          ctx,
+          body,
+          User().fromJson(user)
+        )
       }
     } else {
       onReject(ctx, body)
@@ -97,14 +108,15 @@ internal constructor(db: Database) {
 
   private fun lookup(ctx: Context): Document? {
     val token = Optional.ofNullable(ctx.header("Authorization"))
-        .orElseGet { ctx.sessionAttribute(authSessionAttribute()) }
+      .orElseGet { ctx.sessionAttribute(authSessionAttribute()) }
     val user = tokenCollection
-        .find(doc("token", token))
-        .first()
+      .find(doc("token", token))
+      .first()
     log.info("Checking Validity (${user != null}) of $token")
     if (Optional.ofNullable(user)
-            .map { it.getLong("timeout") }
-            .orElse(0L) > System.currentTimeMillis()) {
+        .map { it.getLong("timeout") }
+        .orElse(0L) > System.currentTimeMillis()
+    ) {
       log.debug("Valid Request")
       return user
     }

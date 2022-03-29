@@ -3,7 +3,7 @@ package com.keithmackay.api.utils
 import java.time.Duration
 import java.time.Instant
 
-class Cacher<T: Any> constructor(private val ttl: Duration, private val name: String) {
+class Cacher<T : Any> constructor(private val ttl: Duration, private val name: String) {
   private val log = getLogger("keith.${this::class.simpleName}[$name]")
   private val map = HashMap<String, CachedItem<T>>()
 

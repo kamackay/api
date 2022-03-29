@@ -24,15 +24,15 @@ import java.util.concurrent.CompletableFuture
 import kotlin.math.abs
 import kotlin.math.ceil
 
-const val HOUR = 1000 * 60 * 60;
+const val HOUR = 1000 * 60 * 60
+const val REPEAT = 2
 
 class NewsPriorityTask @Inject internal constructor(
   db: EphemeralDatabase,
   private val emailSender: EmailSender
 ) : CronTask() {
   private val log = getLogger(this::class)
-
-
+  
   private val newsCollection: MongoCollection<Document> = db.getCollection("news")
   private val twitter: Twitter = TwitterFactory(
     ConfigurationBuilder()
@@ -46,30 +46,32 @@ class NewsPriorityTask @Inject internal constructor(
   override fun execute(jobExecutionContext: JobExecutionContext) {
     //val start = System.currentTimeMillis()
     val l = mutableListOf<Document>()
-    this.getArticle()?.let(l::add)
+    this.getArticle().forEach { it?.let(l::add) }
     l.stream()
       .map { doc: Document -> Tuple(doc, getPriority(doc)) }
       .forEach { tuple: Tuple<Document, Int> ->
         try {
           val doc = tuple.getA()
           val currentPriority = doc.getInteger("priority")
+          val priority = tuple.getB().coerceAtLeast(currentPriority)
           log.debug(
             newsCollection.updateOne(
               doc("_id", eq(doc.getObjectId("_id"))),
               set(
-                doc("priority", tuple.getB().coerceAtLeast(currentPriority))
+                doc("priority", priority)
                   .add("priorityUpdated", System::currentTimeMillis)
               )
             )
           )
+          log.info("${doc.getString("title")} -> New Priority $priority")
           if (!this.shouldNotify(currentPriority) && this.shouldNotify(tuple.getB())) {
             // Send email that new Important News Item has been found
             log.info("Sending Important Article Email")
             val source = doc.subDoc("source").getString("site")
             val title = doc.getString("title")
             /*emailSender.send("New Article from $source: $title",
-                doc.getString("description"),
-                emailSender.mainUser())*/
+              doc.getString("description"),
+              emailSender.mainUser())*/
           }
         } catch (e: Exception) {
           log.error("Error Updating Priority", e)
@@ -81,7 +83,7 @@ class NewsPriorityTask @Inject internal constructor(
 
   private fun shouldNotify(priority: Int) = priority > 2500
 
-  private fun getArticle(): Document? {
+  private fun getArticle(): List<Document?> {
     val article = newsCollection
       .find(
         doc("priority", -1)
@@ -98,9 +100,9 @@ class NewsPriorityTask @Inject internal constructor(
     // If tweet was last updated within a minute
     if (article != null && abs(System.currentTimeMillis() - article.getLong("priorityUpdated")) <= 60000) {
       log.warn("Couldn't find any articles to prioritize, grabbing a random one")
-      return this.getRandomTweet()
+      return listOf(this.getRandomTweet())
     }
-    return article
+    return listOf(article)
   }
 
   private fun getRandomTweet() = newsCollection
@@ -134,7 +136,7 @@ class NewsPriorityTask @Inject internal constructor(
         log.warn("Kind of response was ${json.getString("kind")}")
       }
     } catch (e: Exception) {
-      log.info("Failed to calculate priority from Reddit", e)
+      log.error("Failed to calculate priority from Reddit", e)
     }
     return -1
   }

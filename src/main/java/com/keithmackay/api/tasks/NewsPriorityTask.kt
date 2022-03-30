@@ -21,11 +21,10 @@ import twitter4j.conf.ConfigurationBuilder
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.CompletableFuture
-import kotlin.math.abs
 import kotlin.math.ceil
 
 const val HOUR = 1000 * 60 * 60
-const val REPEAT = 2
+const val ARTICLES_AT_ONCE = 2
 
 class NewsPriorityTask @Inject internal constructor(
   db: EphemeralDatabase,
@@ -44,10 +43,10 @@ class NewsPriorityTask @Inject internal constructor(
 
   @Throws(JobExecutionException::class)
   override fun execute(jobExecutionContext: JobExecutionContext) {
-    //val start = System.currentTimeMillis()
+    val start = System.currentTimeMillis()
     val l = mutableListOf<Document>()
     this.getArticle().forEach { it?.let(l::add) }
-    l.stream()
+    l.parallelStream()
       .map { doc: Document -> Tuple(doc, getPriority(doc)) }
       .forEach { tuple: Tuple<Document, Int> ->
         try {
@@ -63,7 +62,7 @@ class NewsPriorityTask @Inject internal constructor(
               )
             )
           )
-          log.info("${doc.getString("title")} -> New Priority $priority")
+          log.info("${doc.getString("title")} -> New Priority $priority (was $currentPriority)")
           if (!this.shouldNotify(currentPriority) && this.shouldNotify(tuple.getB())) {
             // Send email that new Important News Item has been found
             log.info("Sending Important Article Email")
@@ -78,41 +77,43 @@ class NewsPriorityTask @Inject internal constructor(
         }
       }
 
-    //log.info("Finished News Priority Task (${printTimeDiff(start)})")
+    log.info("Finished News Priority Task (${printTimeDiff(start)})")
   }
 
   private fun shouldNotify(priority: Int) = priority > 2500
 
   private fun getArticle(): List<Document?> {
-    val article = newsCollection
+    val articles = newsCollection
       .find(
         doc("priority", -1)
           // Don't update a document that was posted during the current hour
           .append("time", lte(System.currentTimeMillis() - HOUR))
+          .append("priorityUpdated", lte(System.currentTimeMillis() - HOUR))
       )
       .sort(
         doc("priorityUpdated", 1)
           .append("priority", 1)
           .append("time", -1)
       )
-      .first()
+      .limit(ARTICLES_AT_ONCE)
+      .into(ArrayList())
 
     // If tweet was last updated within a minute
-    if (article != null && abs(System.currentTimeMillis() - article.getLong("priorityUpdated")) <= 60000) {
+    if (articles.isEmpty()) {
       log.warn("Couldn't find any articles to prioritize, grabbing a random one")
       return this.getRandomTweets()
     }
-    return listOf(article)
+    return articles
   }
 
-  private fun getRandomTweets(count: Int = 2) = newsCollection
+  private fun getRandomTweets(count: Int = ARTICLES_AT_ONCE) = newsCollection
     .aggregate(listOf(Aggregates.sample(count)))
     .into(ArrayList())
 
   private fun getPriority(doc: Document): Int {
     val twitterFuture = CompletableFuture.supplyAsync { getPriorityFromTwitter(doc) }
     val redditFuture = CompletableFuture.supplyAsync { getPriorityFromReddit(doc) }
-    return (twitterFuture.get() + redditFuture.get()).coerceAtMost(0)
+    return (twitterFuture.get() + redditFuture.get()).coerceAtLeast(0)
   }
 
   private fun getPriorityFromReddit(doc: Document): Int {

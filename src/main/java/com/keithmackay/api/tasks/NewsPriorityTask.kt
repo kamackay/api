@@ -59,7 +59,7 @@ class NewsPriorityTask @Inject internal constructor(
               set(
                 doc("priority", priority)
                   .add("priorityUpdated", System::currentTimeMillis)
-              )
+              ).append("\$inc", doc("timesPrioritized", 1))
             )
           )
           log.info("${doc.getString("title")} -> New Priority $priority (was $currentPriority)")
@@ -80,7 +80,7 @@ class NewsPriorityTask @Inject internal constructor(
     log.info("Finished News Priority Task (${printTimeDiff(start)})")
   }
 
-  private fun shouldNotify(priority: Int) = priority > 2500
+  private fun shouldNotify(priority: Int) = false //priority > 2500
 
   private fun getArticle(): List<Document?> {
     val articles = newsCollection

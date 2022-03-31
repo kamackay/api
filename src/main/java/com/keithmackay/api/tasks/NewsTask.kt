@@ -90,6 +90,7 @@ internal constructor(
                     .add("scrapeTime", System::currentTimeMillis)
                     .append("priorityUpdated", 0L)
                     .append("priority", -1)
+                    .append("timesPrioritized", 0)
                   val guid = item.addPropToDocument("guid", newsItem) {
                     log.debug("Could Not Find GUID on item! - {}", item.toXml())
                   }

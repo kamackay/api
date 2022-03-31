@@ -58,7 +58,8 @@ internal constructor(
       ),
       index = doc.getInteger("indexInFeed"),
       content = doc.getString("content"),
-      pubDate = doc.getString("pubDate")
+      pubDate = doc.getString("pubDate"),
+      timesPrioritized = doc.getInteger("timesPrioritized")
     )
   }
 
@@ -70,7 +71,8 @@ internal constructor(
     val link: String,
     val source: NewsSource,
     val content: String?,
-    val pubDate: String?
+    val pubDate: String?,
+    val timesPrioritized: Int
   )
 
   data class NewsSource(

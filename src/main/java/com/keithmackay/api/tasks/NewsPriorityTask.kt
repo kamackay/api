@@ -7,7 +7,6 @@ import com.keithmackay.api.model.Tuple
 import com.keithmackay.api.tasks.CronTimes.Companion.seconds
 import com.keithmackay.api.utils.*
 import com.mongodb.client.MongoCollection
-import com.mongodb.client.model.Aggregates
 import org.bson.Document
 import org.json.JSONArray
 import org.json.JSONObject
@@ -31,7 +30,7 @@ class NewsPriorityTask @Inject internal constructor(
   private val emailSender: EmailSender
 ) : CronTask() {
   private val log = getLogger(this::class)
-  
+
   private val newsCollection: MongoCollection<Document> = db.getCollection("news")
   private val twitter: Twitter = TwitterFactory(
     ConfigurationBuilder()
@@ -85,14 +84,14 @@ class NewsPriorityTask @Inject internal constructor(
   private fun getArticle(): List<Document?> {
     val articles = newsCollection
       .find(
-        doc("priority", -1)
-          // Don't update a document that was posted during the current hour
-          .append("time", lte(System.currentTimeMillis() - HOUR))
+        // Don't update a document that was posted during the current hour
+        doc("time", lte(System.currentTimeMillis() - HOUR))
           .append("priorityUpdated", lte(System.currentTimeMillis() - HOUR))
+          .append("priority", -1)
       )
       .sort(
         doc("priorityUpdated", 1)
-          .append("priority", 1)
+          .append("timesPrioritized", 1)
           .append("time", -1)
       )
       .limit(ARTICLES_AT_ONCE)
@@ -101,19 +100,25 @@ class NewsPriorityTask @Inject internal constructor(
     // If tweet was last updated within a minute
     if (articles.isEmpty()) {
       log.warn("Couldn't find any articles to prioritize, grabbing a random one")
-      return this.getRandomTweets()
+      return this.getRandomArticle()
     }
     return articles
   }
 
-  private fun getRandomTweets(count: Int = ARTICLES_AT_ONCE) = newsCollection
-    .aggregate(listOf(Aggregates.sample(count)))
+  private fun getRandomArticle(count: Int = ARTICLES_AT_ONCE) = newsCollection
+    .find(doc("time", lte(System.currentTimeMillis() - HOUR))
+      .append("priorityUpdated", lte(System.currentTimeMillis() - HOUR)))
+    .sort(
+      doc("timesPrioritized", 1)
+        .append("priorityUpdated", 1)
+    )
+    .limit(count)
     .into(ArrayList())
 
   private fun getPriority(doc: Document): Int {
-    val twitterFuture = CompletableFuture.supplyAsync { getPriorityFromTwitter(doc) }
+    //val twitterFuture = CompletableFuture.supplyAsync { getPriorityFromTwitter(doc) }
     val redditFuture = CompletableFuture.supplyAsync { getPriorityFromReddit(doc) }
-    return (twitterFuture.get() + redditFuture.get()).coerceAtLeast(0)
+    return redditFuture.get().coerceAtLeast(0)
   }
 
   private fun getPriorityFromReddit(doc: Document): Int {
@@ -192,7 +197,7 @@ class NewsPriorityTask @Inject internal constructor(
         try {
           twitter.search(it).tweets
         } catch (e: Exception) {
-          log.debug("Could not search Twitter", e)
+          log.warn("Could not search Twitter, ${e.message}", e)
           listOf<Status>()
         }
       }

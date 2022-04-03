@@ -41,7 +41,8 @@ internal constructor(
   fun getSources(): List<Document> = newsRssCollection.find(and(doc("enabled", ne(false))))
     .into(threadSafeList<Document>())
 
-  fun getAll(): FindIterable<Document> = ephemeralDatabase.getCollection("news").find()
+  fun getAll(): FindIterable<Document> = ephemeralDatabase.getCollection("news")
+    .find()
     .sort(defaultNewsSort)
     .limit(1000)
 

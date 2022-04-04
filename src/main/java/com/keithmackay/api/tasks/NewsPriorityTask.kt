@@ -19,6 +19,7 @@ import twitter4j.TwitterFactory
 import twitter4j.conf.ConfigurationBuilder
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
+import java.text.DecimalFormat
 import java.util.concurrent.CompletableFuture
 import kotlin.math.ceil
 
@@ -76,7 +77,14 @@ class NewsPriorityTask @Inject internal constructor(
         }
       }
 
-    log.info("Finished News Priority Task (${printTimeDiff(start)})")
+    val prioritized: Double = newsCollection.find(doc("priority", gte(0))).count().toDouble()
+    val total: Double = newsCollection.countDocuments().toDouble()
+
+    log.info(
+      "Finished News Priority Task (${printTimeDiff(start)}) ${prioritized.toInt()}/${total.toInt()} prioritized: ${
+        DecimalFormat("##.#%").format(prioritized / total)
+      }"
+    )
   }
 
   private fun shouldNotify(priority: Int) = false //priority > 2500
@@ -106,8 +114,10 @@ class NewsPriorityTask @Inject internal constructor(
   }
 
   private fun getRandomArticle(count: Int = ARTICLES_AT_ONCE) = newsCollection
-    .find(doc("time", lte(System.currentTimeMillis() - HOUR))
-      .append("priorityUpdated", lte(System.currentTimeMillis() - HOUR)))
+    .find(
+      doc("time", lte(System.currentTimeMillis() - HOUR))
+        .append("priorityUpdated", lte(System.currentTimeMillis() - HOUR))
+    )
     .sort(
       doc("timesPrioritized", 1)
         .append("priorityUpdated", 1)

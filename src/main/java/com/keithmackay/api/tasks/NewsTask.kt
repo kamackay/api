@@ -10,20 +10,26 @@ import com.keithmackay.api.utils.*
 import com.mongodb.MongoWriteException
 import com.mongodb.client.model.CreateCollectionOptions
 import com.mongodb.client.model.IndexOptions
+import okhttp3.ResponseBody
+import okhttp3.internal.readBomAsCharset
 import org.bson.Document
 import org.w3c.dom.Node
 import org.xml.sax.SAXParseException
 import java.io.StringWriter
+import java.nio.charset.StandardCharsets.UTF_8
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.*
+import java.util.concurrent.Executors.newFixedThreadPool
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.OutputKeys
 import javax.xml.transform.TransformerException
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
+
+val Encoding = UTF_8
 
 @Singleton
 class NewsTask @Inject
@@ -35,6 +41,7 @@ internal constructor(
   private val log = getLogger(this::class)
   private val newsRssCollection = db.getCollection("news_rss")
   private val excludedServers = getExcludedServers(db)
+  private val threadPool = newFixedThreadPool(1)
 
   override fun time(): Long = minutes(2)
 
@@ -63,6 +70,7 @@ internal constructor(
     var numDocuments = 0
     newsRssCollection.find(and(doc("enabled", ne(false))))
       .into(threadSafeList<Document>())
+      .parallelStream()
       .forEach { dbDoc ->
         val url = dbDoc.getString("url")
         try {
@@ -70,15 +78,14 @@ internal constructor(
           val docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
           val document = docBuilder.parse(
             inputStream(
-              response.body!!.string()
-                .replace("\u2019", "'")
-                .trim()
+              response.body!!.toSmartString()
             )
           )
           val channels = document.getElementsByTagName("channel")
           log.debug("${channels.length} Channels on $url")
           IntRange(0, channels.length - 1)
             .map(channels::item)
+            .parallelStream()
             .forEach { node ->
               try {
                 log.debug(node.toXml())
@@ -104,7 +111,7 @@ internal constructor(
                   item.getFirstChildByTag("content:encoded")
                     .map { it.textContent }
                     .map { purgeHtml(it, excludedServers) }
-                    //.map(::forceHttps)
+                    .map(::forceHttps)
                     .ifPresent { value ->
                       newsItem.append("content", value)
                     }
@@ -130,13 +137,15 @@ internal constructor(
                     .map { it.textContent }
                   newsItem.append("categories", categories)
 
-                  try {
-                    newsCollection.insertOne(newsItem)
-                    log.info("Successfully Added News from ${dbDoc.getString("site")}: $title")
-                  } catch (me: MongoWriteException) {
-                    log.debug("Could not update document due to Static Size Limit: $guid")
-                  } catch (e: Exception) {
-                    log.warn("Could Not Add News Item to the Database", e)
+                  threadPool.submit {
+                    try {
+                      newsCollection.insertOne(newsItem)
+                      log.info("Successfully Added News from ${dbDoc.getString("site")}: $title")
+                    } catch (me: MongoWriteException) {
+                      log.debug("Could not update document due to Static Size Limit: $guid")
+                    } catch (e: Exception) {
+                      log.warn("Could Not Add News Item to the Database", e)
+                    }
                   }
 
                 }
@@ -197,6 +206,7 @@ internal constructor(
     try {
       val t = TransformerFactory.newInstance().newTransformer()
       t.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes")
+      t.setOutputProperty(OutputKeys.ENCODING, Encoding.name())
       t.setOutputProperty(OutputKeys.INDENT, "yes")
       t.transform(DOMSource(this), StreamResult(sw))
     } catch (te: TransformerException) {
@@ -206,4 +216,9 @@ internal constructor(
     return sw.toString()
   }
 
+  private fun ResponseBody.toSmartString(): String {
+    this.source().use {
+      return it.readString(charset = it.readBomAsCharset(Encoding))
+    }
+  }
 }

@@ -115,8 +115,7 @@ class NewsPriorityTask @Inject internal constructor(
 
   private fun getRandomArticle(count: Int = ARTICLES_AT_ONCE) = newsCollection
     .find(
-      doc("time", lte(System.currentTimeMillis() - HOUR))
-        .append("priorityUpdated", lte(System.currentTimeMillis() - HOUR))
+        doc("priorityUpdated", lte(System.currentTimeMillis() - HOUR))
     )
     .sort(
       doc("timesPrioritized", 1)

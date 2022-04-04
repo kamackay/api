@@ -219,6 +219,16 @@ fun <T> Optional<T>.ifPresentOrElse(present: (T) -> Unit, notPresent: () -> Unit
   }
 }
 
+fun stepCarefully(actions: List<() -> Unit>, error: (Throwable) -> Unit) {
+  actions.forEach { action ->
+    try {
+      action()
+    } catch (t: Throwable) {
+      error(t)
+    }
+  }
+}
+
 fun httpGet(url: String, params: Map<String, String> = emptyMap()): Response {
   val urlBuilder = url.toHttpUrlOrNull()!!.newBuilder()
   params.forEach { (key, value) -> urlBuilder.addQueryParameter(key, value) }

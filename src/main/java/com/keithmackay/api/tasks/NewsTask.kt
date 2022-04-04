@@ -16,6 +16,7 @@ import org.bson.Document
 import org.w3c.dom.Node
 import org.xml.sax.SAXParseException
 import java.io.StringWriter
+import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets.UTF_8
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -29,7 +30,8 @@ import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
 
-val Encoding = UTF_8
+val Encoding: Charset = UTF_8
+val Encoder: Base64.Encoder = Base64.getEncoder()
 
 @Singleton
 class NewsTask @Inject
@@ -54,15 +56,18 @@ internal constructor(
         .sizeInBytes(megabytes(2.5))
         .maxDocuments(2500)
     )
-    try {
-      newsCollection.createIndex(
-        doc("guid", 1),
-        IndexOptions()
-          .name("guid-unique")
-          .unique(true)
-      )
-    } catch (e: Exception) {
-      log.debug("Index already exists")
+    stepCarefully(
+      listOf {
+        newsCollection.createIndex(
+          doc("guid", 1),
+          IndexOptions()
+            .name("guid-unique")
+            .unique(true)
+        )
+        log.info("Added Index!")
+      }
+    ) {
+      log.info("Index already exists")
     }
     val existingGuids = newsCollection.distinct("guid", String::class.java)
       .into(HashSet())
@@ -98,6 +103,7 @@ internal constructor(
                     .append("priorityUpdated", 0L)
                     .append("priority", -1)
                     .append("timesPrioritized", 0)
+                    .append("visible", true)
                   val guid = item.addPropToDocument("guid", newsItem) {
                     log.debug("Could Not Find GUID on item! - {}", item.toXml())
                   }

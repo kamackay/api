@@ -93,7 +93,8 @@ class NewsPriorityTask @Inject internal constructor(
     val articles = newsCollection
       .find(
         // Don't update a document that was posted during the current hour
-        doc("time", lte(System.currentTimeMillis() - HOUR))
+        doc("visible", eq(true))
+          .append("time", lte(System.currentTimeMillis() - HOUR))
           .append("priorityUpdated", lte(System.currentTimeMillis() - HOUR))
           .append("priority", -1)
       )
@@ -115,7 +116,8 @@ class NewsPriorityTask @Inject internal constructor(
 
   private fun getRandomArticle(count: Int = ARTICLES_AT_ONCE) = newsCollection
     .find(
-        doc("priorityUpdated", lte(System.currentTimeMillis() - HOUR))
+      doc("priorityUpdated", lte(System.currentTimeMillis() - HOUR))
+        .append("visible", eq(true))
     )
     .sort(
       doc("timesPrioritized", 1)

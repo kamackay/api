@@ -9,6 +9,7 @@ import com.keithmackay.api.utils.*
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.model.CreateCollectionOptions
 import com.mongodb.client.model.IndexOptions
+import com.mongodb.client.model.UpdateOptions
 import org.bson.Document
 import org.json.JSONArray
 import org.json.JSONObject
@@ -161,29 +162,28 @@ class NewsPriorityTask @Inject internal constructor(
         }
         var score = 0
         children.stream()
-          .peek { score += getScoreFromRedditPost(it) }
-          .map { it.getJSONObject("data") }.map {
-            if (it.has("permalink")) {
-              "https://old.reddit.com${it.getString("permalink")}"
-            } else {
-              null
-            }
-          }.filter(Objects::nonNull)
-          .map { it!! }
           .forEach {
-            val url = it
-            val article = doc.getString("guid")
-            conversationAdditionPool.submit {
-              log.info("Adding $url to the Conversation Database for $article")
-              val bean = ArticleConvoBean(url, article)
-              try {
-                conversationCollection.insertOne(
-                  bean.toDocument()
-                )
-              } catch (e: Exception) {
-                // Already exists, just continue
-              }
+            val articleScore = getScoreFromRedditPost(it)
+            score += articleScore
+            val childData = it.getJSONObject("data")
+            if (childData.has("permalink")) {
+              val url = "https://old.reddit.com${childData.getString("permalink")}"
+              val article = doc.getString("guid")
+              conversationAdditionPool.submit {
+                log.info("Adding $url to the Conversation Database for $article")
+                val bean = ArticleConvoBean(url, article)
+                try {
+                  conversationCollection.updateOne(
+                    bean.toDocument(),
+                    doc("\$set", bean.toDocument()
+                      .append("score", articleScore)),
+                    UpdateOptions().upsert(true)
+                  )
+                } catch (e: Exception) {
+                  // Already exists, just continue
+                }
             }
+          }
           }
         log.info("This article has received a total of $score interactions from ${children.length()} Reddit Posts")
         return score

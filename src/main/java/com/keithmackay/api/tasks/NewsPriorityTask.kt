@@ -7,6 +7,8 @@ import com.keithmackay.api.model.Tuple
 import com.keithmackay.api.tasks.CronTimes.Companion.seconds
 import com.keithmackay.api.utils.*
 import com.mongodb.client.MongoCollection
+import com.mongodb.client.model.CreateCollectionOptions
+import com.mongodb.client.model.IndexOptions
 import org.bson.Document
 import org.json.JSONArray
 import org.json.JSONObject
@@ -20,7 +22,9 @@ import twitter4j.conf.ConfigurationBuilder
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.text.DecimalFormat
+import java.util.*
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Executors.newSingleThreadExecutor
 import kotlin.math.ceil
 
 const val HOUR = 1000 * 60 * 60
@@ -33,6 +37,8 @@ class NewsPriorityTask @Inject internal constructor(
   private val log = getLogger(this::class)
 
   private val newsCollection: MongoCollection<Document> = db.getCollection("news")
+  private val conversationCollection = db.getOrMakeCollection("news_conversation", CreateCollectionOptions())
+  private val conversationAdditionPool = newSingleThreadExecutor()
   private val twitter: Twitter = TwitterFactory(
     ConfigurationBuilder()
       .setGZIPEnabled(true)
@@ -43,6 +49,15 @@ class NewsPriorityTask @Inject internal constructor(
 
   @Throws(JobExecutionException::class)
   override fun execute(jobExecutionContext: JobExecutionContext) {
+    stepCarefully(listOf {
+      conversationCollection.createIndex(
+        doc("url", 1).append("article", 1),
+        IndexOptions().unique(true)
+      )
+      Unit
+    }) {
+      log.info("Index Already Exists")
+    }
     val start = System.currentTimeMillis()
     val l = mutableListOf<Document>()
     this.getArticle().forEach { it?.let(l::add) }
@@ -137,16 +152,39 @@ class NewsPriorityTask @Inject internal constructor(
       val response = httpGet("https://www.reddit.com/api/info.json?url=${doc.getString("link")}")
       val json = JSONObject(response.body!!.string())
       if ("Listing" == json.getString("kind")) {
+        // log.info(json.toString(4))
         val data = json.getJSONObject("data")
-        val children = if (data.has("children")) {
+        val children: JSONArray = if (data.has("children")) {
           data.getJSONArray("children")
         } else {
           JSONArray()
         }
         var score = 0
-        for (x in 0 until children.length()) {
-          score += getScoreFromRedditPost(children.getJSONObject(x))
-        }
+        children.stream()
+          .peek { score += getScoreFromRedditPost(it) }
+          .map { it.getJSONObject("data") }.map {
+            if (it.has("permalink")) {
+              "https://old.reddit.com${it.getString("permalink")}"
+            } else {
+              null
+            }
+          }.filter(Objects::nonNull)
+          .map { it!! }
+          .forEach {
+            val url = it
+            val article = doc.getString("guid")
+            conversationAdditionPool.submit {
+              log.info("Adding $url to the Conversation Database for $article")
+              val bean = ArticleConvoBean(url, article)
+              try {
+                conversationCollection.insertOne(
+                  bean.toDocument()
+                )
+              } catch (e: Exception) {
+                // Already exists, just continue
+              }
+            }
+          }
         log.info("This article has received a total of $score interactions from ${children.length()} Reddit Posts")
         return score
       } else {
@@ -161,15 +199,12 @@ class NewsPriorityTask @Inject internal constructor(
   private fun getScoreFromRedditPost(post: JSONObject): Int {
     return try {
       val ups = post.getJSONObject("data").getInt("ups")
-      var upsFromParents = 0
       val parents = if (post.has("crosspost_parent_list")) {
         post.getJSONArray("crosspost_parent_list")
       } else {
         JSONArray()
       }
-      for (x in 0 until parents.length()) {
-        upsFromParents += parents.getJSONObject(x).getInt("ups")
-      }
+      val upsFromParents = parents.stream().mapToInt { it.getInt("ups") }.sum()
       return ups + upsFromParents + 1
     } catch (e: Exception) {
       log.error("Error getting score from post", e)
@@ -241,6 +276,16 @@ class NewsPriorityTask @Inject internal constructor(
     val content: String
   )
 
+  data class ArticleConvoBean(
+    val url: String,
+    val article: String
+  )
+
+}
+
+fun NewsPriorityTask.ArticleConvoBean.toDocument(): Document {
+  return doc("url", this.url)
+    .append("article", this.article)
 }
 
 fun Status.exposeParent(): Array<Status> {

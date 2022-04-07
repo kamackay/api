@@ -23,6 +23,7 @@ import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import java.nio.file.Paths
 import java.util.*
+import java.util.stream.Stream
 import kotlin.reflect.KClass
 
 const val byteUnitIncrement: Long = 1000
@@ -209,6 +210,15 @@ fun defer(task: () -> Unit, time: Long) = async {
     // Error Waiting
   }
   task()
+}
+
+fun JSONArray.stream(): Stream<JSONObject> {
+  val length = this.length()
+  val list = ArrayList<JSONObject>()
+  for (i in 0 until length) {
+    list.add(this.getJSONObject(i))
+  }
+  return list.stream()
 }
 
 fun <T> Optional<T>.ifPresentOrElse(present: (T) -> Unit, notPresent: () -> Unit) {

@@ -104,7 +104,10 @@ internal constructor(
                     .append("priority", -1)
                     .append("timesPrioritized", 0)
                     .append("visible", true)
-                  val guid = item.addPropToDocument("guid", newsItem) {
+                  val guid = item.addPropToDocument(
+                    "guid",
+                    newsItem,
+                    map = { Base64.getEncoder().encodeToString(it.toByteArray()) }) {
                     log.debug("Could Not Find GUID on item! - {}", item.toXml())
                   }
                   if (guid == null || existingGuids.contains(guid)) {

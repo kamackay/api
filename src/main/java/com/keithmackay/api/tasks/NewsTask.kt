@@ -54,7 +54,7 @@ internal constructor(
       CreateCollectionOptions()
         .capped(true)
         .sizeInBytes(megabytes(2.5))
-        .maxDocuments(2500)
+        .maxDocuments(1500)
     )
     stepCarefully(
       listOf {

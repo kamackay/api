@@ -81,11 +81,7 @@ internal constructor(
         try {
           val response = httpGet(url)
           val docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-          val document = docBuilder.parse(
-            inputStream(
-              response.body!!.toSmartString()
-            )
-          )
+          val document = docBuilder.parse(inputStream(response.body!!.toSmartString()))
           val channels = document.getElementsByTagName("channel")
           log.debug("${channels.length} Channels on $url")
           IntRange(0, channels.length - 1)

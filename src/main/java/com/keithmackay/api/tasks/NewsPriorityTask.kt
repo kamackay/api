@@ -166,7 +166,7 @@ class NewsPriorityTask @Inject internal constructor(
             val articleScore = getScoreFromRedditPost(it)
             score += articleScore
             val childData = it.getJSONObject("data")
-            if (childData.has("permalink")) {
+            if (articleScore > 0 && childData.has("permalink")) {
               val url = "https://old.reddit.com${childData.getString("permalink")}"
               val article = doc.getString("guid")
               conversationAdditionPool.submit {
@@ -175,15 +175,17 @@ class NewsPriorityTask @Inject internal constructor(
                 try {
                   conversationCollection.updateOne(
                     bean.toDocument(),
-                    doc("\$set", bean.toDocument()
-                      .append("score", articleScore)),
+                    doc(
+                      "\$set", bean.toDocument()
+                        .append("score", articleScore)
+                    ),
                     UpdateOptions().upsert(true)
                   )
                 } catch (e: Exception) {
                   // Already exists, just continue
                 }
+              }
             }
-          }
           }
         log.info("This article has received a total of $score interactions from ${children.length()} Reddit Posts")
         return score

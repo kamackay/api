@@ -13,3 +13,4 @@ gradle/
 lib/
 runtime/
 build/
+k8s.yml

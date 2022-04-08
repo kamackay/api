@@ -70,7 +70,8 @@ spec:
             - name: PORT
               value: "8080"
           resources:
-            limits: {}
+            limits:
+              cpu: 1100m
           ports:
             - name: http
               containerPort: 8080

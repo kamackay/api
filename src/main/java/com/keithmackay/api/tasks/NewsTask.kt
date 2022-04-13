@@ -103,7 +103,7 @@ internal constructor(
                   val guid = item.addPropToDocument(
                     "guid",
                     newsItem,
-                    map = { Base64.getEncoder().encodeToString(it.toByteArray()) }) {
+                    map = { Encoder.encodeToString(it.toByteArray()) }) {
                     log.debug("Could Not Find GUID on item! - {}", item.toXml())
                   }
                   if (guid == null || existingGuids.contains(guid)) {

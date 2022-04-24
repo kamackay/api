@@ -25,7 +25,7 @@ internal constructor(
     val l = mutableListOf<NewsItem>()
     try {
       l.addAll(
-        ephemeralDatabase.getCollection("news")
+        getNewsCollection()
           .find()
           .sort(defaultNewsSort)
           .limit(limit)
@@ -38,10 +38,14 @@ internal constructor(
     return l
   }
 
+  fun getNewsCollection() = ephemeralDatabase.getCollection("news")
+
+  fun delete(guid: String) = getNewsCollection().deleteOne(doc("guid", eq(guid)))
+
   fun getSources(): List<Document> = newsRssCollection.find(and(doc("enabled", ne(false))))
     .into(threadSafeList<Document>())
 
-  fun getAll(): FindIterable<Document> = ephemeralDatabase.getCollection("news")
+  fun getAll(): FindIterable<Document> = getNewsCollection()
     .find()
     .sort(defaultNewsSort)
     .limit(1000)

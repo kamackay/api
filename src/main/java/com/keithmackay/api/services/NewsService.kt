@@ -42,6 +42,8 @@ internal constructor(
 
   fun delete(guid: String) = getNewsCollection().deleteOne(doc("guid", eq(guid)))
 
+  fun deleteAll() = getNewsCollection().deleteMany(doc())
+
   fun getSources(): List<Document> = newsRssCollection.find(and(doc("enabled", ne(false))))
     .into(threadSafeList<Document>())
 

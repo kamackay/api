@@ -1,4 +1,4 @@
-FROM gradle:jdk15 as builder
+FROM gradle:jdk17 as builder
 
 WORKDIR /api
 
@@ -13,7 +13,7 @@ RUN gradle makeJar --console verbose && \
 
 FROM registry.access.redhat.com/ubi8:latest as platform
 
-RUN yum update -y && yum install -y java-11-openjdk
+RUN yum update -y && yum install -y java-17-openjdk
 
 WORKDIR /api/
 

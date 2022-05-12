@@ -10,7 +10,6 @@ import com.keithmackay.api.routes.Router;
 import com.keithmackay.api.utils.UtilsKt;
 import io.javalin.Javalin;
 import io.javalin.core.util.RouteOverviewPlugin;
-import io.javalin.plugin.json.JavalinJson;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.nosql.mongodb.MongoSessionDataStoreFactory;
 import org.eclipse.jetty.server.session.DefaultSessionCache;
@@ -55,8 +54,7 @@ public class Server {
                     this.lastBadRequest.set(System.currentTimeMillis());
                 }
             });
-            JavalinJson.setToJsonMapper(this.gson::toJson);
-            JavalinJson.setFromJsonMapper(this.gson::fromJson);
+            //config.jsonMapper(this.gson);
             config.registerPlugin(new RouteOverviewPlugin("overview"));
             //config.compressionStrategy(new Brotli(4), new Gzip(7));
             config.sessionHandler(() -> {

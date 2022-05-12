@@ -39,7 +39,7 @@ internal constructor(
         it.status(204).result("Done")
       }
 
-      delete("/id/:guid") {
+      delete("/id/{guid}") {
         newsService.delete(it.pathParam("guid"))
         it.status(204).result("Done")
       }
@@ -89,7 +89,7 @@ internal constructor(
         })
       }
 
-      get("/id/:id") {
+      get("/id/{id}") {
         it.json(CompletableFuture.supplyAsync {
           val id = it.pathParam("id")
           db.getCollection("news").find(doc("_id", ObjectId(id)))
@@ -98,8 +98,8 @@ internal constructor(
         })
       }
 
-      get("ids_after/:time") { ctx ->
-        val time = ctx.pathParam("time", Long::class.java).get()
+      get("ids_after/{time}") { ctx ->
+        val time = ctx.pathParamAsClass("time", Long::class.java).get()
         log.info("Anonymous requests all news after '$time'")
         ctx.json(CompletableFuture.supplyAsync {
           db.getCollection("news").find(doc("time", gt(time)))
@@ -110,23 +110,23 @@ internal constructor(
         })
       }
 
-      validator.secureGet("/site/:site", { ctx, _, user ->
+      validator.secureGet("/site/{site}", { ctx, _, user ->
         val siteName = ctx.pathParam("site")
         log.info("${user.username} requests all news for site '$siteName'")
         ctx.json(this.getNewsForSite(siteName))
       })
 
-      validator.secureGet("/after/:time", { ctx, _, user ->
-        val time = ctx.pathParam("time", Long::class.java).get()
+      validator.secureGet("/after/{time}", { ctx, _, user ->
+        val time = ctx.pathParamAsClass("time", Long::class.java).get()
         log.info("${user.username} requests all news after '$time'")
         ctx.json(this.getNewsAfter(time))
       }) { ctx, _ ->
-        val time = ctx.pathParam("time", Long::class.java).get()
+        val time = ctx.pathParamAsClass("time", Long::class.java).get()
         log.info("Anonymous requests all news after '$time'")
         ctx.json(this.getNewsAfter(time, 800))
       }
 
-      validator.secureGet("/search/:text", { ctx, _, user ->
+      validator.secureGet("/search/{text}", { ctx, _, user ->
 
       })
     }

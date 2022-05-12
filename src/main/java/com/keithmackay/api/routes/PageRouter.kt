@@ -52,7 +52,7 @@ internal constructor(
   override fun routes() {
     ApiBuilder.path("page") {
       ApiBuilder.put("/", this::addRequest)
-      ApiBuilder.get("/:ip") { ctx ->
+      ApiBuilder.get("/{ip}") { ctx ->
         val ipEncoded = ctx.pathParam("ip")
         getRecordFromEncodedIp(ipEncoded).run {
           val builder = StringBuilder()
@@ -73,7 +73,7 @@ internal constructor(
           ctx.result(builder.toString())
         }
       }
-      ApiBuilder.get("/:ip/json") { ctx ->
+      ApiBuilder.get("/{ip}/json") { ctx ->
         val ipEncoded = ctx.pathParam("ip")
         getRecordFromEncodedIp(ipEncoded).run { ctx.json(this) }
       }

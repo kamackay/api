@@ -35,7 +35,7 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
         }
         val limit = Integer.parseInt(ctx.queryParam("pageSize"))
           .coerceAtMost(1000)
-        val page = Integer.parseInt(ctx.queryParam("page", "0"))
+        val page = Integer.parseInt(ctx.queryParam("page") ?: "0")
         val query = try {
           Document.parse(ctx.queryParam("query"))
         } catch (e: Exception) {

@@ -110,10 +110,10 @@ internal constructor(
     val daily: List<DailyWeather>
   ) {
     fun highTemp(): Double =
-      hourly.map { it.temp }.toDoubleArray().max() ?: current.temp
+      hourly.map { it.temp }.toDoubleArray().maxOrNull() ?: current.temp
 
     fun lowTemp(): Double =
-      hourly.map { it.temp }.toDoubleArray().min() ?: current.temp
+      hourly.map { it.temp }.toDoubleArray().minOrNull() ?: current.temp
   }
 
   data class CurrentWeather(

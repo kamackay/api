@@ -35,8 +35,8 @@ internal constructor() : Router {
         }
       }
 
-      get("/:status") {
-        val code = it.pathParam("status", Int::class.java).get()
+      get("/{status}") {
+        val code = it.pathParamAsClass("status", Int::class.java).get()
         if (code >= 600) {
           throw BadRequestResponse()
         }

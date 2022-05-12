@@ -31,7 +31,7 @@ internal constructor(
   override fun routes() {
     path("auth") {
       post("login", this::login)
-      post("logout/:username", this::logout)
+      post("logout/{username}", this::logout)
       requestValidator.secureGet("checkAuth", { ctx, _, user ->
         ctx.json(doc("valid", true).append("username", user.username))
       })

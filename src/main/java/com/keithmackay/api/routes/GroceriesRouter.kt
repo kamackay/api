@@ -60,7 +60,7 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
           .into(threadSafeList()))
       })
 
-      validator.secureGet("list/:listId", { ctx, _, user ->
+      validator.secureGet("list/{listId}", { ctx, _, user ->
         val listId = ctx.pathParam("listId")
         val list = groceriesListsCollection
           .find(doc("_id", ObjectId(listId)))
@@ -82,7 +82,7 @@ internal constructor(private val validator: RequestValidator, db: IDatabase) : R
         }
       })
 
-      validator.securePost("list/:listName", { ctx, body, user ->
+      validator.securePost("list/{listName}", { ctx, body, user ->
         val listName = ctx.pathParam("listName")
         val list = groceriesListsCollection.find(doc("_id", ObjectId(listName)))
           .first()

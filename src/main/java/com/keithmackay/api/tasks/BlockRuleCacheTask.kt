@@ -59,6 +59,7 @@ class BlockRuleCacheTask
       }
       transferred += documents.size
     }
+    log.info("Local: ${localCollection.countDocuments()} - Remote ${remoteCollection.countDocuments()}")
   }
 
   override fun cron(): String = minutes(10)

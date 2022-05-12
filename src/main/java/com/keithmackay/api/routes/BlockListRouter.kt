@@ -22,6 +22,7 @@ internal constructor(private val validator: RequestValidator, private val db: Da
 
   private fun getDocuments() = rulesCache.get("all") {
     lsCollection.find()
+      .projection(doc("server", 1))
       .into(ArrayList())
       .map { it.getString("server") }
   }

@@ -4,27 +4,41 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.keithmackay.api.auth.RequestValidator
 import com.keithmackay.api.db.Database
+import com.keithmackay.api.db.EphemeralDatabase
 import com.keithmackay.api.utils.*
 import io.javalin.apibuilder.ApiBuilder.get
 import io.javalin.apibuilder.ApiBuilder.path
 import io.javalin.http.UnauthorizedResponse
 import org.bson.Document
 import java.time.Duration
+import java.util.concurrent.CompletableFuture
 
 @Singleton
 class BlockListRouter @Inject
-internal constructor(private val validator: RequestValidator, private val db: Database) : Router {
+internal constructor(
+  private val validator: RequestValidator,
+  db: Database,
+  private val ephemeralDatabase: EphemeralDatabase
+) : Router {
   private val log = getLogger(this::class)
   private val lsCollection = db.getCollection("lsrules")
+  private val localLsCollection = ephemeralDatabase.getCollection("lsrules")
   private val rulesCache = Cacher<List<String>>(Duration.ofMinutes(15), "LS Block Hosts")
 
   override fun isHealthy(): Boolean = true
 
   private fun getDocuments() = rulesCache.get("all") {
-    lsCollection.find()
-      .projection(doc("server", 1))
-      .into(ArrayList())
-      .map { it.getString("server") }
+    FutureUtils.fastest(CompletableFuture.supplyAsync {
+      lsCollection.find()
+        .projection(doc("server", 1))
+        .into(ArrayList())
+        .map { it.getString("server") }
+    }, CompletableFuture.supplyAsync {
+      localLsCollection.find()
+        .projection(doc("server", 1))
+        .into(ArrayList())
+        .map { it.getString("server") }
+    }).join()
   }
 
   override fun routes() {

@@ -42,7 +42,8 @@ public class ServerModule extends AbstractModule {
                 StatusRouter.class,
                 SpeedTestRouter.class,
                 TrackerRouter.class,
-                GroceriesRouter.class
+                GroceriesRouter.class,
+                DnsOverHttpsRouter.class
         ).forEach(action -> routerBinder.addBinding().to(action));
 
         Multibinder<CronTask> cronTasks = Multibinder.newSetBinder(binder(), CronTask.class);

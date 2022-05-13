@@ -19,7 +19,7 @@ class BlockListRouter @Inject
 internal constructor(
   private val validator: RequestValidator,
   db: Database,
-  private val ephemeralDatabase: EphemeralDatabase
+  ephemeralDatabase: EphemeralDatabase
 ) : Router {
   private val log = getLogger(this::class)
   private val lsCollection = db.getCollection("lsrules")

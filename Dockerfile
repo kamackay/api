@@ -11,9 +11,9 @@ COPY ./ ./
 RUN gradle makeJar --console verbose && \
     cp build/libs/*-all-*.jar ./api.jar
 
-FROM registry.access.redhat.com/ubi8:latest as platform
+FROM alpine:latest as platform
 
-RUN yum update -y && yum upgrade -y && yum install -y java-17-openjdk
+RUN apk update --no-cache && apk upgrade --no-cache && apk add --no-cache openjdk17
 
 WORKDIR /api/
 

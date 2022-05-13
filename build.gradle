@@ -31,7 +31,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'org.mongodb:mongo-java-driver:3.11.0'
     implementation 'org.jongo:jongo:1.4.0'
-    implementation 'commons-io:commons-io:2.6'
+    implementation 'commons-io:commons-io:2.7'
     implementation 'org.mindrot:jbcrypt:0.4'
     implementation 'com.sendgrid:sendgrid-java:4.4.1'
     implementation 'org.apache.logging.log4j:log4j-api:2.17.2'
@@ -76,6 +76,7 @@ dependencies {
     implementation 'org.brotli:parent:0.1.2'
     // https://mvnrepository.com/artifact/org.json/json
     implementation 'org.json:json:20211205'
+    implementation 'org.brotli:dec:0.1.2'
 
 }
 
@@ -107,11 +108,13 @@ task getDeps(type: Copy) {
     from sourceSets.main.runtimeClasspath
     into 'runtime/'
 }
+
 compileKotlin {
     kotlinOptions {
         jvmTarget = "17"
     }
 }
+
 compileTestKotlin {
     kotlinOptions {
         jvmTarget = "17"

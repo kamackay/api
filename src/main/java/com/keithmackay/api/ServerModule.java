@@ -40,6 +40,7 @@ public class ServerModule extends AbstractModule {
                 FilesRouter.class,
                 BlockListRouter.class,
                 StatusRouter.class,
+                SpeedTestRouter.class,
                 TrackerRouter.class,
                 GroceriesRouter.class
         ).forEach(action -> routerBinder.addBinding().to(action));

@@ -12,6 +12,7 @@ import io.javalin.http.UnauthorizedResponse
 import org.bson.Document
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
+import java.util.stream.Collectors.toSet
 
 @Singleton
 class BlockListRouter @Inject
@@ -44,6 +45,9 @@ internal constructor(
   override fun routes() {
     get("ls.json") { ctx ->
       val servers = getDocuments()
+        .stream()
+        .sorted()
+        .collect(toSet())
       ctx.json(servers)
     }
 

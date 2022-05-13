@@ -9,13 +9,18 @@ import com.keithmackay.api.model.SuccessResponse;
 import com.keithmackay.api.routes.Router;
 import com.keithmackay.api.utils.UtilsKt;
 import io.javalin.Javalin;
+import io.javalin.core.compression.Brotli;
+import io.javalin.core.compression.Gzip;
 import io.javalin.core.util.RouteOverviewPlugin;
+import io.javalin.plugin.json.JsonMapper;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.nosql.mongodb.MongoSessionDataStoreFactory;
 import org.eclipse.jetty.server.session.DefaultSessionCache;
 import org.eclipse.jetty.server.session.SessionCache;
 import org.eclipse.jetty.server.session.SessionHandler;
+import org.jetbrains.annotations.NotNull;
 
+import java.io.InputStream;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
@@ -30,7 +35,7 @@ public class Server {
     private static final long BAD_REQUEST_LIMIT = 10000L;
     private final Javalin app;
     private final Gson gson = new GsonBuilder()
-            //.setPrettyPrinting()
+            .setPrettyPrinting()
             .create();
     private final int port = Optional.ofNullable(System.getenv("PORT"))
             .map(Integer::parseInt)
@@ -54,9 +59,33 @@ public class Server {
                     this.lastBadRequest.set(System.currentTimeMillis());
                 }
             });
-            //config.jsonMapper(this.gson);
+            config.jsonMapper(new JsonMapper() {
+                @NotNull
+                @Override
+                public String toJsonString(@NotNull Object obj) {
+                    return gson.toJson(obj);
+                }
+
+                @NotNull
+                @Override
+                public InputStream toJsonStream(@NotNull Object obj) {
+                    return JsonMapper.super.toJsonStream(obj);
+                }
+
+                @NotNull
+                @Override
+                public <T> T fromJsonString(@NotNull String json, @NotNull Class<T> targetClass) {
+                    return gson.fromJson(json, targetClass);
+                }
+
+                @NotNull
+                @Override
+                public <T> T fromJsonStream(@NotNull InputStream json, @NotNull Class<T> targetClass) {
+                    return JsonMapper.super.fromJsonStream(json, targetClass);
+                }
+            });
             config.registerPlugin(new RouteOverviewPlugin("overview"));
-            //config.compressionStrategy(new Brotli(4), new Gzip(7));
+            config.compressionStrategy(new Brotli(6), new Gzip(7));
             config.sessionHandler(() -> {
                 try {
                     return getSessionHandler();
@@ -93,8 +122,7 @@ public class Server {
     }
 
     void start() {
-        this.app
-                .start(port);
+        this.app.start(port);
     }
 
     private SessionHandler getSessionHandler() throws Exception {

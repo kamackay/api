@@ -13,7 +13,7 @@ RUN gradle makeJar --console verbose && \
 
 FROM registry.access.redhat.com/ubi8:latest as platform
 
-RUN yum update -y && yum install -y java-17-openjdk
+RUN yum update -y && yum upgrade -y && yum install -y java-17-openjdk
 
 WORKDIR /api/
 

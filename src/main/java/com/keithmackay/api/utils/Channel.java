@@ -16,13 +16,10 @@ public class Channel<T> implements Closeable {
 
     private boolean isClosed;
 
-    private BlockingQueue<T> feed;
-
-    private List<Runnable> listeners;
+    private final BlockingQueue<T> feed;
 
     public Channel() {
         this.isClosed = false;
-        this.listeners = new ArrayList<>();
         this.feed = new BlockingArrayQueue<>();
     }
 
@@ -36,7 +33,7 @@ public class Channel<T> implements Closeable {
                 log.debug("Pulled Document from channel");
                 consumer.accept(t);
             } catch (InterruptedException e) {
-                log.info("Interruption in Channel", e);
+                log.warn("Interruption in Channel", e);
             }
         }
     }
@@ -46,8 +43,7 @@ public class Channel<T> implements Closeable {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         this.isClosed = true;
-        this.listeners.clear();
     }
 }

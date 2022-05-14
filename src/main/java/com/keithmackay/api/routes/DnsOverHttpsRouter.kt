@@ -2,6 +2,7 @@ package com.keithmackay.api.routes
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import com.keithmackay.api.services.AdBlockService
 import com.keithmackay.api.utils.getLogger
 import com.keithmackay.api.utils.json
 import io.javalin.apibuilder.ApiBuilder.get
@@ -15,6 +16,7 @@ const val TYPE_HEADER = "application/dns-json"
 @Singleton
 class DnsOverHttpsRouter @Inject
 internal constructor(
+  private val adBlockService: AdBlockService
 ) : Router {
   private val log = getLogger(this::class)
   override fun routes() {
@@ -26,7 +28,10 @@ internal constructor(
         return@get
       }
 
-
+      if (adBlockService.isBlocked(host)) {
+        ctx.status(400).result("")
+        return@get
+      }
 
       val response = lookup(host)
       log.info("Lookup Response: $response")

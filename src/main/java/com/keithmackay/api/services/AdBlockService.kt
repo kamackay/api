@@ -6,9 +6,12 @@ import com.keithmackay.api.db.Database
 import com.keithmackay.api.db.EphemeralDatabase
 import com.keithmackay.api.utils.*
 import com.keithmackay.api.utils.FutureUtils.fastest
+import org.apache.logging.log4j.util.Strings
 import org.bson.Document
 import java.time.Duration
+import java.util.*
 import java.util.concurrent.CompletableFuture.supplyAsync
+import kotlin.collections.ArrayList
 
 const val pageSize = 2000
 
@@ -40,6 +43,15 @@ internal constructor(
           .toSet()
       }).join()
     }
+  }
+
+  public fun isBlocked(domain: String): Boolean {
+    val lowerDomain = domain.lowercase()
+    return getBlockedServers().stream()
+      .filter(Objects::nonNull)
+      .filter(Strings::isNotEmpty)
+      .map(String::lowercase)
+      .anyMatch(lowerDomain::equals)
   }
 
   public fun iterateRemoteServers(): Channel<Document> {

@@ -48,7 +48,9 @@ class BlockRuleCacheTask
         log.warn("Couldn't insert", e)
       }
     }
-    log.info("Local: ${localCollection.countDocuments()} - Remote ${remoteCollection.countDocuments()}")
+    val local = localCollection.countDocuments()
+    val remote = remoteCollection.countDocuments()
+    log.info("Local: $local - Remote $remote${if (remote == local) "" else "!!!!!"}")
   }
 
   override fun cron(): String = minutes(10)

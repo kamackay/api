@@ -6,7 +6,6 @@ import com.keithmackay.api.db.Database
 import com.keithmackay.api.db.EphemeralDatabase
 import com.keithmackay.api.utils.*
 import com.keithmackay.api.utils.FutureUtils.fastest
-import com.mongodb.MongoWriteException
 import org.bson.Document
 import java.time.Duration
 import java.util.concurrent.CompletableFuture.supplyAsync

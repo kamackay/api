@@ -9,7 +9,6 @@ import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
-import org.bson.Document
 
 const val TYPE_HEADER = "application/dns-json"
 

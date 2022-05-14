@@ -7,6 +7,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
+import okhttp3.ResponseBody
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -247,4 +248,10 @@ fun httpGet(url: String, params: Map<String, String> = emptyMap()): Response {
     .url(urlBuilder.build())
     .build()
   return client.newCall(request).execute()
+}
+
+fun ResponseBody.json(): Document {
+  val str = this.string()
+  getLogger("ResponseJson").info(str)
+  return Document.parse(str)
 }

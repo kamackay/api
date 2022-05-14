@@ -79,7 +79,7 @@ public class Main {
             } catch (Exception e) {
                 log.error("Error Starting Cron!", e);
             }
-        }, 100);
+        }, 2000);
     }
 
 

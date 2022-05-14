@@ -5,13 +5,15 @@ import com.google.inject.Singleton
 import com.keithmackay.api.auth.RequestValidator
 import com.keithmackay.api.db.Database
 import com.keithmackay.api.db.EphemeralDatabase
-import com.keithmackay.api.utils.*
+import com.keithmackay.api.services.AdBlockService
+import com.keithmackay.api.utils.doc
+import com.keithmackay.api.utils.getLogger
+import com.keithmackay.api.utils.set
+import com.keithmackay.api.utils.upsert
 import io.javalin.apibuilder.ApiBuilder.get
 import io.javalin.apibuilder.ApiBuilder.path
 import io.javalin.http.UnauthorizedResponse
 import org.bson.Document
-import java.time.Duration
-import java.util.concurrent.CompletableFuture
 import java.util.stream.Collectors.toSet
 
 @Singleton
@@ -19,27 +21,16 @@ class BlockListRouter @Inject
 internal constructor(
   private val validator: RequestValidator,
   db: Database,
-  ephemeralDatabase: EphemeralDatabase
+  ephemeralDatabase: EphemeralDatabase,
+  private val adBlockService: AdBlockService
 ) : Router {
   private val log = getLogger(this::class)
   private val lsCollection = db.getCollection("lsrules")
-  private val localLsCollection = ephemeralDatabase.getCollection("lsrules")
-  private val rulesCache = Cacher<List<String>>(Duration.ofMinutes(15), "LS Block Hosts")
 
   override fun isHealthy(): Boolean = true
 
-  private fun getDocuments() = rulesCache.get("all") {
-    FutureUtils.fastest(CompletableFuture.supplyAsync {
-      lsCollection.find()
-        .projection(doc("server", 1))
-        .into(ArrayList())
-        .map { it.getString("server") }
-    }, CompletableFuture.supplyAsync {
-      localLsCollection.find()
-        .projection(doc("server", 1))
-        .into(ArrayList())
-        .map { it.getString("server") }
-    }).join()
+  private fun getDocuments(): Set<String> {
+    return adBlockService.getBlockedServers()
   }
 
   override fun routes() {

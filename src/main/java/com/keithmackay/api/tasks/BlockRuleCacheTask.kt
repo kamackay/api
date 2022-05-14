@@ -4,6 +4,7 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.keithmackay.api.db.Database
 import com.keithmackay.api.db.EphemeralDatabase
+import com.keithmackay.api.services.AdBlockService
 import com.keithmackay.api.tasks.CronTimes.Companion.minutes
 import com.keithmackay.api.utils.doc
 import com.keithmackay.api.utils.getLogger
@@ -17,11 +18,10 @@ import org.quartz.JobExecutionContext
 class BlockRuleCacheTask
 @Inject internal constructor(
   private val db: Database,
-  private val ephemeralDatabase: EphemeralDatabase
+  private val ephemeralDatabase: EphemeralDatabase,
+  private val adBlockService: AdBlockService
 ) : CronTask() {
   private val log = getLogger(this::class)
-
-  private val pageSize = 2000
 
   private val remoteCollection = db.getCollection("lsrules")
   private val localCollection = ephemeralDatabase.getOrMakeCollection("lsrules", CreateCollectionOptions())
@@ -38,26 +38,15 @@ class BlockRuleCacheTask
     }) {
       log.info("Index Already Exists")
     }
-    val count = remoteCollection.countDocuments(doc())
-    var transferred = 0
-    var page = 0
-    while (transferred < count) {
-      log.info("Transferring Documents in page $page")
-      val documents = remoteCollection.find(doc())
-        .limit(pageSize)
-        .skip(page++ * pageSize)
-        .into(ArrayList())
-      documents.forEach {
-        try {
-          localCollection.insertOne(it)
-        } catch (e: MongoWriteException) {
-          // already in the database
-          return@forEach
-        } catch (e: Exception) {
-          log.warn("Couldn't insert", e)
-        }
+    adBlockService.iterateRemoteServers().iterate {
+      try {
+        localCollection.insertOne(it)
+      } catch (e: MongoWriteException) {
+        // already in the database
+        return@iterate
+      } catch (e: Exception) {
+        log.warn("Couldn't insert", e)
       }
-      transferred += documents.size
     }
     log.info("Local: ${localCollection.countDocuments()} - Remote ${remoteCollection.countDocuments()}")
   }

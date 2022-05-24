@@ -40,7 +40,10 @@ internal constructor(
 
   fun getNewsCollection() = ephemeralDatabase.getCollection("news")
 
-  fun delete(guid: String) = getNewsCollection().deleteOne(doc("guid", eq(guid)))
+  fun delete(guid: String) = getNewsCollection().updateOne(
+    doc("guid", eq(guid)),
+    set(doc("visible", false))
+  )
 
   fun deleteAll() = getNewsCollection().drop()
 
@@ -48,7 +51,7 @@ internal constructor(
     .into(threadSafeList<Document>())
 
   fun getAll(): FindIterable<Document> = getNewsCollection()
-    .find()
+    .find(doc("visible", eq(true)))
     .sort(defaultNewsSort)
     .limit(1000)
 

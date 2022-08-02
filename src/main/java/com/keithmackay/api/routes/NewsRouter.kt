@@ -34,10 +34,16 @@ internal constructor(
         ctx.json(this.getAllNews())
       })
 
+      delete("/") {
+        newsService.deleteAll()
+        it.status(204).result("Done")
+      }
+
       delete("/id/:guid") {
         newsService.delete(it.pathParam("guid"))
         it.status(204).result("Done")
       }
+
 
       get("/ids") {
         it.json(CompletableFuture.supplyAsync {

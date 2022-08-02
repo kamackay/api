@@ -8,7 +8,6 @@ config.json
 .classpath
 .factorypath
 .project
-deploy.sh
 .gradle
 twitter-secret.yaml
 gradle/

@@ -17,17 +17,21 @@ internal constructor(
   private val conversationCollection = ephemeralDatabase.getCollection("news_conversation")
 
   override fun execute(jobExecutionContext: JobExecutionContext) {
-    val existingGuids = newsCollection.distinct("guid", String::class.java)
-      .into(HashSet())
-    val result = conversationCollection.deleteMany(
-      or(
-        and(*existingGuids.stream()
-          .map { doc("article", ne(it)) }
-          .collect(toList())
-          .toTypedArray()
-        ),
-      doc("score", eq(0)))) // Or the Score is 0
-    log.info("Deleted ${result.deletedCount} Links from Conversation Database")
+    try {
+      val existingGuids = newsCollection.distinct("guid", String::class.java)
+              .into(HashSet())
+      val result = conversationCollection.deleteMany(
+              or(
+                      and(*existingGuids.stream()
+                              .map { doc("article", ne(it)) }
+                              .collect(toList())
+                              .toTypedArray()
+                      ),
+                      doc("score", eq(0)))) // Or the Score is 0
+      log.info("Deleted ${result.deletedCount} Links from Conversation Database")
+    } catch (e: Exception) {
+      log.error("Error in Task", e)
+    }
   }
 
   override fun name(): String = "NewsConversationCleanupTask"

@@ -42,12 +42,12 @@ internal constructor(
 
   private val log = getLogger(this::class)
   private val newsRssCollection = db.getCollection("news_rss")
-  private val excludedServers = getExcludedServers(db)
   private val threadPool = newFixedThreadPool(1)
 
   override fun time(): Long = minutes(2)
 
   override fun run() {
+    log.info("Starting News Task")
     // This allows dropping the collection to clear old news
     val newsCollection = ephemeralDatabase.getOrMakeCollection(
       "news",
@@ -115,7 +115,7 @@ internal constructor(
                   newsItem["indexInFeed"] = x
                   item.getFirstChildByTag("content:encoded")
                     .map { it.textContent }
-                    .map { purgeHtml(it, excludedServers) }
+                    .map { purgeHtml(it) }
                     .map(::forceHttps)
                     .ifPresent { value ->
                       newsItem.append("content", value)
@@ -196,15 +196,6 @@ internal constructor(
     Optional.ofNullable(IntRange(0, this.childNodes.length - 1)
       .map(this.childNodes::item)
       .firstOrNull { it.nodeName == tag })
-
-  private fun getExcludedServers(db: Database): Regex =
-    Regex(
-      "http.?://[^\"']*(${
-        db.getCollection("lsrules")
-          .distinct("server", String::class.java)
-          .into(threadSafeList<String>()).joinToString(separator = "|")
-      })"
-    )
 
   private fun Node.toXml(): String {
     val sw = StringWriter()

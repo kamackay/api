@@ -38,7 +38,7 @@ internal constructor(private val validator: RequestValidator, private val db: Da
         }
 
         get("time") {
-            it.result(System.currentTimeMillis().toString())
+            it.result(System.currentTimeMillis().toString() + "\n")
         }
 
         path("files") {

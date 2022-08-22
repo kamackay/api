@@ -38,7 +38,7 @@ internal constructor(
     return l
   }
 
-  fun getNewsCollection() = ephemeralDatabase.getCollection("news")
+  private fun getNewsCollection() = ephemeralDatabase.getCollection("news")
 
   fun delete(guid: String) = getNewsCollection().deleteOne(doc("guid", eq(guid)))
 

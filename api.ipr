@@ -83,6 +83,9 @@
   <component name="KotlinJpsPluginSettings">
     <option name="version" value="1.6.21" />
   </component>
+  <component name="ProjectCodeStyleConfiguration">
+    <option name="PREFERRED_PROJECT_CODE_STYLE" value="Default" />
+  </component>
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/api.iml" filepath="$PROJECT_DIR$/api.iml" />

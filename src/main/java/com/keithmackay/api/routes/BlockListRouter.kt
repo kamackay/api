@@ -4,6 +4,7 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.keithmackay.api.auth.RequestValidator
 import com.keithmackay.api.db.Database
+import com.keithmackay.api.services.BlockingService
 import com.keithmackay.api.utils.*
 import io.javalin.apibuilder.ApiBuilder.get
 import io.javalin.apibuilder.ApiBuilder.path
@@ -13,19 +14,15 @@ import java.time.Duration
 
 @Singleton
 class BlockListRouter @Inject
-internal constructor(private val validator: RequestValidator, private val db: Database) : Router {
+internal constructor(private val validator: RequestValidator,
+                     private val db: Database,
+                     private val blockingService: BlockingService) : Router {
   private val log = getLogger(this::class)
-  private val lsCollection = db.getCollection("lsrules")
-  private val rulesCache = Cacher<List<String>>(Duration.ofMinutes(15), "LS Block Hosts")
+  private val lsCollection = db.getLsCollection()
 
   override fun isHealthy(): Boolean = true
 
-  private fun getDocuments() = rulesCache.get("all") {
-    lsCollection.find()
-      .projection(doc("server", 1))
-      .into(ArrayList())
-      .map { it.getString("server") }
-  }
+  private fun getDocuments() = blockingService.getAllDomains()
 
   override fun routes() {
     get("ls.json") { ctx ->

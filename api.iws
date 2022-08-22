@@ -5,7 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="889632ed-b9ae-4b81-8061-4a5ced0a4dd6" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/keithmackay/api/ServerModule.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/keithmackay/api/ServerModule.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api.ipr" beforeDir="false" afterPath="$PROJECT_DIR$/api.ipr" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api.iws" beforeDir="false" afterPath="$PROJECT_DIR$/api.iws" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/keithmackay/api/db/Database.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/keithmackay/api/db/Database.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/keithmackay/api/routes/BlockListRouter.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/keithmackay/api/routes/BlockListRouter.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/keithmackay/api/services/CryptoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/keithmackay/api/services/CryptoService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/keithmackay/api/tasks/NewsTask.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/keithmackay/api/tasks/NewsTask.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -101,13 +106,14 @@
   <component name="ProjectViewState">
     <option name="autoscrollFromSource" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "settings.editor.selected.configurable": "preferences.sourceCode.Java"
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration default="true" type="Applet" factoryName="Applet">
       <module name="" />
@@ -188,7 +194,8 @@
       <workItem from="1660656134025" duration="648000" />
       <workItem from="1660659827901" duration="783000" />
       <workItem from="1660753420027" duration="17000" />
-      <workItem from="1661180217338" duration="2054000" />
+      <workItem from="1661180217338" duration="2208000" />
+      <workItem from="1661196799989" duration="1513000" />
     </task>
     <servers />
   </component>
@@ -209,5 +216,9 @@
   <component name="VcsManagerConfiguration">
     <option name="OFFER_MOVE_TO_ANOTHER_CHANGELIST_ON_PARTIAL_COMMIT" value="true" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

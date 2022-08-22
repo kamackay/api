@@ -8,12 +8,11 @@ import com.google.inject.Singleton;
 import com.keithmackay.api.model.CoinHolding;
 import com.keithmackay.api.model.CryptoLookupBean;
 import com.keithmackay.api.utils.JsonOptional;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.apache.commons.codec.binary.Hex;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -26,11 +25,11 @@ import java.util.Optional;
 import static com.keithmackay.api.utils.JavaUtils.*;
 import static java.util.Collections.synchronizedList;
 
+@Slf4j
 @Singleton
 public class CryptoService {
     private static final String BASE_URL = "https://api.coinbase.com";
 
-    private final Logger log = LoggerFactory.getLogger(this.getClass());
     private final OkHttpClient client;
 
     @Inject

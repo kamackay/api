@@ -46,6 +46,8 @@ internal constructor(credentialsGrabber: CredentialsGrabber) : IDatabase {
     )
   }
 
+  fun getLsCollection(): MongoCollection<Document> = this.getCollection("lsrules")
+
   override fun getCollection(db: String, name: String): MongoCollection<Document> =
     this.client.getDatabase(db).getCollection(name)
 

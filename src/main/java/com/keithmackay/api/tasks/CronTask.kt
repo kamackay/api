@@ -20,6 +20,7 @@ class CronTimes {
   companion object {
     const val CRON_NEVER = "0 0 5 31 2 ?"
     const val CRON_EVERY_MORNING = "0 0 7 * * ?"
+    const val MIDNIGHT_EVERY_DAY = "0 0 0 * * ?"
 
     fun minutes(mins: Int) = "0 */$mins * * * ?"
 

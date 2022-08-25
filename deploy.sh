@@ -1,6 +1,6 @@
 image=docker.keith.sh/api:$1
 
-docker build . --no-cache --file ./Dockerfile -t $image && \
+docker build . --file ./Dockerfile -t $image && \
     docker push $image && \
     kubectl --context do-nyc3-keithmackay-cluster -n webpage \
     set image deployment/api api=$image

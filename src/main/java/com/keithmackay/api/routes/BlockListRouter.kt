@@ -5,10 +5,7 @@ import com.google.inject.Singleton
 import com.keithmackay.api.auth.RequestValidator
 import com.keithmackay.api.db.Database
 import com.keithmackay.api.services.AdBlockService
-import com.keithmackay.api.utils.doc
-import com.keithmackay.api.utils.getLogger
-import com.keithmackay.api.utils.set
-import com.keithmackay.api.utils.upsert
+import com.keithmackay.api.utils.*
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.http.UnauthorizedResponse
 import org.bson.Document
@@ -32,9 +29,10 @@ internal constructor(
 
   override fun routes() {
     get("ls.json") { ctx ->
-      val servers = getDocuments()
+      val servers = adBlockService.getRecords()
           .stream()
-          .sorted()
+          .map { it.drop("_id") }
+          .sorted(Comparator.comparing { it.getString("server") })
           .collect(toSet())
       ctx.json(servers)
     }

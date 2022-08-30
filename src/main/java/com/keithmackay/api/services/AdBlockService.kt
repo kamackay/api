@@ -46,9 +46,16 @@ internal constructor(
     }
   }
 
+  fun getRecords(): Collection<Document> {
+    return localLsCollection.find()
+        .projection(doc("server", 1).append("source", 1))
+        .into(ArrayList())
+  }
+
   fun isBlocked(domain: String): Boolean {
     val lowerDomain = domain.lowercase()
-    return getBlockedServers().stream()
+    return getBlockedServers()
+        .stream()
         .filter(Objects::nonNull)
         .filter(Strings::isNotEmpty)
         .map(String::lowercase)
@@ -56,6 +63,12 @@ internal constructor(
   }
 
   fun doCacheSync(trigger: String = "manual", chunkSize: Int = pageSize): CacheSyncResult {
+    val localDocs = localLsCollection.countDocuments()
+    val remoteDocs = remoteLsCollection.countDocuments()
+    if (localDocs == remoteDocs) {
+      log.info("Number of documents in collections are already the same")
+      return CacheSyncResult(localDocs, remoteDocs)
+    }
     log.info("Running cache sync. Trigger: $trigger")
     stepCarefully(listOf {
       localLsCollection.createIndex(
@@ -66,7 +79,7 @@ internal constructor(
     }) {
       log.info("Index Already Exists")
     }
-    iterateRemoteServers().iterate {
+    iterateRemoteServers(chunkSize).iterate {
       try {
         localLsCollection.insertOne(it)
       } catch (e: MongoWriteException) {

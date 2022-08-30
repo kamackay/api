@@ -40,6 +40,7 @@ public class ImageTrackingService {
                     String.format("The Tracker Image with no config was loaded, which means the email it was in was opened! I am notifying the following addresses of this: %s",
                             String.join(", ", recipients)),
                     recipients);
+            return;
         }
 
         final TrackerConfig config = configs.get(id);

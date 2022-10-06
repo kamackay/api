@@ -1,5 +1,7 @@
 image=docker.keith.sh/api:$1
 
+docker pull gradle:jdk17
+
 docker build . --file ./Dockerfile -t $image && \
     docker push $image && \
     kubectl --context do-nyc3-keithmackay-cluster -n webpage \

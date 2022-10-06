@@ -21,7 +21,7 @@ internal constructor(db: Database) : Task() {
   private val additionPool = Executors.newFixedThreadPool(16)
 
   // Offset so that it doesn't always run at the same time as the main tasks
-  override fun time(): Long = minutes(49.9)
+  override fun time(): Long = minutes(97.9)
 
   data class AdList(val url: String, val name: String)
 
@@ -34,7 +34,7 @@ internal constructor(db: Database) : Task() {
         AdList("https://www.github.developerdan.com/hosts/lists/hate-and-junk-extended.txt", "DevDanHate"),
         AdList("https://www.github.developerdan.com/hosts/lists/ads-and-tracking-extended.txt", "DevDanAds"),
         AdList("https://www.github.developerdan.com/hosts/lists/amp-hosts-extended.txt", "DevDanAmp")
-    ).parallelStream().forEach(this::processList)
+    ).stream().forEach(this::processList)
   }
 
   private fun processList(list: AdList) {

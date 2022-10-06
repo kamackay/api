@@ -10,7 +10,6 @@ import com.mongodb.MongoWriteException
 import com.mongodb.client.model.IndexOptions
 import org.apache.logging.log4j.util.Strings
 import org.bson.Document
-import java.time.Duration
 import java.util.*
 import java.util.concurrent.CompletableFuture.supplyAsync
 
@@ -26,24 +25,21 @@ internal constructor(
 
   private val remoteLsCollection = db.getCollection("lsrules")
   private val localLsCollection = ephemeralDatabase.getCollection("lsrules")
-  private val rulesCache = Cacher<Set<String>>(Duration.ofMinutes(15), "LS Block Hosts")
 
   fun getBlockedServers(): Set<String> {
-    return rulesCache.get("all") {
-      fastest(supplyAsync {
-        remoteLsCollection.find()
-            .projection(doc("server", 1))
-            .into(ArrayList())
-            .map { it.getString("server") }
-            .toSet()
-      }, supplyAsync {
-        localLsCollection.find()
-            .projection(doc("server", 1))
-            .into(ArrayList())
-            .map { it.getString("server") }
-            .toSet()
-      }).join()
-    }
+    return fastest(supplyAsync {
+      remoteLsCollection.find()
+          .projection(doc("server", 1))
+          .into(ArrayList())
+          .map { it.getString("server") }
+          .toSet()
+    }, supplyAsync {
+      localLsCollection.find()
+          .projection(doc("server", 1))
+          .into(ArrayList())
+          .map { it.getString("server") }
+          .toSet()
+    }).join()
   }
 
   fun getRecords(): Collection<Document> {

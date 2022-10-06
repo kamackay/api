@@ -14,3 +14,4 @@ lib/
 runtime/
 build/
 k8s.yml
+deploy.sh

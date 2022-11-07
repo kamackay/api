@@ -150,7 +150,7 @@ internal constructor(
     val timeSinceLastVisit = System.currentTimeMillis() - (existing.getLong("lastVisit") ?: 0)
     log.info("Time since last visit is $timeSinceLastVisit ms")
     when {
-      result.matchedCount == 0L || body.getBoolean("ignoreRevisit", true) -> {
+      result.matchedCount == 0L || body.getBoolean("ignoreRevisit", false) -> {
         log.info("Access from new IP: $ip")
         val info = Optional.ofNullable(getIpInfo(ip))
             .orElseGet { this.defaultInfo(ip) }

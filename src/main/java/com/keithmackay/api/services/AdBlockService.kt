@@ -8,6 +8,7 @@ import com.keithmackay.api.utils.*
 import com.keithmackay.api.utils.FutureUtils.fastest
 import com.mongodb.MongoWriteException
 import com.mongodb.client.model.IndexOptions
+import com.mongodb.client.model.UpdateOptions
 import org.apache.logging.log4j.util.Strings
 import org.bson.Document
 import java.util.*
@@ -28,13 +29,13 @@ internal constructor(
 
   fun getBlockedServers(): Set<String> {
     return fastest(supplyAsync {
-      remoteLsCollection.find()
+      remoteLsCollection.find(doc("enabled", ne(false)))
           .projection(doc("server", 1))
           .into(ArrayList())
           .map { it.getString("server") }
           .toSet()
     }, supplyAsync {
-      localLsCollection.find()
+      localLsCollection.find(doc("enabled", ne(false)))
           .projection(doc("server", 1))
           .into(ArrayList())
           .map { it.getString("server") }
@@ -77,12 +78,12 @@ internal constructor(
     }
     iterateRemoteServers(chunkSize).iterate {
       try {
-        localLsCollection.insertOne(it)
+        localLsCollection.updateOne(doc("server", eq(it.getString("server"))), it, UpdateOptions().upsert(true))
       } catch (e: MongoWriteException) {
         // already in the database
         return@iterate
       } catch (e: Exception) {
-        log.warn("Couldn't insert", e)
+        log.error("Couldn't insert", e)
       }
     }
     val local = localLsCollection.countDocuments()

@@ -1,4 +1,4 @@
-image=docker.keith.sh/api:$1
+image=kamackay/api:$1
 
 docker pull gradle:jdk17
 

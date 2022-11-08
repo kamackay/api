@@ -60,11 +60,10 @@ spec:
         app: api-service
     spec:
       restartPolicy: Always
-      imagePullSecrets:
-        - name: regcred
+      imagePullSecrets: []
       containers:
         - name: api
-          image: registry.gitlab.com/kamackay/api:latest
+          image: registry.digitalocean.com/keith/critter:latest
           imagePullPolicy: Always
           env:
             - name: PORT

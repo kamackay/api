@@ -9,6 +9,7 @@ import com.keithmackay.api.utils.*
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.http.UnauthorizedResponse
 import org.bson.Document
+import java.util.LinkedList
 import java.util.stream.Collectors.toSet
 
 @Singleton
@@ -23,8 +24,8 @@ internal constructor(
 
   override fun isHealthy(): Boolean = true
 
-  private fun getDocuments(): Set<String> {
-    return adBlockService.getBlockedServers()
+  private fun getDocuments(): LinkedList<String> {
+    return LinkedList(adBlockService.getBlockedServers())
   }
 
   override fun routes() {
@@ -49,17 +50,19 @@ internal constructor(
       // Little Snitch Rules File
       get("rules.lsrules") { ctx ->
         log.info("Request for Little Snitch File")
-        val rules = getDocuments()
-            .mapIndexed { i, server ->
-              val time = 1.57047667E9f + i * 4.01
-              doc("action", "deny")
-                  .append("creationDate", time)
-                  .append("modificationDate", time)
-                  .append("owner", "any")
-                  .append("process", "any")
-                  .append("remote-domains", server)
-
-            }
+        val documents = getDocuments()
+        val rules = ArrayList<Document>(documents.size)
+        var i = 0
+        while (documents.isNotEmpty()) {
+          val server = documents.pop()
+          val time = 1.57047667E9f + ++i * 4.01
+          rules.add(doc("action", "deny")
+              .append("creationDate", time)
+              .append("modificationDate", time)
+              .append("owner", "any")
+              .append("process", "any")
+              .append("remote-domains", server))
+        }
         ctx.json(
             doc("name", "Keith's Little Snitch Rules")
                 .append("rules", rules)

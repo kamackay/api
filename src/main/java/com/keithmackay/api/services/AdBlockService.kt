@@ -78,7 +78,9 @@ internal constructor(
     }
     iterateRemoteServers(chunkSize).iterate {
       try {
-        localLsCollection.updateOne(doc("server", eq(it.getString("server"))), it, UpdateOptions().upsert(true))
+        localLsCollection.updateOne(doc("server",
+            eq(it.getString("server"))), doc("\$set", it.drop("_id")),
+            UpdateOptions().upsert(true))
       } catch (e: MongoWriteException) {
         // already in the database
         return@iterate

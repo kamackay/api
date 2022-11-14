@@ -29,12 +29,11 @@ internal constructor(private val validator: RequestValidator, private val db: Da
         }
 
         get("gift-ideas") { ctx ->
-            ctx.json(CompletableFuture.supplyAsync {
-                db.getOrMakeCollection("gift-ideas", CreateCollectionOptions())
-                        .find()
-                        .map(::cleanDoc)
-                        .mapNotNull { it }
-            })
+            ctx.json(db.getOrMakeCollection("gift-ideas", CreateCollectionOptions())
+                .find()
+                .into(ArrayList())
+                .map(::cleanDoc)
+                .mapNotNull { it })
         }
 
         get("time") {
@@ -51,7 +50,7 @@ internal constructor(private val validator: RequestValidator, private val db: Da
 
             validator.secureGet("secret.json", { ctx, _, user ->
                 ctx.status(200)
-                        .json(doc("username", user.username))
+                    .json(doc("username", user.username))
             })
         }
     }

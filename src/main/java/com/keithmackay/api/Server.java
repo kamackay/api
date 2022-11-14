@@ -59,31 +59,6 @@ public class Server {
                     this.lastBadRequest.set(System.currentTimeMillis());
                 }
             });
-            config.jsonMapper(new JsonMapper() {
-                @NotNull
-                @Override
-                public String toJsonString(@NotNull Object obj) {
-                    return gson.toJson(obj);
-                }
-
-                @NotNull
-                @Override
-                public InputStream toJsonStream(@NotNull Object obj) {
-                    return JsonMapper.super.toJsonStream(obj);
-                }
-
-                @NotNull
-                @Override
-                public <T> T fromJsonString(@NotNull String json, @NotNull Class<T> targetClass) {
-                    return gson.fromJson(json, targetClass);
-                }
-
-                @NotNull
-                @Override
-                public <T> T fromJsonStream(@NotNull InputStream json, @NotNull Class<T> targetClass) {
-                    return JsonMapper.super.fromJsonStream(json, targetClass);
-                }
-            });
             config.registerPlugin(new RouteOverviewPlugin("overview"));
             config.compressionStrategy(new Brotli(6), new Gzip(7));
             config.sessionHandler(() -> {

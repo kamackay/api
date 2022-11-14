@@ -50,14 +50,12 @@ internal constructor(
                     doc()
                 }
 
-                ctx.json(CompletableFuture.supplyAsync {
-                    eventCollection
+                ctx.json(eventCollection
                             .find(query)
                             .skip(page * limit)
                             .limit(limit)
                             .into(threadSafeList<Document>())
-                            .map(::cleanDoc)
-                })
+                            .map(::cleanDoc))
             })
         }
 

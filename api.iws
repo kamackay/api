@@ -5,11 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="889632ed-b9ae-4b81-8061-4a5ced0a4dd6" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/api.iws" beforeDir="false" afterPath="$PROJECT_DIR$/api.iws" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deploy.sh" beforeDir="false" afterPath="$PROJECT_DIR$/deploy.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/k8s.yml" beforeDir="false" afterPath="$PROJECT_DIR$/k8s.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/keithmackay/api/routes/BlockListRouter.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/keithmackay/api/routes/BlockListRouter.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/keithmackay/api/services/AdBlockService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/keithmackay/api/services/AdBlockService.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/keithmackay/api/tasks/LsRuleTask.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/keithmackay/api/tasks/LsRuleTask.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -66,7 +62,12 @@
       <state>
         <projects_view>
           <tree_state>
-            <expand />
+            <expand>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="api" type="f1a62948:ProjectNode" />
+              </path>
+            </expand>
             <select />
           </tree_state>
         </projects_view>

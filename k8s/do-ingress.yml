@@ -1,55 +1,69 @@
 ---
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: webpage-ingress
   namespace: webpage
   annotations:
     kubernetes.io/ingress.class: "nginx"
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    cert-manager.io/cluster-issuer: "letsencrypt-nginx"
 spec:
   tls:
     - hosts:
         - keithmackay.com
         - api.keithmackay.com
         - go-api.keithmackay.com
-        - keith.mackay.codes
-        - keith.mackay.rocks
       secretName: cert-secret
   rules:
     - host: keith.mackay.codes
       http:
         paths:
-          - backend:
-              serviceName: webpage-service
-              servicePort: 8080
+          - path: "/"
+            pathType: Prefix
+            backend:
+              service:
+                name: webpage-service
+                port:
+                  number: 8080
     - host: keithmackay.com
       http:
         paths:
-          - backend:
-              serviceName: webpage-service
-              servicePort: 8080
+          - path: "/"
+            pathType: Prefix
+            backend:
+              service:
+                name: webpage-service
+                port:
+                  number: 8080
     - host: api.keithmackay.com
       http:
         paths:
-          - backend:
-              serviceName: api-service
-              servicePort: 8080
+          - path: "/"
+            pathType: Prefix
+            backend:
+              service:
+                name: api-service
+                port:
+                  number: 8080
     - host: go-api.keithmackay.com
       http:
         paths:
-          - backend:
-              serviceName: go-api-service
-              servicePort: 8080
+          - path: "/"
+            pathType: Prefix
+            backend:
+              service:
+                name: go-api-service
+                port:
+                  number: 8080
 ---
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: io-ingress
   namespace: webpage
   annotations:
     kubernetes.io/ingress.class: "nginx"
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    cert-manager.io/cluster-issuer: "letsencrypt-nginx"
 spec:
   tls:
     - hosts:
@@ -64,38 +78,61 @@ spec:
     - host: keith.sh
       http:
         paths:
-          - backend:
-              serviceName: webpage-service
-              servicePort: 8080
+          - path: "/"
+            pathType: Prefix
+            backend:
+              service:
+                name: webpage-service
+                port:
+                  number: 8080
     - host: keithm.io
       http:
         paths:
-          - backend:
-              serviceName: webpage-service
-              servicePort: 8080
+          - path: "/"
+            pathType: Prefix
+            backend:
+              service:
+                name: webpage-service
+                port:
+                  number: 8080
     - host: api.keithm.io
       http:
         paths:
-          - backend:
-              serviceName: api-service
-              servicePort: 8080
+          - path: "/"
+            pathType: Prefix
+            backend:
+              service:
+                name: api-service
+                port:
+                  number: 8080
     - host: go.keithm.io
       http:
         paths:
-          - backend:
-              serviceName: go-api-service
-              servicePort: 8080
+          - path: "/"
+            pathType: Prefix
+            backend:
+              service:
+                name: go-api-service
+                port:
+                  number: 8080
     - host: api.keith.sh
       http:
         paths:
-          - backend:
-              serviceName: api-service
-              servicePort: 8080
+          - path: "/"
+            pathType: Prefix
+            backend:
+              service:
+                name: api-service
+                port:
+                  number: 8080
     - host: go.keith.sh
       http:
         paths:
-          - backend:
-              serviceName: go-api-service
-              servicePort: 8080
+          - path: "/"
+            pathType: Prefix
+            backend:
+              service:
+                name: go-api-service
+                port:
+                  number: 8080
 ---
-

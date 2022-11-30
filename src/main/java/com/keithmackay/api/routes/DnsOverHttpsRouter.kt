@@ -45,7 +45,7 @@ internal constructor(
   }
 
   private fun lookup(host: String): Response {
-    val urlBuilder = "https://1.1.1.1/dns-query".toHttpUrlOrNull()!!.newBuilder()
+    val urlBuilder = "https://8.8.8.8/dns-query".toHttpUrlOrNull()!!.newBuilder()
     urlBuilder.addQueryParameter("name", host)
     val client = OkHttpClient()
     val request: Request = Request.Builder()

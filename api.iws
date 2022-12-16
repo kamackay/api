@@ -5,7 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="889632ed-b9ae-4b81-8061-4a5ced0a4dd6" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/keithmackay/api/tasks/LsRuleTask.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/keithmackay/api/tasks/LsRuleTask.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api.ipr" beforeDir="false" afterPath="$PROJECT_DIR$/api.ipr" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api.iws" beforeDir="false" afterPath="$PROJECT_DIR$/api.iws" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api.main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/api.main.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api.test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/api.test.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/domn8/api.domn8.iml" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -106,14 +111,19 @@
   <component name="ProjectViewState">
     <option name="autoscrollFromSource" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.sourceCode.Kotlin&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "settings.editor.selected.configurable": "preferences.sourceCode.Kotlin",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration default="true" type="Applet" factoryName="Applet">
       <module name="" />
@@ -151,6 +161,17 @@
       </option>
       <method v="2">
         <option name="BuildArtifacts" enabled="false" />
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="JetRunConfigurationType">
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <option name="filePath" />
+      <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
@@ -202,6 +223,8 @@
       <workItem from="1661777609712" duration="3087000" />
       <workItem from="1665067503958" duration="1334000" />
       <workItem from="1667831143135" duration="5278000" />
+      <workItem from="1669835082546" duration="274000" />
+      <workItem from="1670251740027" duration="571000" />
     </task>
     <servers />
   </component>
@@ -220,7 +243,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <option name="OFFER_MOVE_TO_ANOTHER_CHANGELIST_ON_PARTIAL_COMMIT" value="true" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">

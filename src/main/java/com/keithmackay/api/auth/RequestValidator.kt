@@ -11,6 +11,8 @@ import com.keithmackay.api.utils.getLogger
 import io.javalin.apibuilder.ApiBuilder
 import io.javalin.http.Context
 import io.javalin.http.Handler
+import io.javalin.http.HandlerType
+import io.javalin.http.HandlerType.GET
 import org.bson.Document
 import java.util.*
 
@@ -85,7 +87,7 @@ internal constructor(db: Database) {
   ) {
     log.info("Validating ${ctx.method()} Request on ${ctx.path()}")
     val token = lookup(ctx)
-    val body = if ("GET" == ctx.method()) doc() else Document.parse(ctx.body())
+    val body = if (GET == ctx.method()) doc() else Document.parse(ctx.body())
     if (token != null) {
       val user = userCollection
         .find(doc("username", token.getString("username")))

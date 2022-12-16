@@ -1,0 +1,16 @@
+syntax = "proto3";
+// The package directive (when generating Java src files) tells protoc where to store the generated Java files
+package protos;
+
+import "google/protobuf/timestamp.proto";
+
+// proto standard says field names should be lower_snake_case
+// except enum values (not covered here) which should be SCREAMING_SNAKE_CASE
+
+message SensorData {
+  optional string make_and_model = 1;
+  int32 destination_year = 2;
+  repeated double flux_capacitor_readings = 3;
+  optional google.protobuf.Timestamp last_check_in = 4;
+  bool safety_belts_on = 5;
+}

@@ -139,7 +139,7 @@ fun httpLog(ctx: Context, time: Float) {
 
   val level: Level = if (time >= 10000) {
     Level.WARN
-  } else if (time <= 10 && ctx.status() == 200) {
+  } else if (time <= 10 && ctx.status().code == 200) {
     LogLevels.NETWORK
   } else {
     Level.INFO

@@ -101,6 +101,12 @@ internal constructor(
 
     fun printSpeed(speed: Double): String =
       "%.2fMPH".format(speed * 2.2369)
+
+    fun emptyWeather(location: Location): Weather {
+      return Weather(location, CurrentWeather(0, 0, 0, 0.0, 0.0, 0, 0.0, 0.0, .0, 0.0, 0.0, 0.0, 0.0, emptyList(), null, null),
+          emptyList(), emptyList())
+    }
+
   }
 
   data class Weather(
@@ -134,6 +140,7 @@ internal constructor(
     val rain: Precipitation?,
     val snow: Precipitation?
   )
+
 
   data class WeatherCondition(
     val id: Int,

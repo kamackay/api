@@ -63,7 +63,7 @@ spec:
       imagePullSecrets: []
       containers:
         - name: api
-          image: registry.digitalocean.com/keith/critter:latest
+          image: registry.digitalocean.com/keith/api:latest
           imagePullPolicy: Always
           env:
             - name: PORT

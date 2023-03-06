@@ -54,6 +54,7 @@ dependencies {
     implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.7.2'
     implementation 'org.hibernate:hibernate-core:5.4.24.Final'
     implementation 'org.twitter4j:twitter4j-core:4.0.7'
+    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2'
     testImplementation 'org.jetbrains.kotlin:kotlin-test-junit:1.6.21'
     testImplementation 'org.jetbrains.kotlin:kotlin-test-common:1.6.21'
     testImplementation 'org.jetbrains.kotlin:kotlin-test-annotations-common:1.6.21'

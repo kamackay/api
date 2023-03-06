@@ -1,4 +1,4 @@
-image=registry.digitalocean.com/keith/critter:$1
+image=registry.digitalocean.com/keith/api:$1
 
 docker pull gradle:jdk17
 

@@ -18,6 +18,8 @@
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.22/lombok-1.18.22.jar" />
         </processorPath>
+        <module name="api.test" />
+        <module name="api.main" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="17" />
@@ -88,9 +90,11 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/api.iml" filepath="$PROJECT_DIR$/api.iml" />
       <module fileurl="file://$PROJECT_DIR$/domn8/api.domn8.iml" filepath="$PROJECT_DIR$/domn8/api.domn8.iml" />
+      <module fileurl="file://$PROJECT_DIR$/api.main.iml" filepath="$PROJECT_DIR$/api.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/api.test.iml" filepath="$PROJECT_DIR$/api.test.iml" />
     </modules>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_16" default="true" project-jdk-name="16" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_17" project-jdk-name="16" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
   <component name="RemoteRepositoriesConfiguration">
@@ -118,6 +122,9 @@
   <component name="SvnBranchConfigurationManager">
     <option name="mySupportsUserInfoFilter" value="true" />
   </component>
+  <component name="VcsDirectoryMappings">
+    <mapping directory="" vcs="Git" />
+  </component>
   <component name="libraryTable">
     <library name="Gradle: antlr:antlr:2.7.7">
       <CLASSES>
@@ -133,37 +140,42 @@
       <JAVADOC />
       <SOURCES />
     </library>
-    <library name="Gradle: com.fasterxml.jackson.core:jackson-annotations:2.9.5">
+    <library name="Gradle: com.fasterxml.jackson.core:jackson-annotations:2.13.2">
       <CLASSES>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-annotations/2.9.5/9056ec9db21c57d43219a84bb18c129ae51c6a5d/jackson-annotations-2.9.5.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/com/fasterxml/jackson/core/jackson-annotations/2.13.2/jackson-annotations-2.13.2.jar!/" />
       </CLASSES>
       <JAVADOC />
-      <SOURCES>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-annotations/2.9.5/2fc22732b6e1e7b6ed5eebfab8866766bb3a84d/jackson-annotations-2.9.5-sources.jar!/" />
-      </SOURCES>
+      <SOURCES />
     </library>
-    <library name="Gradle: com.fasterxml.jackson.core:jackson-core:2.9.5">
+    <library name="Gradle: com.fasterxml.jackson.core:jackson-core:2.13.2">
       <ANNOTATIONS>
         <root url="jar://$MAVEN_REPOSITORY$/org/jetbrains/externalAnnotations/com/fasterxml/jackson/core/jackson-core/2.9.6-an1/jackson-core-2.9.6-an1-annotations.zip!/" />
       </ANNOTATIONS>
       <CLASSES>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-core/2.9.5/a22ac51016944b06fd9ffbc9541c6e7ce5eea117/jackson-core-2.9.5.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/com/fasterxml/jackson/core/jackson-core/2.13.2/jackson-core-2.13.2.jar!/" />
       </CLASSES>
       <JAVADOC />
-      <SOURCES>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-core/2.9.5/739ee692a42ee8c0cf9d3c504f0df568797b0a85/jackson-core-2.9.5-sources.jar!/" />
-      </SOURCES>
+      <SOURCES />
     </library>
-    <library name="Gradle: com.fasterxml.jackson.core:jackson-databind:2.9.5">
+    <library name="Gradle: com.fasterxml.jackson.core:jackson-databind:2.13.2">
       <ANNOTATIONS>
         <root url="jar://$MAVEN_REPOSITORY$/org/jetbrains/externalAnnotations/com/fasterxml/jackson/core/jackson-databind/2.9.6-an1/jackson-databind-2.9.6-an1-annotations.zip!/" />
       </ANNOTATIONS>
       <CLASSES>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-databind/2.9.5/3490508379d065fe3fcb80042b62f630f7588606/jackson-databind-2.9.5.jar!/" />
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-databind/2.13.2/926e48c451166a291f1ce6c6276d9abbefa7c00f/jackson-databind-2.13.2.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-databind/2.9.5/7f93f92d7ff619c1a49b5442ba77c0c297a88019/jackson-databind-2.9.5-sources.jar!/" />
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-databind/2.13.2/b392e912bf677e031409ce2255076a1a0f0ba2ff/jackson-databind-2.13.2-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Gradle: com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2">
+      <CLASSES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.module/jackson-module-kotlin/2.13.2/f864b6e8dcf7520d5b9fb3f2dd14c9a67f3c0ea0/jackson-module-kotlin-2.13.2.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.module/jackson-module-kotlin/2.13.2/2d37691addfa5244a835a0b0f3bfc8590a569b5/jackson-module-kotlin-2.13.2-sources.jar!/" />
       </SOURCES>
     </library>
     <library name="Gradle: com.fasterxml:classmate:1.5.1">
@@ -336,7 +348,7 @@
     </library>
     <library name="Gradle: com.sun.xml.fastinfoset:FastInfoset:1.2.15">
       <CLASSES>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.sun.xml.fastinfoset/FastInfoset/1.2.15/bb7b7ec0379982b97c62cd17465cb6d9155f68e8/FastInfoset-1.2.15.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/com/sun/xml/fastinfoset/FastInfoset/1.2.15/FastInfoset-1.2.15.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES>
@@ -542,7 +554,7 @@
     </library>
     <library name="Gradle: org.aspectj:aspectjweaver:1.9.5">
       <CLASSES>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.aspectj/aspectjweaver/1.9.5/1740dc9140103b796d1722668805fd4cf852780c/aspectjweaver-1.9.5.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/aspectj/aspectjweaver/1.9.5/aspectjweaver-1.9.5.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES>
@@ -755,7 +767,7 @@
     </library>
     <library name="Gradle: org.hdrhistogram:HdrHistogram:2.1.11">
       <CLASSES>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.hdrhistogram/HdrHistogram/2.1.11/1b035a1a4ce5d3441a4a1a331d04839ef487ec49/HdrHistogram-2.1.11.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/hdrhistogram/HdrHistogram/2.1.11/HdrHistogram-2.1.11.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES>
@@ -791,7 +803,7 @@
     </library>
     <library name="Gradle: org.jboss.logging:jboss-logging:3.4.1.Final">
       <CLASSES>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jboss.logging/jboss-logging/3.4.1.Final/40fd4d696c55793e996d1ff3c475833f836c2498/jboss-logging-3.4.1.Final.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/jboss/logging/jboss-logging/3.4.1.Final/jboss-logging-3.4.1.Final.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES>
@@ -1147,7 +1159,7 @@
     </library>
     <library name="Gradle: org.objenesis:objenesis:2.1">
       <CLASSES>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.objenesis/objenesis/2.1/87c0ea803b69252868d09308b4618f766f135a96/objenesis-2.1.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/objenesis/objenesis/2.1/objenesis-2.1.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES>

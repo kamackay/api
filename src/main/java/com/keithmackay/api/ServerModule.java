@@ -41,6 +41,7 @@ public class ServerModule extends AbstractModule {
                 BlockListRouter.class,
                 StatusRouter.class,
                 SpeedTestRouter.class,
+                WeatherRouter.class,
                 TrackerRouter.class,
                 GroceriesRouter.class,
                 DnsOverHttpsRouter.class

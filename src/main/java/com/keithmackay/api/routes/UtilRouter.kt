@@ -20,7 +20,7 @@ internal constructor() : Router {
   private val log = getLogger(this::class)
 
   override fun routes() {
-    get("/time") { ctx ->
+    get("now") { ctx ->
       ctx.json(Document("time", System.currentTimeMillis()))
     }
   }

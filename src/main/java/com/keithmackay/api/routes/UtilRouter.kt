@@ -20,7 +20,7 @@ internal constructor() : Router {
   private val log = getLogger(this::class)
 
   override fun routes() {
-    get("favicon.ico") { ctx ->
+    get("/time") { ctx ->
       ctx.json(Document("time", System.currentTimeMillis()))
     }
   }

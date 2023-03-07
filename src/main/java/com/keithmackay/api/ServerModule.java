@@ -38,6 +38,7 @@ public class ServerModule extends AbstractModule {
                 UserRouter.class,
                 EmailRouter.class,
                 FilesRouter.class,
+                UtilRouter.class,
                 BlockListRouter.class,
                 StatusRouter.class,
                 SpeedTestRouter.class,

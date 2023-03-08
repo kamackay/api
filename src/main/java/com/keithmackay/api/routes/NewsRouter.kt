@@ -44,8 +44,15 @@ internal constructor(
         it.status(204).result("Done")
       }
 
-      get("/top") { ctx ->
-        ctx.json(newsService.getDaysTopNews(5))
+      get("/top/{count}") { ctx ->
+        val countStr = ctx.pathParam("count")
+        var count = 5;
+        try {
+          count = Integer.parseInt(countStr)
+        } catch (e: Exception) {
+          log.error("Couldn't parse to int", e)
+        }
+        ctx.json(newsService.getDaysTopNews(count))
       }
 
       get("/ids") {

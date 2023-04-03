@@ -5,8 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="889632ed-b9ae-4b81-8061-4a5ced0a4dd6" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/api.ipr" beforeDir="false" afterPath="$PROJECT_DIR$/api.ipr" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api.iws" beforeDir="false" afterPath="$PROJECT_DIR$/api.iws" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/keithmackay/api/routes/NewsRouter.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/keithmackay/api/routes/NewsRouter.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api.test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/api.test.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/keithmackay/api/routes/PageRouter.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/keithmackay/api/routes/PageRouter.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -78,8 +80,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Class" />
         <option value="Kotlin Class" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -113,10 +115,15 @@
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;preferences.sourceCode.Kotlin&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
@@ -224,6 +231,9 @@
       <workItem from="1670251740027" duration="571000" />
       <workItem from="1678211818242" duration="260000" />
       <workItem from="1678213479354" duration="1697000" />
+      <workItem from="1680535663535" duration="39000" />
+      <workItem from="1680535713980" duration="1219000" />
+      <workItem from="1680536972811" duration="2185000" />
     </task>
     <servers />
   </component>

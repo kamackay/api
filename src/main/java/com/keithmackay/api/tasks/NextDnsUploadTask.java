@@ -22,7 +22,7 @@ public class NextDnsUploadTask extends CronTask {
     @NotNull
     @Override
     public String cron() {
-        return "0 15 10 */5 * ?"; // Every 5 days
+        return "0 15 10 ? * 6L"; // Last Friday of every month
     }
 
     @NotNull

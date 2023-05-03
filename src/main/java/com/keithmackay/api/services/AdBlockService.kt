@@ -104,7 +104,7 @@ internal constructor(
         } catch (e: java.lang.Exception) {
           log.warn("Error when uploading server", e)
         } finally {
-          x.incrementAndGet()
+          log.info("Done uploading server {} of {}", x.getAndIncrement(), list.size)
         }
       }
     }, 0, Duration.ofSeconds(2).toMillis())

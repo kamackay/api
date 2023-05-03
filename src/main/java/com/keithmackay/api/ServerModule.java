@@ -51,7 +51,8 @@ public class ServerModule extends AbstractModule {
         Multibinder<CronTask> cronTasks = Multibinder.newSetBinder(binder(), CronTask.class);
         Arrays.asList(
                 GoodMorningTask.class,
-                //CryptoTask.class,
+                CryptoTask.class,
+                NextDnsUploadTask.class,
                 TestTask.class,
                 NewsConversationCleanupTask.class,
                 BlockRuleCacheTask.class,

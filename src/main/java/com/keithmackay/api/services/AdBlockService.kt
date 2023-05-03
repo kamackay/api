@@ -4,23 +4,32 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.keithmackay.api.db.Database
 import com.keithmackay.api.db.EphemeralDatabase
+import com.keithmackay.api.tasks.NextDnsUploadTask
 import com.keithmackay.api.utils.*
 import com.keithmackay.api.utils.FutureUtils.fastest
 import com.mongodb.MongoWriteException
 import com.mongodb.client.model.IndexOptions
 import com.mongodb.client.model.UpdateOptions
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
 import org.apache.logging.log4j.util.Strings
 import org.bson.Document
+import java.io.IOException
+import java.time.Duration
 import java.util.*
 import java.util.concurrent.CompletableFuture.supplyAsync
+import java.util.concurrent.atomic.AtomicInteger
 
 const val pageSize = 2000
 
 @Singleton
 class AdBlockService @Inject
 internal constructor(
-    db: Database,
-    ephemeralDatabase: EphemeralDatabase
+  db: Database,
+  ephemeralDatabase: EphemeralDatabase,
+  private val grabber: CredentialsGrabber
 ) {
   private val log = getLogger(this::class)
 
@@ -30,33 +39,75 @@ internal constructor(
   fun getBlockedServers(): Set<String> {
     return fastest(supplyAsync {
       remoteLsCollection.find(doc("enabled", ne(false)))
-          .projection(doc("server", 1))
-          .into(ArrayList())
-          .map { it.getString("server") }
-          .toSet()
+        .projection(doc("server", 1))
+        .into(ArrayList())
+        .map { it.getString("server") }
+        .toSet()
     }, supplyAsync {
       localLsCollection.find(doc("enabled", ne(false)))
-          .projection(doc("server", 1))
-          .into(ArrayList())
-          .map { it.getString("server") }
-          .toSet()
+        .projection(doc("server", 1))
+        .into(ArrayList())
+        .map { it.getString("server") }
+        .toSet()
     }).join()
   }
 
   fun getRecords(): Collection<Document> {
     return localLsCollection.find()
-        .projection(doc("server", 1).append("source", 1))
-        .into(ArrayList())
+      .projection(doc("server", 1).append("source", 1))
+      .into(ArrayList())
   }
 
   fun isBlocked(domain: String): Boolean {
     val lowerDomain = domain.lowercase()
     return getBlockedServers()
-        .stream()
-        .filter(Objects::nonNull)
-        .filter(Strings::isNotEmpty)
-        .map(String::lowercase)
-        .anyMatch(lowerDomain::equals)
+      .stream()
+      .filter(Objects::nonNull)
+      .filter(Strings::isNotEmpty)
+      .map(String::lowercase)
+      .anyMatch(lowerDomain::equals)
+  }
+
+
+  @Throws(IOException::class)
+  private fun uploadDeniedServer(server: String, key: String) {
+    val client = OkHttpClient()
+    val request: Request = Request.Builder()
+      .url("https://api.nextdns.io/profiles/22c2ce/denylist")
+      .post(
+        RequestBody.create(
+          "application/json".toMediaTypeOrNull(),
+          Document("id", server).append("active", true).toJson()
+        )
+      )
+      .header("X-Api-Key", key)
+      .build()
+    client.newCall(request).execute().use { response ->
+      log.info(
+        "Response Uploading {}: {}",
+        server,
+        response.message
+      )
+    }
+  }
+
+  fun uploadToNextDns() {
+    val key: String = grabber.getSecret("next-dns-key").getAsString()
+    val list: List<String> = ArrayList(this.getBlockedServers())
+    val x = AtomicInteger(0)
+    val timer = Timer()
+    timer.schedule(object : TimerTask() {
+      override fun run() {
+        try {
+          val server = list[x.get()]
+          uploadDeniedServer(server, key)
+        } catch (e: java.lang.Exception) {
+          log.warn("Error when uploading server", e)
+        } finally {
+          x.incrementAndGet()
+        }
+      }
+    }, 0, Duration.ofSeconds(2).toMillis())
   }
 
   fun doCacheSync(trigger: String = "manual", chunkSize: Int = pageSize): CacheSyncResult {
@@ -69,8 +120,8 @@ internal constructor(
     log.info("Running cache sync. Trigger: $trigger")
     stepCarefully(listOf {
       localLsCollection.createIndex(
-          doc("server", 1),
-          IndexOptions().unique(true)
+        doc("server", 1),
+        IndexOptions().unique(true)
       )
       Unit
     }) {
@@ -78,9 +129,13 @@ internal constructor(
     }
     iterateRemoteServers(chunkSize).iterate {
       try {
-        localLsCollection.updateOne(doc("server",
-            eq(it.getString("server"))), doc("\$set", it.drop("_id")),
-            UpdateOptions().upsert(true))
+        localLsCollection.updateOne(
+          doc(
+            "server",
+            eq(it.getString("server"))
+          ), doc("\$set", it.drop("_id")),
+          UpdateOptions().upsert(true)
+        )
       } catch (e: MongoWriteException) {
         // already in the database
         return@iterate
@@ -105,9 +160,9 @@ internal constructor(
       while (transferred < count) {
         log.info("Transferring Documents in page $page/${count / chunkSize}")
         val documents = remoteLsCollection.find(doc())
-            .limit(chunkSize)
-            .skip(page++ * chunkSize)
-            .into(ArrayList())
+          .limit(chunkSize)
+          .skip(page++ * chunkSize)
+          .into(ArrayList())
         documents.forEach {
           log.debug("Pushing document to channel")
           channel.push(it)

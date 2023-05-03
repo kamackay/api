@@ -56,7 +56,7 @@ public class ServerModule extends AbstractModule {
                 TestTask.class,
                 NewsConversationCleanupTask.class,
                 BlockRuleCacheTask.class,
-                DailyNewsCleanupTask.class,
+                //DailyNewsCleanupTask.class,
                 NewsPriorityTask.class
         ).forEach(task -> cronTasks.addBinding().to(task));
 

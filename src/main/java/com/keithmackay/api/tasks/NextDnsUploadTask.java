@@ -22,7 +22,7 @@ public class NextDnsUploadTask extends CronTask {
     @NotNull
     @Override
     public String cron() {
-        return "0 0 0 1-31/2 * * ?"; // Every Other day
+        return "0 0 0 * * MON"; // Every Monday
     }
 
     @NotNull

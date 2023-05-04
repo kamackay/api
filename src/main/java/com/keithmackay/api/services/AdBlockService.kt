@@ -86,7 +86,7 @@ internal constructor(
       log.info(
         "Response Uploading {}: {}",
         server,
-        response.body?.json().toString()
+        response.body?.string()
       )
     }
   }

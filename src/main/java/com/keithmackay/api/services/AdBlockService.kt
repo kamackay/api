@@ -86,7 +86,7 @@ internal constructor(
       log.info(
         "Response Uploading {}: {}",
         server,
-        response.message
+        response.body.toString()
       )
     }
   }

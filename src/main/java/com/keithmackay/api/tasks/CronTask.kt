@@ -23,6 +23,7 @@ class CronTimes {
     const val MIDNIGHT_EVERY_DAY = "0 0 0 * * ?"
 
     fun minutes(mins: Int) = "0 */$mins * * * ?"
+    fun hours(hours: Int) = "0 0 */$hours * * ?"
 
     fun seconds(secs: Int) = "*/$secs * * * * ?"
   }

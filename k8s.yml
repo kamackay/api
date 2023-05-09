@@ -82,6 +82,14 @@ spec:
             periodSeconds: 1
             timeoutSeconds: 2
             failureThreshold: 100
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 10
           volumeMounts:
             - name: creds
               mountPath: /api/creds.json

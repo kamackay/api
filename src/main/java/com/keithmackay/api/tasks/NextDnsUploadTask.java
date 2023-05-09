@@ -40,10 +40,10 @@ public class NextDnsUploadTask extends CronTask {
     public void execute(JobExecutionContext context) throws JobExecutionException {
         log.info("Starting task {} to upload a server to NextDNS", counter.get());
         adBlockService.uploadToNextDns();
-        if (counter.incrementAndGet() % 20 == 0) {
+        /*if (counter.incrementAndGet() % 20 == 0) {
             final Ratio ratio = adBlockService.countNextDnsProgress();
             log.info("NextDNS has {} out of {} servers", ratio.getCount(), ratio.getTotal());
-        }
+        }/**/
     }
 
 }

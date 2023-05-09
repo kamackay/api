@@ -83,11 +83,11 @@ internal constructor(
     client.newCall(request).execute().use { response ->
       log.info(
         "Response Uploading {}: {}",
-        server,
+        server.name,
         response.body?.string()
       )
     }
-    remoteLsCollection.updateOne(Document("server", server), set(Document(uploadField, true)), UpdateOptions())
+    remoteLsCollection.updateOne(Document("server", server.name), set(Document(uploadField, true)), UpdateOptions())
   }
 
   fun uploadToNextDns() {
@@ -101,14 +101,16 @@ internal constructor(
   }
 
   private fun getServerForNextDNS(): Server? {
-    val list = remoteLsCollection.find(doc("enabled", ne(true)).append(uploadField, eq(false)))
+    val list = remoteLsCollection.find(doc("enabled", ne(true)).append(uploadField, ne(true)))
       .limit(1)
       .projection(doc("server", 1))
       .into(ArrayList())
       .map { it.getString("server") }
       .toList()
     return if (list.size == 1) {
-      Server(name = list[0], active = true)
+      val name = list[0]
+      log.info("Adding $name to NextDNS")
+      Server(name = name, active = true)
     } else {
       val toRemoveList = remoteLsCollection.find(doc("enabled", ne(false)).append(uploadField, eq(true)))
         .limit(1)
@@ -117,11 +119,20 @@ internal constructor(
         .map { it.getString("server") }
         .toList()
       if (list.size == 1) {
-        Server(name = toRemoveList[0], active = false)
+        val name = toRemoveList[0]
+        log.info("Should remove $name from NextDNS")
+        Server(name = name, active = false)
       } else {
+        log.info("Nothing to upload to NextDNS")
         null
       }
     }
+  }
+
+  fun countNextDnsProgress(): Ratio {
+    val uploaded = remoteLsCollection.countDocuments(doc(uploadField, eq(true)))
+    val total = remoteLsCollection.countDocuments()
+    return Ratio(uploaded, total)
   }
 
   data class Server(val name: String, val active: Boolean)

@@ -17,12 +17,11 @@ import static com.keithmackay.api.tasks.CronTimes.Companion;
 public class NextDnsUploadTask extends CronTask {
 
     private final AdBlockService adBlockService;
-    private final AtomicLong counter;
+    private static final AtomicLong counter = new AtomicLong(0);
 
     @Inject
     NextDnsUploadTask(final AdBlockService adBlockService) {
         this.adBlockService = adBlockService;
-        this.counter = new AtomicLong(0);
     }
 
     @NotNull
@@ -39,9 +38,9 @@ public class NextDnsUploadTask extends CronTask {
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-        //log.info("Starting task to upload a server to NextDNS");
+        log.info("Starting task {} to upload a server to NextDNS", counter.get());
         adBlockService.uploadToNextDns();
-        if (this.counter.incrementAndGet() % 100 == 0) {
+        if (counter.incrementAndGet() % 20 == 0) {
             final Ratio ratio = adBlockService.countNextDnsProgress();
             log.info("NextDNS has {} out of {} servers", ratio.getCount(), ratio.getTotal());
         }

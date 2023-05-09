@@ -52,6 +52,10 @@ internal constructor(
         ctx.result("Working on it!")
       }
 
+      get("/next/ratio") { ctx ->
+        ctx.json(adBlockService.countNextDnsProgress())
+      }
+
     }
 
     path("files") {

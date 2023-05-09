@@ -9,6 +9,8 @@ import org.quartz.JobExecutionException;
 
 import javax.inject.Inject;
 
+import static com.keithmackay.api.tasks.CronTimes.Companion;
+
 @Slf4j
 public class NextDnsUploadTask extends CronTask {
 
@@ -22,7 +24,7 @@ public class NextDnsUploadTask extends CronTask {
     @NotNull
     @Override
     public String cron() {
-        return "0 15 10 ? * 6L"; // Last Friday of every month
+        return Companion.seconds(5);
     }
 
     @NotNull

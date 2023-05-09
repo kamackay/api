@@ -4,7 +4,6 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.keithmackay.api.db.Database
 import com.keithmackay.api.db.EphemeralDatabase
-import com.keithmackay.api.tasks.NextDnsUploadTask
 import com.keithmackay.api.utils.*
 import com.keithmackay.api.utils.FutureUtils.fastest
 import com.mongodb.MongoWriteException
@@ -17,10 +16,8 @@ import okhttp3.RequestBody
 import org.apache.logging.log4j.util.Strings
 import org.bson.Document
 import java.io.IOException
-import java.time.Duration
 import java.util.*
 import java.util.concurrent.CompletableFuture.supplyAsync
-import java.util.concurrent.atomic.AtomicInteger
 
 const val pageSize = 2000
 
@@ -35,6 +32,7 @@ internal constructor(
 
   private val remoteLsCollection = db.getCollection("lsrules")
   private val localLsCollection = ephemeralDatabase.getCollection("lsrules")
+  private val uploadField = "uploadedToNext"
 
   fun getBlockedServers(): Set<String> {
     return fastest(supplyAsync {
@@ -70,14 +68,14 @@ internal constructor(
 
 
   @Throws(IOException::class)
-  private fun uploadDeniedServer(server: String, key: String) {
+  private fun uploadDeniedServer(server: Server, key: String) {
     val client = OkHttpClient()
     val request: Request = Request.Builder()
       .url("https://api.nextdns.io/profiles/22c2ce/denylist")
       .post(
         RequestBody.create(
           "application/json".toMediaTypeOrNull(),
-          Document("id", server).append("active", true).toJson()
+          Document("id", server.name).append("active", server.active).toJson()
         )
       )
       .header("X-Api-Key", key)
@@ -89,26 +87,44 @@ internal constructor(
         response.body?.string()
       )
     }
+    remoteLsCollection.updateOne(Document("server", server), set(Document(uploadField, true)), UpdateOptions())
   }
 
   fun uploadToNextDns() {
     val key: String = grabber.getSecret("next-dns-key").getAsString()
-    val list: List<String> = ArrayList(this.getBlockedServers())
-    val x = AtomicInteger(0)
-    val timer = Timer()
-    timer.schedule(object : TimerTask() {
-      override fun run() {
-        try {
-          val server = list[x.get()]
-          uploadDeniedServer(server, key)
-        } catch (e: java.lang.Exception) {
-          log.warn("Error when uploading server", e)
-        } finally {
-          log.info("Done uploading server {} of {}", x.getAndIncrement(), list.size)
-        }
-      }
-    }, 0, Duration.ofSeconds(2).toMillis())
+    val server = this.getServerForNextDNS() ?: return
+    try {
+      uploadDeniedServer(server, key)
+    } catch (e: java.lang.Exception) {
+      log.warn("Error when uploading server", e)
+    }
   }
+
+  private fun getServerForNextDNS(): Server? {
+    val list = remoteLsCollection.find(doc("enabled", ne(true)).append(uploadField, eq(false)))
+      .limit(1)
+      .projection(doc("server", 1))
+      .into(ArrayList())
+      .map { it.getString("server") }
+      .toList()
+    return if (list.size == 1) {
+      Server(name = list[0], active = true)
+    } else {
+      val toRemoveList = remoteLsCollection.find(doc("enabled", ne(false)).append(uploadField, eq(true)))
+        .limit(1)
+        .projection(doc("server", 1))
+        .into(ArrayList())
+        .map { it.getString("server") }
+        .toList()
+      if (list.size == 1) {
+        Server(name = toRemoveList[0], active = false)
+      } else {
+        null
+      }
+    }
+  }
+
+  data class Server(val name: String, val active: Boolean)
 
   fun doCacheSync(trigger: String = "manual", chunkSize: Int = pageSize): CacheSyncResult {
     val localDocs = localLsCollection.countDocuments()

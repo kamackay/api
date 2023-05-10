@@ -1,6 +1,5 @@
 package com.keithmackay.api.utils;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @lombok.Data

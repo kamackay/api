@@ -12,7 +12,7 @@ docker-build-master:
     - docker push "$CI_REGISTRY_IMAGE"
     - echo "$CI_REGISTRY_IMAGE"
   only:
-    - master
+    - main
 
 docker-build:
   # Official docker image.
@@ -27,4 +27,4 @@ docker-build:
     - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG"
     - echo ""$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG""
   except:
-    - master
+    - main

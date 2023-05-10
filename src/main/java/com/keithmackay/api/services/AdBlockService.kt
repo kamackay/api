@@ -130,8 +130,10 @@ internal constructor(
   }
 
   fun countNextDnsProgress(): Ratio {
-    val uploaded = remoteLsCollection.countDocuments(doc(uploadField, eq(true)))
-    val total = remoteLsCollection.countDocuments()
+    val uploadedFuture = supplyAsync { remoteLsCollection.countDocuments(doc(uploadField, eq(true))) }
+    val totalFuture = supplyAsync { remoteLsCollection.countDocuments() }
+    val uploaded = uploadedFuture.get()
+    val total = totalFuture.get()
     return Ratio(uploaded, total)
   }
 

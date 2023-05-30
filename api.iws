@@ -5,7 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="889632ed-b9ae-4b81-8061-4a5ced0a4dd6" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitlab-ci.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.gitlab-ci.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api.ipr" beforeDir="false" afterPath="$PROJECT_DIR$/api.ipr" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api.iws" beforeDir="false" afterPath="$PROJECT_DIR$/api.iws" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api.main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/api.main.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api.test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/api.test.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/keithmackay/api/ServerModule.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/keithmackay/api/ServerModule.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/keithmackay/api/tasks/DailyNewsCleanupTask.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/keithmackay/api/tasks/DailyNewsCleanupTask.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -84,6 +89,12 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="InvalidFacetManager">
+    <ignored-facets>
+      <facet id="api.main/invalid/JPA" />
+      <facet id="api.test/invalid/JPA" />
+    </ignored-facets>
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />

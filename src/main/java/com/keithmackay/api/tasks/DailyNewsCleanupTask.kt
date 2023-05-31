@@ -9,11 +9,11 @@ import com.keithmackay.api.utils.getLogger
 import org.quartz.JobExecutionContext
 
 @Singleton
-class DailyNewsCleanupTask @Inject
+class NewsCleanupTask @Inject
 internal constructor(private val newsService: NewsService) : CronTask() {
     private val log = getLogger(this::class)
 
-    override fun cron(): String = MIDNIGHT_EVERY_DAY
+    override fun cron(): String = "0 0 0 * * TUE"
 
     override fun name(): String = "DailyNewsCleanupTask"
 

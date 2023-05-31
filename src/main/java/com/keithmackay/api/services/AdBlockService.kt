@@ -101,7 +101,7 @@ internal constructor(
   }
 
   private fun getServerForNextDNS(): Server? {
-    val list = remoteLsCollection.find(doc("enabled", ne(true)).append(uploadField, ne(true)))
+    val list = remoteLsCollection.find(doc("enabled", ne(false)).append(uploadField, ne(true)))
       .limit(1)
       .projection(doc("server", 1))
       .into(ArrayList())
@@ -112,7 +112,7 @@ internal constructor(
       log.info("Adding $name to NextDNS")
       Server(name = name, active = true)
     } else {
-      val toRemoveList = remoteLsCollection.find(doc("enabled", ne(false)).append(uploadField, eq(true)))
+      val toRemoveList = remoteLsCollection.find(doc("enabled", eq(false)).append(uploadField, eq(true)))
         .limit(1)
         .projection(doc("server", 1))
         .into(ArrayList())

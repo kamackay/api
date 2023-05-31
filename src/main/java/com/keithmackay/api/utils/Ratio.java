@@ -13,7 +13,7 @@ public class Ratio {
     }
 
     @JsonProperty
-    public int getPercentage() {
-        return (int) (((double) this.count / (double) this.total) * 100);
+    public double getPercentage() {
+        return (double) this.count * 100 / (double) this.total;
     }
 }

@@ -13,7 +13,7 @@ class NewsCleanupTask @Inject
 internal constructor(private val newsService: NewsService) : CronTask() {
     private val log = getLogger(this::class)
 
-    override fun cron(): String = "0 0 0 * * TUE"
+    override fun cron(): String = "0 0 0 ? * 4"
 
     override fun name(): String = "DailyNewsCleanupTask"
 

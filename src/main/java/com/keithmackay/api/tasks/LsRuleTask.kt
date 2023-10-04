@@ -28,13 +28,14 @@ internal constructor(db: Database) : Task() {
   override fun run() {
     log.info("Started Task to calculate Little Snitch Servers")
     listOf(
-            AdList("https://pgl.yoyo.org/adservers/serverlist.php?hostformat=hosts;showintro=0", "Yoyo"),
-            AdList("https://someonewhocares.org/hosts/zero/hosts", "SomeoneWhoCares"),
-            AdList("https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts", "StevenBlack"),
-            AdList("https://www.github.developerdan.com/hosts/lists/hate-and-junk-extended.txt", "DevDanHate"),
-            AdList("https://www.github.developerdan.com/hosts/lists/ads-and-tracking-extended.txt", "DevDanAds"),
-            AdList("https://www.github.developerdan.com/hosts/lists/amp-hosts-extended.txt", "DevDanAmp"),
-            AdList("https://hole.cert.pl/domains/domains_hosts.txt", "cert.pl")
+      AdList("https://pgl.yoyo.org/adservers/serverlist.php?hostformat=hosts;showintro=0", "Yoyo"),
+      AdList("https://someonewhocares.org/hosts/zero/hosts", "SomeoneWhoCares"),
+      AdList("https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts", "StevenBlack"),
+      AdList("https://www.github.developerdan.com/hosts/lists/hate-and-junk-extended.txt", "DevDanHate"),
+      AdList("https://www.github.developerdan.com/hosts/lists/ads-and-tracking-extended.txt", "DevDanAds"),
+      AdList("https://www.github.developerdan.com/hosts/lists/amp-hosts-extended.txt", "DevDanAmp"),
+      AdList("https://hole.cert.pl/domains/domains_hosts.txt", "cert.pl"),
+      AdList("https://o0.pages.dev/Pro/hosts.txt", "1Hosts Pro")
     ).stream().forEach(this::processList)
   }
 
@@ -46,8 +47,8 @@ internal constructor(db: Database) : Task() {
       log.error("HTTP Status ${response.code} from ServerList")
     } else {
       log.debug(
-              "Pulled Ad Server File after " +
-                      millisToReadableTime(System.currentTimeMillis() - start)
+        "Pulled Ad Server File after " +
+            millisToReadableTime(System.currentTimeMillis() - start)
       )
       val text = response.body!!.string()
       log.debug(text)
@@ -79,8 +80,8 @@ internal constructor(db: Database) : Task() {
       }
       if (added.isNotEmpty()) {
         log.info(
-                "Successfully Added ${added.count()} new servers " +
-                        "(${millisToReadableTime(System.currentTimeMillis() - start)})"
+          "Successfully Added ${added.count()} new servers " +
+              "(${millisToReadableTime(System.currentTimeMillis() - start)})"
         )
       } else {
         log.info("No New Servers found to add to list")
@@ -91,13 +92,13 @@ internal constructor(db: Database) : Task() {
   private fun addServer(server: String, source: String) {
     try {
       lsCollection.updateOne(
-              doc("server", server),
-              set(
-                      doc("server", server)
-                              .append("source", source)
-                              .append("time", System.currentTimeMillis())
-              ),
-              upsert()
+        doc("server", server),
+        set(
+          doc("server", server)
+            .append("source", source)
+            .append("time", System.currentTimeMillis())
+        ),
+        upsert()
       )
       log.info("Added $server")
     } catch (e: Exception) {

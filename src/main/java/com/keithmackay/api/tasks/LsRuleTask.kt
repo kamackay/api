@@ -35,7 +35,8 @@ internal constructor(db: Database) : Task() {
       AdList("https://www.github.developerdan.com/hosts/lists/ads-and-tracking-extended.txt", "DevDanAds"),
       AdList("https://www.github.developerdan.com/hosts/lists/amp-hosts-extended.txt", "DevDanAmp"),
       AdList("https://hole.cert.pl/domains/domains_hosts.txt", "cert.pl"),
-      AdList("https://o0.pages.dev/Pro/hosts.txt", "1Hosts Pro")
+      AdList("https://o0.pages.dev/Pro/hosts.txt", "1Hosts Pro"),
+      //AdList("https://raw.githubusercontent.com/hagezi/dns-blocklists/main/hosts/pro.plus.txt", "HaGeZi") // Would expand list to like 2.3 mil
     ).stream().forEach(this::processList)
   }
 

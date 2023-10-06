@@ -17,7 +17,7 @@ RUN apk update --no-cache && apk upgrade --no-cache && apk add --no-cache openjd
 
 WORKDIR /api/
 
-FROM scratch
+FROM scratch as penultimate
 
 COPY --from=platform / /
 

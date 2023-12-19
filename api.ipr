@@ -310,7 +310,7 @@
     </library>
     <library name="Gradle: com.mchange:mchange-commons-java:0.2.15" external-system-id="GRADLE">
       <CLASSES>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.mchange/mchange-commons-java/0.2.15/6ef5abe5f1b94ac45b7b5bad42d871da4fda6bbc/mchange-commons-java-0.2.15.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/com/mchange/mchange-commons-java/0.2.15/mchange-commons-java-0.2.15.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES>
@@ -373,7 +373,7 @@
     </library>
     <library name="Gradle: com.sun.mail:javax.mail:1.6.2" external-system-id="GRADLE">
       <CLASSES>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.sun.mail/javax.mail/1.6.2/935151eb71beff17a2ffac15dd80184a99a0514f/javax.mail-1.6.2.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/com/sun/mail/javax.mail/1.6.2/javax.mail-1.6.2.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES>
@@ -700,7 +700,7 @@
     </library>
     <library name="Gradle: org.eclipse.jetty:jetty-http:9.4.46.v20220331" external-system-id="GRADLE">
       <CLASSES>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.eclipse.jetty/jetty-http/9.4.46.v20220331/7a4690498baf0c918290f65b9c505216b9532d0d/jetty-http-9.4.46.v20220331.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/eclipse/jetty/jetty-http/9.4.46.v20220331/jetty-http-9.4.46.v20220331.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES>
@@ -709,7 +709,7 @@
     </library>
     <library name="Gradle: org.eclipse.jetty:jetty-io:9.4.46.v20220331" external-system-id="GRADLE">
       <CLASSES>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.eclipse.jetty/jetty-io/9.4.46.v20220331/814a07795a9ebb017758f6ad979ac6e73a212fe3/jetty-io-9.4.46.v20220331.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/eclipse/jetty/jetty-io/9.4.46.v20220331/jetty-io-9.4.46.v20220331.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES>
@@ -727,7 +727,7 @@
     </library>
     <library name="Gradle: org.eclipse.jetty:jetty-security:9.4.46.v20220331" external-system-id="GRADLE">
       <CLASSES>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.eclipse.jetty/jetty-security/9.4.46.v20220331/342995db067827f7cbb95bc613ddf4125baf26af/jetty-security-9.4.46.v20220331.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/eclipse/jetty/jetty-security/9.4.46.v20220331/jetty-security-9.4.46.v20220331.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES>
@@ -736,7 +736,7 @@
     </library>
     <library name="Gradle: org.eclipse.jetty:jetty-server:9.4.46.v20220331" external-system-id="GRADLE">
       <CLASSES>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.eclipse.jetty/jetty-server/9.4.46.v20220331/187655c62538a2e68bef7479c5af3907345c55c/jetty-server-9.4.46.v20220331.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/eclipse/jetty/jetty-server/9.4.46.v20220331/jetty-server-9.4.46.v20220331.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES>
@@ -745,7 +745,7 @@
     </library>
     <library name="Gradle: org.eclipse.jetty:jetty-servlet:9.4.46.v20220331" external-system-id="GRADLE">
       <CLASSES>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.eclipse.jetty/jetty-servlet/9.4.46.v20220331/3423f53263a2cfbb46fbed34aa5992016b16593a/jetty-servlet-9.4.46.v20220331.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/eclipse/jetty/jetty-servlet/9.4.46.v20220331/jetty-servlet-9.4.46.v20220331.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES>
@@ -754,7 +754,7 @@
     </library>
     <library name="Gradle: org.eclipse.jetty:jetty-util-ajax:9.4.46.v20220331" external-system-id="GRADLE">
       <CLASSES>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.eclipse.jetty/jetty-util-ajax/9.4.46.v20220331/1486ed656dede77c59a7fe3b4c79c113cf344a22/jetty-util-ajax-9.4.46.v20220331.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/eclipse/jetty/jetty-util-ajax/9.4.46.v20220331/jetty-util-ajax-9.4.46.v20220331.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES>
@@ -763,7 +763,7 @@
     </library>
     <library name="Gradle: org.eclipse.jetty:jetty-util:9.4.46.v20220331" external-system-id="GRADLE">
       <CLASSES>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.eclipse.jetty/jetty-util/9.4.46.v20220331/c50392a531b5c500b520aedd6f6d9ed540f26d2e/jetty-util-9.4.46.v20220331.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/eclipse/jetty/jetty-util/9.4.46.v20220331/jetty-util-9.4.46.v20220331.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES>
@@ -772,7 +772,7 @@
     </library>
     <library name="Gradle: org.eclipse.jetty:jetty-webapp:9.4.46.v20220331" external-system-id="GRADLE">
       <CLASSES>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.eclipse.jetty/jetty-webapp/9.4.46.v20220331/4d5351a1d9a1cc5a0170eff903825ab988e997be/jetty-webapp-9.4.46.v20220331.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/eclipse/jetty/jetty-webapp/9.4.46.v20220331/jetty-webapp-9.4.46.v20220331.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES>
@@ -781,7 +781,7 @@
     </library>
     <library name="Gradle: org.eclipse.jetty:jetty-xml:9.4.46.v20220331" external-system-id="GRADLE">
       <CLASSES>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.eclipse.jetty/jetty-xml/9.4.46.v20220331/9b208c90f46f7afeace5a3932f9c59ca10ba746c/jetty-xml-9.4.46.v20220331.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/eclipse/jetty/jetty-xml/9.4.46.v20220331/jetty-xml-9.4.46.v20220331.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES>
@@ -1252,7 +1252,7 @@
     </library>
     <library name="Gradle: org.quartz-scheduler:quartz:2.3.2" external-system-id="GRADLE">
       <CLASSES>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.quartz-scheduler/quartz/2.3.2/18a6d6b5a40b77bd060b34cb9f2acadc4bae7c8a/quartz-2.3.2.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/quartz-scheduler/quartz/2.3.2/quartz-2.3.2.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES>

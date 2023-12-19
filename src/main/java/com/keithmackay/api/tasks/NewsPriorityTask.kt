@@ -144,8 +144,8 @@ class NewsPriorityTask @Inject internal constructor(
 
   private fun getPriority(doc: Document): Int {
     //val twitterFuture = CompletableFuture.supplyAsync { getPriorityFromTwitter(doc) }
-    val redditFuture = CompletableFuture.supplyAsync { getPriorityFromReddit(doc) }
-    return redditFuture.get().coerceAtLeast(0)
+    //val redditFuture = CompletableFuture.supplyAsync { getPriorityFromReddit(doc) }
+    return Random().nextInt()
   }
 
   private fun getPriorityFromReddit(doc: Document): Int {

@@ -15,16 +15,6 @@ spec:
         - go-api.keithmackay.com
       secretName: cert-secret
   rules:
-    - host: keith.mackay.codes
-      http:
-        paths:
-          - path: "/"
-            pathType: Prefix
-            backend:
-              service:
-                name: webpage-service
-                port:
-                  number: 8080
     - host: keithmackay.com
       http:
         paths:
@@ -32,9 +22,9 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: webpage-service
+                name: web3-service
                 port:
-                  number: 8080
+                  number: 3000
     - host: api.keithmackay.com
       http:
         paths:
@@ -82,9 +72,9 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: webpage-service
+                name: web3-service
                 port:
-                  number: 8080
+                  number: 3000
     - host: keithm.io
       http:
         paths:
@@ -92,9 +82,9 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: webpage-service
+                name: web3-service
                 port:
-                  number: 8080
+                  number: 3000
     - host: api.keithm.io
       http:
         paths:

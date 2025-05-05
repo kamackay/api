@@ -56,8 +56,8 @@ public class ServerModule extends AbstractModule {
                 //TestTask.class,
                 NewsConversationCleanupTask.class,
                 BlockRuleCacheTask.class,
-                NewsCleanupTask.class,
-                NewsPriorityTask.class
+                NewsCleanupTask.class
+                //NewsPriorityTask.class
         ).forEach(task -> cronTasks.addBinding().to(task));
 
         Multibinder<Task> taskBinder = Multibinder.newSetBinder(binder(), Task.class);

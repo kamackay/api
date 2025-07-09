@@ -54,9 +54,9 @@ public class ServerModule extends AbstractModule {
                 //CryptoTask.class, // Not useful, just taking up cycles
                 NextDnsUploadTask.class,
                 //TestTask.class,
-                NewsConversationCleanupTask.class,
-                BlockRuleCacheTask.class,
-                NewsCleanupTask.class
+                //NewsConversationCleanupTask.class,
+                BlockRuleCacheTask.class
+                //NewsCleanupTask.class
                 //NewsPriorityTask.class
         ).forEach(task -> cronTasks.addBinding().to(task));
 

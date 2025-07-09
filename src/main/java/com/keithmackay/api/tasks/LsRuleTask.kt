@@ -3,7 +3,7 @@ package com.keithmackay.api.tasks
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.keithmackay.api.db.Database
-import com.keithmackay.api.minutes
+import com.keithmackay.api.hours
 import com.keithmackay.api.utils.*
 import java.util.concurrent.Executors
 import java.util.regex.Pattern
@@ -21,7 +21,7 @@ internal constructor(db: Database) : Task() {
   private val additionPool = Executors.newFixedThreadPool(16)
 
   // Offset so that it doesn't always run at the same time as the main tasks
-  override fun time(): Long = minutes(97.9)
+  override fun time(): Long = hours(19.9)
 
   data class AdList(val url: String, val name: String)
 
